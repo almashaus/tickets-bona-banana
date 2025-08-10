@@ -33,6 +33,9 @@ import {
 } from "@/src/components/ui/dialog";
 import { formatDate } from "@/src/lib/utils/formatDate";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function customersPage() {
   const [customers, setCustomers] = useState<CustomerResponse[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
