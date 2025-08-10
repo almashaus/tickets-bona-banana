@@ -14,4 +14,5 @@ export interface Ticket {
   status: TicketStatus;
   purchasePrice: number;
   token?: string;
+  eventName?: string;
 }

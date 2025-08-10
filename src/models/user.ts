@@ -18,9 +18,9 @@ export interface AppUser {
   email: string;
   name: string;
   phone: string;
-  profileImage: string;
+  profileImage?: string;
   birthDate?: Date | null;
-  gender: string;
+  gender?: string;
   hasDashboardAccess: boolean;
   dashboard?: DashboardUser;
 }

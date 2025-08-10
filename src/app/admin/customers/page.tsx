@@ -227,7 +227,8 @@ export default function customersPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>ID</TableHead>
+                    <TableHead>Event Name</TableHead>
+                    <TableHead>Ticket ID</TableHead>
                     <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -237,8 +238,9 @@ export default function customersPage() {
                     return (
                       <TableRow key={ticket.id}>
                         <TableCell className="font-medium">
-                          {ticket.id}
+                          {ticket.eventName}
                         </TableCell>
+                        <TableCell>{ticket.id}</TableCell>
 
                         <TableCell>
                           <Badge

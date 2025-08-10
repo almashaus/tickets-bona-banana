@@ -40,6 +40,7 @@ import { MemberStatus, MemberRole, AppUser } from "@/src/models/user";
 import Link from "next/link";
 import { getRoleBadgeColor, getStatusBadgeColor } from "@/src/lib/utils/styles";
 import { formatDate } from "@/src/lib/utils/formatDate";
+import Loading from "@/src/components/ui/loading";
 
 // Mock permissions data
 const mockPermissions = [
@@ -211,68 +212,75 @@ export default function UserProfilePage() {
                 Member account details and settings
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input
-                    id="name"
-                    value={member?.name}
-                    className="focus-visible:ring-0"
-                    readOnly
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    value={member?.email}
-                    className="focus-visible:ring-0"
-                    readOnly
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="role">Role</Label>
-                  <Input
-                    id="role"
-                    value={member?.dashboard?.role}
-                    className="focus-visible:ring-0"
-                    readOnly
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    value={member?.phone}
-                    className="focus-visible:ring-0"
-                    readOnly
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
-                  <Input
-                    id="status"
-                    value={member?.dashboard?.status}
-                    className="focus-visible:ring-0"
-                    readOnly
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="joined">Joined Date</Label>
-                  <Input
-                    id="joined"
-                    value={
-                      member?.dashboard?.joinedDate
-                        ? formatDate(member?.dashboard?.joinedDate!)
-                        : ""
-                    }
-                    className="focus-visible:ring-0"
-                    readOnly
-                  />
-                </div>
+            {isLoading && (
+              <div className="flex justify-center items-center py-12">
+                <Loading />
               </div>
-            </CardContent>
+            )}
+            {member && !isLoading && (
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name"
+                      value={member?.name}
+                      className="focus-visible:ring-0"
+                      readOnly
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      value={member?.email}
+                      className="focus-visible:ring-0"
+                      readOnly
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="role">Role</Label>
+                    <Input
+                      id="role"
+                      value={member?.dashboard?.role}
+                      className="focus-visible:ring-0"
+                      readOnly
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input
+                      id="phone"
+                      value={member?.phone}
+                      className="focus-visible:ring-0"
+                      readOnly
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="status">Status</Label>
+                    <Input
+                      id="status"
+                      value={member?.dashboard?.status}
+                      className="focus-visible:ring-0"
+                      readOnly
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="joined">Joined Date</Label>
+                    <Input
+                      id="joined"
+                      value={
+                        member?.dashboard?.joinedDate
+                          ? formatDate(member?.dashboard?.joinedDate!)
+                          : ""
+                      }
+                      className="focus-visible:ring-0"
+                      readOnly
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            )}
           </Card>
         </TabsContent>
 

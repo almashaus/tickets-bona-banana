@@ -5,6 +5,7 @@ import { db } from "@/src/lib/firebase/firebaseAdminConfig";
 import { verifyIdToken } from "@/src/lib/firebase/verifyIdToken";
 import { DashboardEvent, Event } from "@/src/models/event";
 import { Ticket } from "@/src/models/ticket";
+import { AppUser } from "@/src/models/user"; // Add this import
 import { NextRequest } from "next/server";
 
 function getDateRangeStrings(startDate: Date, days: number): Set<string> {
@@ -39,13 +40,34 @@ export async function GET() {
             .where("eventDateId", "==", date.id)
             .get();
 
-          const tickets: Ticket[] = ticketsSnapshot.docs.map(
-            (doc) => doc.data() as Ticket
-          );
+          // For each ticket, fetch user data and attach to ticket
+          const ticketsWithUser: (Ticket & { user: AppUser })[] =
+            await Promise.all(
+              ticketsSnapshot.docs.map(async (doc) => {
+                const ticket = doc.data() as Ticket;
+                let user: AppUser;
+
+                const userDoc = await db
+                  .collection("users")
+                  .doc(ticket.userId)
+                  .get();
+                user = userDoc.exists
+                  ? (userDoc.data() as AppUser)
+                  : {
+                      id: "Unknown",
+                      email: "Unknown",
+                      name: "Unknown",
+                      phone: "Unknown",
+                      hasDashboardAccess: false,
+                    };
+
+                return { ...ticket, user };
+              })
+            );
 
           dashboardEvents.push({
             eventDate: date,
-            tickets: tickets,
+            tickets: ticketsWithUser,
             ...event,
           });
         }

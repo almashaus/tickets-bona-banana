@@ -1,5 +1,6 @@
 import { Order } from "./order";
 import { Ticket } from "./ticket";
+import { AppUser } from "./user";
 
 // Enum types
 
@@ -61,5 +62,5 @@ export interface PromoCode {
 
 export interface DashboardEvent extends Event {
   eventDate: EventDate;
-  tickets: Ticket[];
+  tickets: (Ticket & { user: AppUser })[];
 }

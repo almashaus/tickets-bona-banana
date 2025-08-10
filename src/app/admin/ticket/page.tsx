@@ -155,24 +155,24 @@ function ValidateTicket() {
                   {isValid ? (
                     <div>
                       <Button
-                        className="w-24 h-24 mb-2"
+                        className="w-24 h-24 mb-2 bg-green-600 hover:bg-green-600/70"
                         onClick={validateTicket}
                       >
                         {isUpdating ? <Loading /> : <CheckCircle size={50} />}
                       </Button>
                       <h3
-                        className={`text-lg font-medium ${data.ticket.status === TicketStatus.VALID ? "text-orangeColor" : "text-green-600"}`}
+                        className={`text-lg font-medium ${data.ticket.status === TicketStatus.VALID ? "text-green-600" : "text-gray-600"}`}
                       >
                         {data.ticket.status}
                       </h3>
                     </div>
                   ) : (
                     <div>
-                      <Button className="w-24 h-24 bg-green-600  mb-2" disabled>
+                      <Button className="w-24 h-24 bg-gray-600  mb-2" disabled>
                         <CheckCheck size={50} />
                       </Button>
                       <h3
-                        className={`text-lg font-medium ${data.ticket.status === TicketStatus.VALID ? "text-orangeColor" : "text-green-600"}`}
+                        className={`text-lg font-medium ${data.ticket.status === TicketStatus.VALID ? "text-green-600" : "text-gray-600"}`}
                       >
                         {data.ticket.status}
                       </h3>

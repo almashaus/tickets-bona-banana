@@ -386,7 +386,7 @@ export default function EventsPage() {
                   <TableRow>
                     <TableHead>User Name</TableHead>
                     <TableHead>Contact</TableHead>
-                    <TableHead>ID</TableHead>
+                    <TableHead>Ticket ID</TableHead>
                     <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>

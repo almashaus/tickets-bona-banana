@@ -367,7 +367,9 @@ function DashboardEventsList() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>ID</TableHead>
+                    <TableHead>User Name</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Ticket ID</TableHead>
                     <TableHead>QR Code</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Attend</TableHead>
@@ -380,6 +382,13 @@ function DashboardEventsList() {
                     ?.tickets.map((ticket) => {
                       return (
                         <TableRow key={ticket.id}>
+                          <TableCell>{ticket.user.name}</TableCell>
+                          <TableCell className="text-muted-foreground">
+                            <div className="flex flex-col">
+                              <p>{ticket.user.phone}</p>
+                              <p>{ticket.user.email}</p>
+                            </div>
+                          </TableCell>
                           <TableCell className="font-medium">
                             {ticket.id}
                           </TableCell>
@@ -400,23 +409,28 @@ function DashboardEventsList() {
                             <Badge
                               className={`${getTicketStatusBadgeColor(ticket.status)}`}
                             >
-                              {isValidtion ? "....." : ticket.status}
+                              {ticket.status}
                             </Badge>
                           </TableCell>
                           <TableCell>
                             {ticket.status === TicketStatus.VALID ? (
                               <Button
-                                variant="ghost"
-                                size="icon"
+                                className="w-12 h-12 bg-green-600 hover:bg-green-600/70"
                                 onClick={() =>
                                   handleValidToUsedTicket(ticket.id)
                                 }
                               >
-                                <CheckCircle className="h-4 w-4 text-green-600" />
+                                {isValidtion ? (
+                                  <div className="flex justify-center">
+                                    <Loading />
+                                  </div>
+                                ) : (
+                                  <CheckCircle size={50} />
+                                )}
                               </Button>
                             ) : (
                               <Button variant="ghost" size="icon" disabled>
-                                <Check className="h-4 w-4 text-gray-600" />
+                                <Check className="text-gray-600" size={25} />
                               </Button>
                             )}
                           </TableCell>

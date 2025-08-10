@@ -19,14 +19,42 @@ export async function GET(req: NextRequest) {
       .where("userId", "in", userIds)
       .get();
 
+    // Get all unique eventIds from tickets
+    const eventIdsSet = new Set<string>();
+    ticketsSnapshot.docs.forEach((doc) => {
+      const ticket = doc.data() as Ticket;
+      eventIdsSet.add(ticket.eventId);
+    });
+    const eventIds = Array.from(eventIdsSet);
+
+    // Fetch all relevant events in one batch
+    let eventsMap: Record<string, string> = {};
+    if (eventIds.length > 0) {
+      const eventsSnapshot = await db
+        .collection("events")
+        .where("id", "in", eventIds)
+        .get();
+      eventsMap = eventsSnapshot.docs.reduce(
+        (acc, doc) => {
+          const event = doc.data();
+          acc[event.id] = event.title;
+          return acc;
+        },
+        {} as Record<string, string>
+      );
+    }
+
+    // Attach eventName to each ticket
     const ticketsMap = ticketsSnapshot.docs.reduce(
       (acc, doc) => {
         const ticket = doc.data() as Ticket;
+        const eventName = eventsMap[ticket.eventId] || "";
+        const ticketWithEventName = { ...ticket, eventName };
         if (!acc[ticket.userId]) acc[ticket.userId] = [];
-        acc[ticket.userId].push(ticket);
+        acc[ticket.userId].push(ticketWithEventName);
         return acc;
       },
-      {} as Record<string, Ticket[]>
+      {} as Record<string, (Ticket & { eventName: string })[]>
     );
 
     // Map users to customers

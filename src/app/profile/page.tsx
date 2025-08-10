@@ -317,11 +317,11 @@ function Profile() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>ID</TableHead>
                           <TableHead>Event Title</TableHead>
                           <TableHead>Event Date</TableHead>
-                          <TableHead>Status</TableHead>
+                          <TableHead>Ticket ID</TableHead>
                           <TableHead>QR Code</TableHead>
+                          <TableHead>Status</TableHead>
                         </TableRow>
                       </TableHeader>
 
@@ -329,22 +329,14 @@ function Profile() {
                         {data?.tickets.map((ticketData) => {
                           return (
                             <TableRow key={ticketData.ticket.id}>
-                              <TableCell className="font-medium">
-                                {ticketData.ticket.id}
-                              </TableCell>
-                              <TableCell className="font-medium">
+                              <TableCell>
                                 {ticketData.event?.title || ""}
                               </TableCell>
-                              <TableCell className="font-medium">
+                              <TableCell>
                                 {formatDate(ticketData.date!)}
                               </TableCell>
-                              <TableCell>
-                                <Badge
-                                  className={`${getTicketStatusBadgeColor(ticketData.ticket.status)}`}
-                                >
-                                  {ticketData.ticket.status}
-                                </Badge>
-                              </TableCell>
+                              <TableCell>{ticketData.ticket.id}</TableCell>
+
                               <TableCell>
                                 <div className="flex justify-center bg-white p-2 rounded-lg  mb-2 w-20 h-20 md:w-full md:h-full">
                                   <Image
@@ -359,6 +351,13 @@ function Profile() {
                                     height={80}
                                   />
                                 </div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge
+                                  className={`${getTicketStatusBadgeColor(ticketData.ticket.status)}`}
+                                >
+                                  {ticketData.ticket.status}
+                                </Badge>
                               </TableCell>
                             </TableRow>
                           );
