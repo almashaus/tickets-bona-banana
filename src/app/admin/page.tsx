@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import Link from "next/link";
 import {
   CameraIcon,
@@ -58,9 +61,6 @@ import { Badge } from "@/src/components/ui/badge";
 import { getTicketStatusBadgeColor } from "@/src/lib/utils/styles";
 import { TicketStatus } from "@/src/models/ticket";
 import { getAuth } from "firebase/auth";
-
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 export default function AdminPage() {
   const isMobile = useIsMobile();

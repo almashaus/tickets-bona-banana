@@ -1,11 +1,11 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import { db } from "@/src/lib/firebase/firebaseAdminConfig";
 import { verifyIdToken } from "@/src/lib/firebase/verifyIdToken";
 import { DashboardEvent, Event } from "@/src/models/event";
 import { Ticket } from "@/src/models/ticket";
 import { NextRequest } from "next/server";
-
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 function getDateRangeStrings(startDate: Date, days: number): Set<string> {
   const set = new Set<string>();

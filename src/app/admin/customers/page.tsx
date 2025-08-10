@@ -1,5 +1,8 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import { useState, useEffect } from "react";
 import { Search, PanelLeft, CircleAlertIcon } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
@@ -32,9 +35,6 @@ import {
   DialogDescription,
 } from "@/src/components/ui/dialog";
 import { formatDate } from "@/src/lib/utils/formatDate";
-
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 export default function customersPage() {
   const [customers, setCustomers] = useState<CustomerResponse[]>([]);
