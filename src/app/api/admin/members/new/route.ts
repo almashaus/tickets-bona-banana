@@ -1,6 +1,19 @@
-import { auth, db } from "@/src/lib/firebase/firebaseAdminConfig";
+import { auth, db, storage } from "@/src/lib/firebase/firebaseAdminConfig";
 import { verifyIdToken } from "@/src/lib/firebase/verifyIdToken";
+import { getFileName } from "@/src/lib/utils/utils";
+import { AppUser } from "@/src/models/user";
 import { NextRequest } from "next/server";
+
+async function renameFile(oldPath: string, newPath: string) {
+  const bucket = storage.bucket();
+  const file = bucket.file(oldPath);
+  await file.copy(bucket.file(newPath)); // copy to new location
+  await file.delete(); // remove old file
+  console.log(
+    "bucket.file(newPath).path :>> ",
+    bucket.file(newPath).publicUrl()
+  );
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -30,6 +43,20 @@ export async function POST(req: NextRequest) {
       password,
     });
 
+    const memberData: AppUser = member as AppUser;
+
+    if (memberData.profileImage) {
+      await renameFile(
+        `users/${memberData.email}/${getFileName(memberData.profileImage)}`,
+        `users/${fbUser.uid}/${getFileName(memberData.profileImage)}`
+      );
+
+      memberData.profileImage = memberData.profileImage?.replace(
+        encodeURIComponent(memberData.email),
+        fbUser.uid
+      );
+    }
+
     // Set custom claims for the user
     const customClaims = {
       admin: true,
@@ -48,6 +75,7 @@ export async function POST(req: NextRequest) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
+    console.log(error);
     return new Response(JSON.stringify({ error: "Error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

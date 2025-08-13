@@ -48,8 +48,6 @@ export async function GET() {
       })
     );
 
-    console.log(eventsTickets);
-
     return new Response(JSON.stringify(eventsTickets), {
       status: 200,
       headers: { "Content-Type": "application/json" },

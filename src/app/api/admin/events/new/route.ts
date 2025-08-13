@@ -1,7 +1,16 @@
-import { db } from "@/src/lib/firebase/firebaseAdminConfig";
+import { db, storage } from "@/src/lib/firebase/firebaseAdminConfig";
 import { verifyIdToken } from "@/src/lib/firebase/verifyIdToken";
+import { getFileName } from "@/src/lib/utils/utils";
 import { Event } from "@/src/models/event";
+import { error } from "console";
 import { NextRequest, NextResponse } from "next/server";
+
+async function renameFile(oldPath: string, newPath: string) {
+  const bucket = storage.bucket();
+  const file = bucket.file(oldPath);
+  await file.copy(bucket.file(newPath)); // copy to new location
+  await file.delete(); // remove old file
+}
 
 export async function POST(req: NextRequest, res: NextResponse) {
   try {
@@ -19,10 +28,32 @@ export async function POST(req: NextRequest, res: NextResponse) {
     const body = await req.json();
     const { event } = body;
 
-    const docRef = db.collection("events").doc();
-    const dataWithId = { ...event, id: docRef.id };
+    const eventData: Event = event;
 
-    await docRef.set(dataWithId);
+    const docRef = db.collection("events").doc();
+
+    if (eventData.eventImage) {
+      await renameFile(
+        `events/${eventData.slug}/${getFileName(eventData.eventImage)}`,
+        `events/${docRef.id}/${getFileName(eventData.eventImage)}`
+      );
+
+      // Update URLs to use event ID instead of slug
+      eventData.eventImage = eventData.eventImage.replace(
+        eventData.slug,
+        docRef.id
+      );
+    }
+    if (eventData.adImage) {
+      await renameFile(
+        `events/${eventData.slug}/${getFileName(eventData.adImage)}`,
+        `events/${docRef.id}/${getFileName(eventData.adImage)}`
+      );
+
+      eventData.adImage = eventData.adImage.replace(eventData.slug, docRef.id);
+    }
+
+    await docRef.set({ ...eventData, id: docRef.id });
 
     if (docRef.id) {
       return new Response(JSON.stringify({ data: "Success" }), {
@@ -36,7 +67,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
       });
     }
   } catch (error) {
-    return new Response(JSON.stringify({ data: "Error" }), {
+    console.log(error);
+    return new Response(JSON.stringify({ data: error }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });

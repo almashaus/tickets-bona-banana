@@ -4,7 +4,7 @@ import type React from "react";
 import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CalendarIcon, User } from "lucide-react";
+import { CalendarIcon, EditIcon, UploadIcon, User } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
@@ -35,9 +35,12 @@ import {
   TableRow,
 } from "@/src/components/ui/table";
 import { useToast } from "@/src/components/ui/use-toast";
-import { useAuth } from "@/src/features/auth/auth-provider";
-import { Avatar, AvatarFallback } from "@/src/components/ui/avatar";
-import { cn, generateQRCode } from "@/src/lib/utils/utils";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/src/components/ui/avatar";
+import { cn, compressImage, generateQRCode } from "@/src/lib/utils/utils";
 import { Calendar } from "@/src/components/ui/calendar";
 import { formatDate } from "@/src/lib/utils/formatDate";
 import { getAuth } from "firebase/auth";
@@ -50,6 +53,8 @@ import { Event } from "@/src/models/event";
 import Loading from "@/src/components/ui/loading";
 import Image from "next/image";
 import { useAuthStore } from "@/src/lib/stores/useAuthStore";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { storage } from "@/src/lib/firebase/firebaseConfig";
 
 function Profile() {
   const auth = getAuth();
@@ -60,6 +65,7 @@ function Profile() {
   const router = useRouter();
   const { toast } = useToast();
   const [userData, setUserData] = useState<AppUser | null>(null);
+  const [profileImage, setProfileImage] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const tabParam = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState(tabParam || "profile");
@@ -85,6 +91,7 @@ function Profile() {
   useEffect(() => {
     if (data) {
       setUserData(data.appUser);
+      setProfileImage(data.appUser.profileImage ?? "");
       setUser(data.appUser);
     }
   }, [data]);
@@ -150,11 +157,11 @@ function Profile() {
     <div className="container py-10">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-4 mb-6">
-          <Avatar className="h-16 w-16">
-            <AvatarFallback className="text-lg">
-              <User className="h-8 w-8" />
-            </AvatarFallback>
-          </Avatar>
+          <ProfileImageInput
+            profileImage={profileImage}
+            setProfileImage={setProfileImage}
+            id={user.id}
+          />
           <div>
             <h1 className="text-3xl font-bold">{user?.name}</h1>
             <p className="text-muted-foreground">{user?.email}</p>
@@ -186,7 +193,7 @@ function Profile() {
               )}
               {!isLoading && userData && (
                 <form onSubmit={handleUpdateProfile}>
-                  <div className="grid gap-4 px-10 py-5">
+                  <div className="grid gap-4 px-2 md:px-10 py-5">
                     <div className="grid gap-2">
                       <Label htmlFor="name">Name</Label>
                       <Input
@@ -392,6 +399,108 @@ function Profile() {
             </div>
           </TabsContent>
         </Tabs>
+      </div>
+    </div>
+  );
+}
+
+function ProfileImageInput({
+  profileImage,
+  setProfileImage,
+  id,
+}: {
+  profileImage: string;
+  setProfileImage: (url: string) => void;
+  id: string;
+}) {
+  const auth = getAuth();
+  const authUser = auth.currentUser!;
+  const [uploading, setUploading] = useState(false);
+
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    let file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    if (file.size > 5 * 1024 * 1024) {
+      // compress before uploading
+      file = await compressImage(file);
+    }
+    const objectUrl = URL.createObjectURL(file);
+    setProfileImage(objectUrl);
+
+    const ext = file.name.split(".").pop();
+    const path = `users/${id}/user_${Date.now()}.${ext}`;
+
+    const storageRef = ref(storage, path);
+    const metadata = {
+      contentType: file.type,
+    };
+
+    const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const pct = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      },
+      (error) => {
+        setUploading(false);
+      },
+      async () => {
+        try {
+          const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+          setProfileImage(downloadUrl);
+          const idToken = await authUser.getIdToken();
+
+          const response = await fetch(`/api/profile/${id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${idToken}`,
+            },
+            body: JSON.stringify({
+              id: id,
+              data: { profileImage: downloadUrl },
+            }),
+          });
+
+          await mutate(`/api/profile/${id}`);
+        } finally {
+          setUploading(false);
+          // free memory for the preview
+          URL.revokeObjectURL(objectUrl);
+        }
+      }
+    );
+  };
+
+  return (
+    <div className="relative" style={{ width: "70px", height: "70px" }}>
+      <Avatar className="h-16 w-16 bg-neutral-200">
+        <AvatarImage src={profileImage} alt="Profile Image" />
+        <AvatarFallback className="text-lg">
+          <User className="h-8 w-8" />
+        </AvatarFallback>
+      </Avatar>
+      <div className="">
+        <input
+          type="file"
+          id="ad-image-upload"
+          accept="image/*"
+          className="hidden"
+          onChange={handleChange}
+        />
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="absolute bottom-1 right-1 h-7 w-7 px-2 text-xs bg-stone-200 rounded-full"
+          onClick={() => document.getElementById("ad-image-upload")?.click()}
+        >
+          <EditIcon className="w-4 h-4" />
+        </Button>
       </div>
     </div>
   );

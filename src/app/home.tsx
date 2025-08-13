@@ -10,6 +10,7 @@ import { Card, CardContent, CardFooter } from "@/src/components/ui/card";
 import { formatDate, formatTime } from "@/src/lib/utils/formatDate";
 import useSWR from "swr";
 import { useLanguage } from "@/src/components/i18n/language-provider";
+import Image from "next/image";
 
 export default function Home() {
   const { t } = useLanguage();
@@ -82,12 +83,19 @@ function EventsList({ allEvents }: { allEvents: Event[] }) {
     <div className="grid max-w-5xl justify-center items-center gap-6 mx-6 lg:mx-auto py-12 sm:grid-cols-2 lg:grid-cols-3">
       {allEvents.map((event) => (
         <Link href={`/events/${event.id}`} key={event.id}>
-          <Card className="overflow-hidden transition-all shadow-none hover:scale-105  bg-darkColor border-0">
+          <Card className="overflow-hidden transition-all shadow-none hover:scale-105 bg-darkColor border-0">
             <div className="flex justify-center items-center m-3">
-              <img
+              <Image
                 src={event.eventImage || "/no-image.svg"}
                 alt={event.title}
-                className="h-full w-full object-cover rounded-md"
+                width={300}
+                height={260}
+                style={{
+                  width: "300px",
+                  height: "260px",
+                  objectFit: "cover",
+                  borderRadius: "0.5rem",
+                }}
                 onError={(e) => {
                   e.currentTarget.src = "/no-image.svg";
                 }}

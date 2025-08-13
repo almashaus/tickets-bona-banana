@@ -254,7 +254,7 @@ function DashboardEventsList() {
         <CardHeader>
           <CardTitle>Upcoming Events</CardTitle>
           <CardDescription>
-            Manage your events, edit details, or remove events.
+            Manage this month events, scan tickets.
           </CardDescription>
         </CardHeader>
 
@@ -301,11 +301,15 @@ function DashboardEventsList() {
                   {events.map((event, index, array) => (
                     <TableRow key={event.eventDate.id} role="row">
                       <TableCell>
-                        <div className="h-20 w-20 md:h-24 md:w-24 overflow-hidden rounded-md">
-                          <img
+                        <div className="h-20 w-20 md:h-24 md:w-24 overflow-hidden rounded-md relative">
+                          <Image
                             src={event.eventImage || "/no-image.svg"}
                             alt={event.title}
                             className="h-full w-full object-cover"
+                            fill
+                            onError={(e) => {
+                              e.currentTarget.src = "/no-image.svg";
+                            }}
                           />
                         </div>
                       </TableCell>

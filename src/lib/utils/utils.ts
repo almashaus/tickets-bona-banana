@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import imageCompression from "browser-image-compression";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -38,4 +39,29 @@ export function isSafeImageUrl(url?: string) {
     url.startsWith("https://") ||
     url.startsWith("http://")
   );
+}
+
+export function getFileName(storageUrl: string) {
+  const pathPart = storageUrl.split("/o/")[1]?.split("?")[0];
+  if (!pathPart) return null;
+
+  const decodedPath = decodeURIComponent(pathPart);
+
+  return decodedPath.split("/").pop() || null;
+}
+
+export async function compressImage(file: File) {
+  const options = {
+    maxSizeMB: 5, // target max size
+    maxWidthOrHeight: 1920, // optional resize
+    useWebWorker: true,
+  };
+
+  try {
+    const compressedFile = await imageCompression(file, options);
+    return compressedFile;
+  } catch (error) {
+    console.error("Compression failed:", error);
+    return file; // fallback to original
+  }
 }

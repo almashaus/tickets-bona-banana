@@ -7,7 +7,6 @@ import {
   ArrowLeft,
   Mail,
   Phone,
-  Shield,
   Eye,
   EyeOff,
   CalendarIcon,
@@ -48,9 +47,11 @@ import {
   MemberRole,
 } from "@/src/models/user";
 import { Calendar } from "@/src/components/ui/calendar";
-import { cn } from "@/src/lib/utils/utils";
+import { cn, compressImage } from "@/src/lib/utils/utils";
 import { formatDate } from "@/src/lib/utils/formatDate";
 import { getAuth } from "firebase/auth";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { storage } from "@/src/lib/firebase/firebaseConfig";
 
 export default function NewMemberPage() {
   const router = useRouter();
@@ -85,15 +86,52 @@ export default function NewMemberPage() {
     }));
   };
 
-  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setFormData((prev) => ({
-        ...prev,
-        profileImage: imageUrl,
-      }));
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    let file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      // compress before uploading
+      file = await compressImage(file);
     }
+
+    const imageUrl = URL.createObjectURL(file);
+    setFormData((prev) => ({
+      ...prev,
+      profileImage: imageUrl,
+    }));
+
+    const ext = file.name.split(".").pop();
+    const path = `users/${formData.email}/user_${Date.now()}.${ext}`;
+
+    const storageRef = ref(storage, path);
+    const metadata = {
+      contentType: file.type,
+    };
+
+    const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const pct = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      },
+      (error) => {
+        console.error("Upload failed", error);
+      },
+      async () => {
+        try {
+          const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+          setFormData((prev) => ({
+            ...prev,
+            profileImage: downloadUrl,
+          }));
+        } finally {
+          // free memory for the preview
+          URL.revokeObjectURL(imageUrl);
+        }
+      }
+    );
   };
 
   const validateForm = () => {
@@ -147,6 +185,8 @@ export default function NewMemberPage() {
       dashboard: dashboard,
     };
 
+    console.log(appUser);
+
     try {
       const idToken = await authUser.getIdToken();
       const response = await fetch("/api/admin/members/new", {
@@ -161,6 +201,7 @@ export default function NewMemberPage() {
           member: appUser,
         }),
       });
+      console.log("response.ok :>> ", response.ok);
       if (response.ok) {
         toast({
           title: "User created successfully",
@@ -170,6 +211,12 @@ export default function NewMemberPage() {
 
         // Redirect to users list
         router.push("/admin/members");
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to create user. Please try again.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       toast({

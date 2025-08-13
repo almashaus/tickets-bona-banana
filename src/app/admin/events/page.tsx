@@ -60,6 +60,7 @@ import { Ticket } from "@/src/models/ticket";
 import { getTicketStatusBadgeColor } from "@/src/lib/utils/styles";
 import { getAuth } from "firebase/auth";
 import { AppUser } from "@/src/models/user";
+import Image from "next/image";
 
 export default function EventsPage() {
   const { toast } = useToast();
@@ -211,11 +212,15 @@ export default function EventsPage() {
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-2 md:gap-4">
-                      <div className="h-20 w-20 md:h-24 md:w-24 overflow-hidden rounded-md">
-                        <img
+                      <div className="h-20 w-20 md:h-24 md:w-24 overflow-hidden rounded-md relative">
+                        <Image
                           src={response.event.eventImage || "/no-image.svg"}
                           alt={response.event.title}
                           className="h-full w-full object-cover"
+                          fill
+                          onError={(e) => {
+                            e.currentTarget.src = "/no-image.svg";
+                          }}
                         />
                       </div>
                       <div>

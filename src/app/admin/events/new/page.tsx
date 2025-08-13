@@ -41,11 +41,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/src/components/ui/popover";
-import { cn } from "@/src/lib/utils/utils";
+import { cn, compressImage } from "@/src/lib/utils/utils";
 import { EventDate, EventStatus } from "@/src/models/event";
 import { formatDate } from "@/src/lib/utils/formatDate";
 import { getAuth } from "firebase/auth";
 import { mutate } from "swr";
+import { Progress } from "@/src/components/ui/progress";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { storage } from "@/src/lib/firebase/firebaseConfig";
+import Image from "next/image";
 
 export default function CreateEventPage() {
   const router = useRouter();
@@ -139,7 +143,7 @@ export default function CreateEventPage() {
         title: title,
         slug: slug,
         description: description,
-        eventImage: "https://i.ibb.co/jPx2PPxn/IMG-9784.png", // TODO:  eventImage, https://i.ibb.co/pvrpp5w0/IMG-0757.jpg https://i.ibb.co/jPx2PPxn/IMG-9784.png https://i.ibb.co/gM520PrB/IMG-0758.jpg
+        eventImage: eventImage,
         adImage: adImage,
         price: price,
         status: status,
@@ -310,105 +314,20 @@ export default function CreateEventPage() {
             <CardContent className="space-y-4">
               <div className="grid gap-4">
                 <Label htmlFor="event-image">Event Image</Label>
-                <div className="flex flex-col md:flex-row items-center gap-2">
-                  <div className="border rounded-md p-1 w-48 h-40 flex flex-col items-center justify-center bg-muted relative">
-                    {eventImage ? (
-                      <img
-                        src={eventImage || "/no-image.svg"}
-                        alt="Event"
-                        className="w-full h-full object-cover rounded-md"
-                        onError={(e) => {
-                          e.currentTarget.src = "/no-image.svg";
-                        }}
-                      />
-                    ) : (
-                      <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                    )}
-                    <input
-                      type="file"
-                      id="event-image-upload"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const imageUrl = URL.createObjectURL(file);
-                          setEventImage(imageUrl);
-                        }
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      className="absolute bottom-1 right-1 h-7 px-2 text-xs"
-                      onClick={() =>
-                        document.getElementById("event-image-upload")?.click()
-                      }
-                    >
-                      <UploadIcon className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  <span className="text-muted-foreground">Or</span>
-                  <Input
-                    id="event-image"
-                    value={eventImage}
-                    onChange={(e) => setEventImage(e.target.value)}
-                    placeholder="Enter image URL"
-                  />
-                </div>
+                <EventImageInput
+                  eventImage={eventImage}
+                  setEventImage={setEventImage}
+                  slug={slug}
+                />
               </div>
               <br />
               <div className="grid gap-4">
                 <Label htmlFor="ad-image">Advertisement Image</Label>
-                <div className="flex flex-col md:flex-row items-center gap-2">
-                  <div className="border rounded-md p-1 w-48 h-40 flex flex-col items-center justify-center bg-muted relative">
-                    {adImage ? (
-                      <img
-                        src={adImage || "/no-image.svg"}
-                        alt="Ad"
-                        className="max-w-full max-h-full object-contain rounded-md"
-                        onError={(e) => {
-                          e.currentTarget.src = "/no-image.svg";
-                        }}
-                      />
-                    ) : (
-                      <ImageIcon className="h-8 w-8 text-muted-foreground" />
-                    )}
-                    <input
-                      type="file"
-                      id="ad-image-upload"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          const imageUrl = URL.createObjectURL(file);
-                          setAdImage(imageUrl);
-                        }
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      className="absolute bottom-1 right-1 h-7 px-2 text-xs"
-                      onClick={() =>
-                        document.getElementById("ad-image-upload")?.click()
-                      }
-                    >
-                      <UploadIcon className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  <span className="text-muted-foreground">Or</span>
-                  <Input
-                    id="ad-image"
-                    type="text"
-                    value={adImage}
-                    onChange={(e) => setAdImage(e.target.value)}
-                    placeholder="Enter image URL"
-                  />
-                </div>
+                <AdImageInput
+                  adImage={adImage}
+                  setAdImage={setAdImage}
+                  slug={slug}
+                />
               </div>
             </CardContent>
           </Card>
@@ -572,6 +491,254 @@ export default function CreateEventPage() {
           </Button>
         </div>
       </form>
+    </div>
+  );
+}
+
+function EventImageInput({
+  eventImage,
+  setEventImage,
+  slug,
+}: {
+  eventImage: string;
+  setEventImage: (url: string) => void;
+  slug: string;
+}) {
+  const [progress, setProgress] = useState<number | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    let file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+
+    if (file.size > 5 * 1024 * 1024) {
+      // compress before uploading
+      file = await compressImage(file);
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setEventImage(objectUrl);
+
+    const ext = file.name.split(".").pop();
+    const path = `events/${slug}/event_${Date.now()}.${ext}`;
+
+    const storageRef = ref(storage, path);
+    const metadata = {
+      contentType: file.type,
+    };
+
+    const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const pct = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setProgress(Math.round(pct));
+      },
+      (error) => {
+        setUploading(false);
+      },
+      async () => {
+        try {
+          const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+          setEventImage(downloadUrl);
+        } finally {
+          setUploading(false);
+          // free memory for the preview
+          URL.revokeObjectURL(objectUrl);
+          setProgress(null);
+        }
+      }
+    );
+  };
+
+  return (
+    <div>
+      <div className="flex flex-col md:flex-row items-center gap-2">
+        <div>
+          <div className="border rounded-md p-1 w-48 h-40 flex flex-col items-center justify-center bg-muted relative">
+            {eventImage ? (
+              <Image
+                src={eventImage || "/no-image.svg"}
+                alt="Event"
+                className="w-full h-full object-cover rounded-md"
+                fill
+                onError={(e) => {
+                  e.currentTarget.src = "/no-image.svg";
+                }}
+              />
+            ) : (
+              <ImageIcon className="h-8 w-8 text-muted-foreground" />
+            )}
+            <input
+              type="file"
+              id="event-image-upload"
+              accept="image/*"
+              className="hidden"
+              onChange={handleChange}
+            />
+            <div className="">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="absolute bottom-1 right-1 h-7 px-2 text-xs"
+                onClick={() =>
+                  document.getElementById("event-image-upload")?.click()
+                }
+              >
+                <UploadIcon className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+          {uploading && (
+            <Progress value={progress ?? 0} max={100} className="my-1">
+              {progress}%
+            </Progress>
+          )}
+        </div>
+        <span className="text-orangeColor">Or</span>
+        <div className="grid gap-2 w-full">
+          <Label>URL</Label>
+          <Input
+            id="event-image"
+            value={
+              eventImage.startsWith("https://firebasestorage") ||
+              eventImage.startsWith("blob")
+                ? ""
+                : eventImage
+            }
+            onChange={(e) => setEventImage(e.target.value)}
+            placeholder="Enter image URL"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdImageInput({
+  adImage,
+  setAdImage,
+  slug,
+}: {
+  adImage: string;
+  setAdImage: (url: string) => void;
+  slug: string;
+}) {
+  const [progress, setProgress] = useState<number | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    let file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    if (file.size > 5 * 1024 * 1024) {
+      // compress before uploading
+      file = await compressImage(file);
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setAdImage(objectUrl);
+
+    const ext = file.name.split(".").pop();
+    const path = `events/${slug}/ad_${Date.now()}.${ext}`;
+
+    const storageRef = ref(storage, path);
+    const metadata = {
+      contentType: file.type,
+    };
+
+    const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+    setUploading(true);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const pct = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setProgress(Math.round(pct));
+      },
+      (error) => {
+        console.error("Upload failed", error);
+        setUploading(false);
+      },
+      async () => {
+        try {
+          const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+          setAdImage(downloadUrl);
+        } finally {
+          setUploading(false);
+          // free memory for the preview
+          URL.revokeObjectURL(objectUrl);
+          setProgress(null);
+        }
+      }
+    );
+  };
+
+  return (
+    <div>
+      <div className="flex flex-col md:flex-row items-center gap-2">
+        <div>
+          <div className="border rounded-md p-1 w-48 h-40 flex flex-col items-center justify-center bg-muted relative">
+            {adImage ? (
+              <Image
+                src={adImage || "/no-image.svg"}
+                alt="Advertisement"
+                className="w-full h-full object-cover rounded-md"
+                fill
+                onError={(e) => {
+                  e.currentTarget.src = "/no-image.svg";
+                }}
+              />
+            ) : (
+              <ImageIcon className="h-8 w-8 text-muted-foreground" />
+            )}
+            <input
+              type="file"
+              id="ad-image-upload"
+              accept="image/*"
+              className="hidden"
+              onChange={handleChange}
+            />
+            <div className="">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="absolute bottom-1 right-1 h-7 px-2 text-xs"
+                onClick={() =>
+                  document.getElementById("ad-image-upload")?.click()
+                }
+              >
+                <UploadIcon className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+          {uploading && (
+            <Progress value={progress ?? 0} max={100} className="my-1">
+              {progress}%
+            </Progress>
+          )}
+        </div>
+        <span className="text-orangeColor">Or</span>
+        <div className="grid gap-2 w-full">
+          <Label>URL</Label>
+          <Input
+            id="ad-image"
+            value={
+              adImage.startsWith("https://firebasestorage") ||
+              adImage.startsWith("blob")
+                ? ""
+                : adImage
+            }
+            onChange={(e) => setAdImage(e.target.value)}
+            placeholder="Enter image URL"
+          />
+        </div>
+      </div>
     </div>
   );
 }
