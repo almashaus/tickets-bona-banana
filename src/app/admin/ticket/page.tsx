@@ -9,12 +9,21 @@ import {
 } from "@/src/components/ui/card";
 import { Label } from "@/src/components/ui/label";
 import Loading from "@/src/components/ui/loading";
+import { useIsMobile } from "@/src/hooks/use-mobile";
+import { useMobileSidebar } from "@/src/lib/stores/useMobileSidebar";
 import { formatDate, formatTime } from "@/src/lib/utils/formatDate";
 import { getTicketStatusBadgeColor } from "@/src/lib/utils/styles";
 import { Event, EventDate } from "@/src/models/event";
 import { Ticket, TicketStatus } from "@/src/models/ticket";
 import { AppUser } from "@/src/models/user";
-import { Check, Calendar, User, CheckCircle, CheckCheck } from "lucide-react";
+import {
+  Check,
+  Calendar,
+  User,
+  CheckCircle,
+  CheckCheck,
+  PanelLeft,
+} from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
 import { Suspense, useEffect, useState } from "react";
@@ -26,6 +35,9 @@ function ValidateTicket() {
   const [isUpdating, setIsUpdating] = useState<Boolean>(false);
   const searchParams = useSearchParams();
   const token = searchParams?.get("token");
+
+  const isMobile = useIsMobile();
+  const setMobileOpen = useMobileSidebar((state) => state.setMobileOpen);
 
   interface Response {
     user: AppUser;
@@ -65,6 +77,21 @@ function ValidateTicket() {
 
   return (
     <div className="container py-6">
+      <div className="mb-6">
+        {isMobile && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="flex justify-start items-center rounded-lg text-neutral-400 dark:text-white hover:bg-transparent"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open sidebar"
+          >
+            <PanelLeft />
+          </Button>
+        )}
+        <h1 className="text-3xl font-bold">Attendance</h1>
+      </div>
+
       {isLoading && (
         <div className="flex justify-center items-center py-12">
           <Loading />
@@ -76,6 +103,47 @@ function ValidateTicket() {
       )}
       {data && (
         <div className="grid gap-6">
+          {/* Confirm */}
+          <div className="flex justify-center">
+            <Card className="w-full sm:max-w-xs text-center">
+              <CardHeader>
+                <CardTitle className="flex justify-center items-end gap-2">
+                  <Check className="h-5 w-5 text-redColor" />
+                  Confirm attendance
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div>
+                  {isValid ? (
+                    <div>
+                      <Button
+                        className="w-24 h-24 mb-2 bg-green-600 hover:bg-green-600/70"
+                        onClick={validateTicket}
+                      >
+                        {isUpdating ? <Loading /> : <CheckCircle size={50} />}
+                      </Button>
+                      <h3
+                        className={`text-lg font-medium ${data.ticket.status === TicketStatus.VALID ? "text-green-600" : "text-gray-600"}`}
+                      >
+                        {data.ticket.status}
+                      </h3>
+                    </div>
+                  ) : (
+                    <div>
+                      <Button className="w-24 h-24 bg-gray-600  mb-2" disabled>
+                        <CheckCheck size={50} />
+                      </Button>
+                      <h3
+                        className={`text-lg font-medium ${data.ticket.status === TicketStatus.VALID ? "text-green-600" : "text-gray-600"}`}
+                      >
+                        {data.ticket.status}
+                      </h3>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Customer Information */}
             <Card>
@@ -138,46 +206,6 @@ function ValidateTicket() {
                     {formatTime(date?.startTime!)} -{" "}
                     {formatTime(date?.endTime!)}{" "}
                   </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-          <div className="flex justify-center">
-            <Card className="w-full sm:max-w-xs text-center">
-              <CardHeader>
-                <CardTitle className="flex justify-center items-end gap-2">
-                  <Check className="h-5 w-5 text-redColor" />
-                  Confirm attendance
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  {isValid ? (
-                    <div>
-                      <Button
-                        className="w-24 h-24 mb-2 bg-green-600 hover:bg-green-600/70"
-                        onClick={validateTicket}
-                      >
-                        {isUpdating ? <Loading /> : <CheckCircle size={50} />}
-                      </Button>
-                      <h3
-                        className={`text-lg font-medium ${data.ticket.status === TicketStatus.VALID ? "text-green-600" : "text-gray-600"}`}
-                      >
-                        {data.ticket.status}
-                      </h3>
-                    </div>
-                  ) : (
-                    <div>
-                      <Button className="w-24 h-24 bg-gray-600  mb-2" disabled>
-                        <CheckCheck size={50} />
-                      </Button>
-                      <h3
-                        className={`text-lg font-medium ${data.ticket.status === TicketStatus.VALID ? "text-green-600" : "text-gray-600"}`}
-                      >
-                        {data.ticket.status}
-                      </h3>
-                    </div>
-                  )}
                 </div>
               </CardContent>
             </Card>

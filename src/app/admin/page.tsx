@@ -58,6 +58,7 @@ import { Badge } from "@/src/components/ui/badge";
 import { getTicketStatusBadgeColor } from "@/src/lib/utils/styles";
 import { TicketStatus } from "@/src/models/ticket";
 import { getAuth } from "firebase/auth";
+import QrScanner from "@/src/features/scanner/qr-scanner";
 
 export default function AdminPage() {
   const isMobile = useIsMobile();
@@ -195,6 +196,8 @@ function DashboardEventsList() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isValidtion, setIsValidtion] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
+
+  const [openCamera, setOpenCamera] = useState(false);
 
   interface Response {
     events: DashboardEvent[];
@@ -344,7 +347,11 @@ function DashboardEventsList() {
                         </Button>
                       </TableCell>
                       <TableCell>
-                        <Button variant="outline" size="sm" onClick={() => {}}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setOpenCamera(true)}
+                        >
                           <CameraIcon className="h-3 w-3" /> Scan Code
                         </Button>
                       </TableCell>
@@ -445,6 +452,19 @@ function DashboardEventsList() {
               </Table>
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ----------- Scanner Dialog ----------- */}
+      <Dialog open={openCamera} onOpenChange={setOpenCamera}>
+        <DialogContent className="bg-stone-100 max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl">Ticket Scanner</DialogTitle>
+            <DialogDescription>
+              Scan the QR code of the ticket
+            </DialogDescription>
+          </DialogHeader>
+          <QrScanner />
         </DialogContent>
       </Dialog>
     </div>
