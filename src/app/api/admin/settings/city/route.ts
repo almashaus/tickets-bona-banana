@@ -1,15 +1,10 @@
 import { db } from "@/src/lib/firebase/firebaseAdminConfig";
-
-import { verifyIdToken } from "@/src/lib/firebase/verifyIdToken";
-import { AppUser } from "@/src/models/user";
 import { NextRequest } from "next/server";
 
 export async function GET() {
   try {
     const cityDoc = await db.collection("settings").doc("cities").get();
     const data = cityDoc.exists ? cityDoc.data() : {};
-
-    console.log("data city :>> ", data);
 
     return new Response(JSON.stringify(data), {
       status: 200,

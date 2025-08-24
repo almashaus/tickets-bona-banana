@@ -277,7 +277,6 @@ export default function CreateEventPage() {
                 <Select
                   value={city}
                   onValueChange={(value) => {
-                    console.log("value city: ", value);
                     setCity(value);
                   }}
                   required

@@ -71,7 +71,7 @@ export async function cityMap(cityEn: string) {
   if (response.ok) {
     const data = await response.json();
     const cityList: any[] = data.city;
-    console.log(cityList);
+
     return cityList.find((city) => city.en === cityEn);
   }
   return { en: cityEn, ar: cityEn };

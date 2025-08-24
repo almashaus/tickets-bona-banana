@@ -65,67 +65,66 @@ export const onMemberAdded = functions.firestore
 
 /*
   [ 3 ]
-  Callable function to create a new user
+  Scheduled function: Change event status from "published" to "completed" if its date has passed
 */
-// export const createNewMember = functions.https.onCall(async (data, context) => {
-//   try {
-//     if (!context.auth) {
-//       throw new functions.https.HttpsError(
-//         "unauthenticated",
-//         "Request had no auth."
-//       );
-//     }
+export const completePastEvents = functions.pubsub
+  .schedule("every day 00:00") // runs at UTC midnight
+  .onRun(async (context) => {
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0); // normalize to UTC midnight
 
-//     const { email, password, member } = data;
+    const eventsSnap = await db
+      .collection("events")
+      .where("status", "==", "published")
+      .get();
 
-//     if (!email || !password) {
-//       throw new functions.https.HttpsError(
-//         "invalid-argument",
-//         "Email and password are required."
-//       );
-//     }
+    const commits: Promise<FirebaseFirestore.WriteResult[]>[] = [];
+    let batch = db.batch();
+    let count = 0;
 
-//     // Add validation for member object
-//     if (!member || typeof member !== "object") {
-//       throw new functions.https.HttpsError(
-//         "invalid-argument",
-//         "Member data is required."
-//       );
-//     }
+    eventsSnap.forEach((doc) => {
+      const event = doc.data();
+      const dates = event.dates || [];
 
-//     const fbUser = await auth.createUser({
-//       email,
-//       password,
-//     });
+      // Find the latest event date without sorting (more efficient than .sort)
+      const latestDateObj = dates.reduce((latest: Date | null, d: any) => {
+        let dateVal = d.date?.toDate?.() ?? d.date;
+        if (dateVal instanceof admin.firestore.Timestamp) {
+          dateVal = dateVal.toDate();
+        }
+        const current = dateVal instanceof Date ? dateVal : new Date(dateVal);
+        return !latest || current > latest ? current : latest;
+      }, null);
 
-//     // Set custom claims for the user
-//     const customClaims = {
-//       admin: true,
-//     };
+      if (latestDateObj) {
+        const latestDate = new Date(latestDateObj);
+        latestDate.setUTCHours(0, 0, 0, 0); // compare only by day (UTC)
 
-//     const memberData = {
-//       ...member,
-//       dashboard: {
-//         ...member.dashboard,
-//         joinedDate: new Date().toISOString(),
-//       },
-//     };
+        if (latestDate < today) {
+          batch.update(doc.ref, { status: "completed" });
+          count++;
 
-//     if (fbUser) {
-//       await auth.setCustomUserClaims(fbUser.uid, customClaims);
-//       await db
-//         .collection("users")
-//         .doc(fbUser.uid)
-//         .set({ ...memberData, id: fbUser.uid });
-//     }
+          // Firestore limit: 500 writes per batch
+          if (count === 500) {
+            commits.push(batch.commit());
+            batch = db.batch();
+            count = 0;
+          }
+        }
+      }
+    });
 
-//     return {
-//       success: true,
-//     };
-//   } catch (error: any) {
-//     throw new functions.https.HttpsError("internal", "");
-//   }
-// });
+    // Commit remaining writes
+    if (count > 0) {
+      commits.push(batch.commit());
+    }
+
+    if (commits.length > 0) {
+      await Promise.all(commits);
+    }
+
+    return null;
+  });
 
 /*
   [ 4 ]

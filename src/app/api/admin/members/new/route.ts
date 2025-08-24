@@ -5,7 +5,8 @@ import { AppUser } from "@/src/models/user";
 import { NextRequest } from "next/server";
 
 async function renameFile(oldPath: string, newPath: string) {
-  const bucket = storage.bucket();
+  const bucketName = process.env.FIREBASE_STORAGE_BUCKET;
+  const bucket = storage.bucket(bucketName);
   const file = bucket.file(oldPath);
   await file.copy(bucket.file(newPath));
   await file.delete();
