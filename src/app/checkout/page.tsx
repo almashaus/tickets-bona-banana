@@ -217,7 +217,9 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex items-center text-sm text-muted-foreground mt-1">
                   <MapPin className="mr-1 h-4 w-4 text-redColor" />
-                  {event.location}
+                  {localStorage.getItem("language") === "en"
+                    ? event.city.en
+                    : event.city.ar}
                 </div>
                 <div className="flex items-center text-sm mt-1">
                   <TicketIcon className="mr-1 h-4 w-4 text-redColor" />

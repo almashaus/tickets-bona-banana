@@ -13,7 +13,7 @@ import { useLanguage } from "@/src/components/i18n/language-provider";
 import Image from "next/image";
 
 export default function Home() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const fetcher = (url: string) =>
     fetch(url, { cache: "no-store" }).then((res) => res.json());
 
@@ -50,7 +50,7 @@ export default function Home() {
           {data && data?.length > 0 && (
             <div>
               <div className="flex justify-center">
-                <EventsList allEvents={data} />
+                <EventsList allEvents={data} language={language} />
               </div>
               <div className="flex justify-center ">
                 <Button asChild>
@@ -78,7 +78,13 @@ export default function Home() {
   );
 }
 
-function EventsList({ allEvents }: { allEvents: Event[] }) {
+function EventsList({
+  allEvents,
+  language,
+}: {
+  allEvents: Event[];
+  language: string;
+}) {
   return (
     <div className="grid max-w-5xl justify-center items-center gap-6 mx-6 lg:mx-auto py-12 sm:grid-cols-2 lg:grid-cols-3">
       {allEvents.map((event) => (
@@ -116,7 +122,9 @@ function EventsList({ allEvents }: { allEvents: Event[] }) {
             </CardContent>
             <CardFooter className="p-3 grid grid-cols-2 gap-3 justify-between items-center bg-dark-color ">
               <div className=" bg-redColor py-3 rounded-md text-white text-center">
-                <span className="">{event.location}</span>
+                <span className="">
+                  {language === "en" ? event.city.en : event.city.ar}
+                </span>
               </div>
               <div className="bg-yellowColor py-3 rounded-md text-white  text-center">
                 <span className="icon-saudi_riyal" />

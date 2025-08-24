@@ -28,7 +28,9 @@ export interface Event {
   adImage: string;
   price: number;
   status: EventStatus;
-  location: string;
+  city: City;
+  venue: string;
+  locationUrl: string;
   isDnd: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -64,3 +66,8 @@ export interface DashboardEvent extends Event {
   eventDate: EventDate;
   tickets: (Ticket & { user: AppUser })[];
 }
+
+export type City = {
+  ar: string;
+  en: string;
+};

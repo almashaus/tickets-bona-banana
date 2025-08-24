@@ -1,7 +1,10 @@
+import { useLanguage } from "@/src/components/i18n/language-provider";
 import { EventDate } from "@/src/models/event";
 
 export function formatDate(date: Date): string {
-  return new Date(date).toLocaleString("en-UK", {
+  const savedLanguage = localStorage.getItem("language");
+  const locale = savedLanguage === "en" ? "en-UK" : "ar-UK";
+  return new Date(date).toLocaleString(locale, {
     weekday: "long",
     year: "numeric",
     month: "numeric",

@@ -326,7 +326,7 @@ function DashboardEventsList() {
                         </div>
                       </TableCell>
 
-                      <TableCell>{event.location}</TableCell>
+                      <TableCell>{event.city.en}</TableCell>
                       <TableCell>
                         <div className="flex flex-col items-center justify-center text-muted-foreground">
                           {getStatusIcon(event.status)}

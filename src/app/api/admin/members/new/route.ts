@@ -7,12 +7,8 @@ import { NextRequest } from "next/server";
 async function renameFile(oldPath: string, newPath: string) {
   const bucket = storage.bucket();
   const file = bucket.file(oldPath);
-  await file.copy(bucket.file(newPath)); // copy to new location
-  await file.delete(); // remove old file
-  console.log(
-    "bucket.file(newPath).path :>> ",
-    bucket.file(newPath).publicUrl()
-  );
+  await file.copy(bucket.file(newPath));
+  await file.delete();
 }
 
 export async function POST(req: NextRequest) {

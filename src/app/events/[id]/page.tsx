@@ -6,8 +6,10 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowLeft,
+  Building,
   CalendarDays,
   ClockIcon,
+  InfoIcon,
   MapPin,
   Ticket,
   Users,
@@ -17,7 +19,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/src/components/ui/card";
@@ -47,7 +48,7 @@ export default function EventPage() {
   const { user } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
   const [event, setEvent] = useState<Event | null>(null);
@@ -196,12 +197,33 @@ export default function EventPage() {
               <div className="flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-redColor" />
                 <div>
-                  <p className="text-sm font-medium">{t("event.location")}</p>
+                  <p className="text-sm font-medium">{t("event.city")}</p>
                   <p className="text-sm text-muted-foreground">
-                    {event.location}
+                    {language === "en" ? event.city.en : event.city.ar}
                   </p>
                 </div>
               </div>
+              <div className="flex items-center gap-2">
+                <Building className="h-5 w-5 text-redColor" />
+                <div>
+                  <p className="text-sm font-medium">{t("event.venue")}</p>
+                  <p className="text-sm text-muted-foreground">{event.venue}</p>
+                </div>
+              </div>
+              {event.locationUrl && (
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" asChild>
+                    <Link href={`${event.locationUrl}`} target="_blank">
+                      <img
+                        src="/icons/google-map-icon.svg"
+                        alt="Instagram"
+                        className="w-5 h-5 me-2"
+                      />
+                      {t("event.location")}
+                    </Link>
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -242,57 +264,84 @@ export default function EventPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  {t("event.quantity")}
-                </label>
-                <Select
-                  defaultValue="1"
-                  onValueChange={(value) => setQuantity(Number.parseInt(value))}
-                >
-                  <SelectTrigger>
-                    <SelectValue
-                      placeholder={
-                        t("event.selectQuantity") || "Select quantity"
+              {event.dates.find((d) => d.id === selectedDate.split("-")[0])
+                ?.availableTickets! > 0 ? (
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      {t("event.quantity")}
+                    </label>
+                    <Select
+                      defaultValue="1"
+                      onValueChange={(value) =>
+                        setQuantity(Number.parseInt(value))
                       }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
-                      <SelectItem key={num} value={num.toString()}>
-                        {num}{" "}
-                        {num === 1 ? t("event.ticket") : t("event.tickets")}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center justify-between pt-4">
-                <div className="flex items-center gap-2">
-                  <Ticket className="h-5 w-5 text-redColor" />
-                  <span className="text-muted-foreground">
-                    {t("event.PricePerTicket:")}
-                  </span>
+                    >
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={
+                            t("event.selectQuantity") || "Select quantity"
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from(
+                          {
+                            length: Math.min(
+                              event.dates.find(
+                                (d) => d.id === selectedDate.split("-")[0]
+                              )?.availableTickets ?? 0,
+                              5
+                            ),
+                          },
+                          (_, i) => i + 1
+                        ).map((num) => (
+                          <SelectItem key={num} value={num.toString()}>
+                            {num}{" "}
+                            {num === 1 ? t("event.ticket") : t("event.tickets")}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4">
+                    <div className="flex items-center gap-2">
+                      <Ticket className="h-5 w-5 text-redColor" />
+                      <span className="text-muted-foreground">
+                        {t("event.PricePerTicket:")}
+                      </span>
+                    </div>
+                    <span className="font-bold">
+                      <span className="icon-saudi_riyal" />
+                      {event.price}
+                    </span>
+                  </div>
+                  <Separator />
+                  <div className="flex items-center justify-between font-bold">
+                    <span>{t("event.total")}</span>
+                    <span>
+                      <span className="icon-saudi_riyal" />
+                      {event.price * quantity}
+                    </span>
+                  </div>
+                  <div className="pt-3">
+                    <Button
+                      className="w-full"
+                      size="lg"
+                      onClick={handleBuyTicket}
+                    >
+                      {t("event.buyTicket")}
+                    </Button>
+                  </div>
                 </div>
-                <span className="font-bold">
-                  <span className="icon-saudi_riyal" />
-                  {event.price}
-                </span>
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between font-bold">
-                <span>{t("event.total")}</span>
-                <span>
-                  <span className="icon-saudi_riyal" />
-                  {event.price * quantity}
-                </span>
-              </div>
+              ) : (
+                <div className="flex justify-center items-center py-3 rounded-md bg-neutral-300 text-neutral-600">
+                  <InfoIcon className="w-5 h-5 me-2" />
+                  {t("event.noTicketsAvailable")}
+                </div>
+              )}
             </CardContent>
-            <CardFooter>
-              <Button className="w-full" size="lg" onClick={handleBuyTicket}>
-                {t("event.buyTicket")}
-              </Button>
-            </CardFooter>
           </Card>
         </div>
       </div>

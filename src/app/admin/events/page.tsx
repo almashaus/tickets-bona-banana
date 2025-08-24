@@ -232,7 +232,7 @@ export default function EventsPage() {
 
                         <div className="flex items-end mb-1 text-xs md:text-sm text-muted-foreground">
                           <MapPin className="mr-1 h-3 w-3 md:h-4 md:w-4 text-orangeColor" />
-                          {response.event.location}
+                          {response.event.city.en}
                         </div>
                         <div className="flex items-end mb-1 text-xs md:text-sm text-muted-foreground">
                           <span className="icon-saudi_riyal text-orangeColor" />

@@ -81,8 +81,7 @@ export function OrderConfirmationEmail(
                   {formatDate(eventDate)}
                 </Text>
                 <Text style={eventDetail}>
-                  <span style={{ fontWeight: 600 }}>Location:</span>{" "}
-                  {event.location}
+                  <span style={{ fontWeight: 600 }}>City:</span> {event.city.en}
                 </Text>
               </Column>
               <Column align="right">

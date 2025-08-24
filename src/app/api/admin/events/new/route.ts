@@ -2,14 +2,13 @@ import { db, storage } from "@/src/lib/firebase/firebaseAdminConfig";
 import { verifyIdToken } from "@/src/lib/firebase/verifyIdToken";
 import { getFileName } from "@/src/lib/utils/utils";
 import { Event } from "@/src/models/event";
-import { error } from "console";
 import { NextRequest, NextResponse } from "next/server";
 
 async function renameFile(oldPath: string, newPath: string) {
   const bucket = storage.bucket();
   const file = bucket.file(oldPath);
-  await file.copy(bucket.file(newPath)); // copy to new location
-  await file.delete(); // remove old file
+  await file.copy(bucket.file(newPath));
+  await file.delete();
 }
 
 export async function POST(req: NextRequest, res: NextResponse) {

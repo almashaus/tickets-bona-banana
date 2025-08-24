@@ -142,7 +142,9 @@ function Confirmation() {
                 </div>
                 <div className="flex items-center text-sm text-muted-foreground mt-1">
                   <MapPin className="mr-1 h-4 w-4" />
-                  {event.location}
+                  {localStorage.getItem("language") === "en"
+                    ? event.city.en
+                    : event.city.ar}
                 </div>
               </div>
               <div className="text-right items-end">

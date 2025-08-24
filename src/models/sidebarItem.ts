@@ -63,7 +63,7 @@ export const sidebarData: Item[] = [
   },
   {
     title: "Settings",
-    url: "...",
+    url: "/admin/settings",
     icon: Settings,
   },
   {

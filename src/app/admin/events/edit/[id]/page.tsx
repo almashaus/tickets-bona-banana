@@ -41,7 +41,7 @@ import {
   PopoverTrigger,
 } from "@/src/components/ui/popover";
 import { formatDate, formatTime24H } from "@/src/lib/utils/formatDate";
-import { cn, compressImage } from "@/src/lib/utils/utils";
+import { cityMap, cn, compressImage } from "@/src/lib/utils/utils";
 import { Event, EventDate, EventStatus } from "@/src/models/event";
 import Loading from "@/src/components/ui/loading";
 import useSWR, { mutate } from "swr";
@@ -66,7 +66,9 @@ export default function EditEventPage() {
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
-  const [location, setLocation] = useState("Riyadh");
+  const [city, setCity] = useState("");
+  const [venue, setVenue] = useState("");
+  const [locationUrl, setLocationUrl] = useState("");
   const [eventImage, setEventImage] = useState("");
   const [adImage, setAdImage] = useState("");
   const [price, setPrice] = useState<number>(0);
@@ -85,6 +87,19 @@ export default function EditEventPage() {
     },
   ]);
 
+  interface Response {
+    city: {
+      ar: string;
+      en: string;
+    }[];
+  }
+
+  const {
+    data: cities,
+    error: e,
+    isLoading: l,
+  } = useSWR<Response>(`/api/admin/settings/city`);
+
   const { data, error, isLoading } = useSWR<Event>(
     `/api/admin/events/edit/${id}`
   );
@@ -99,7 +114,9 @@ export default function EditEventPage() {
         setTitle(eventData.title || "");
         setSlug(eventData.slug || "");
         setDescription(eventData.description || "");
-        setLocation(eventData.location || "Riyadh");
+        setCity(eventData.city.en);
+        setVenue(eventData.venue || "");
+        setLocationUrl(eventData.locationUrl || "");
         setEventImage(eventData.eventImage || "");
         setAdImage(eventData.adImage || "");
         setPrice(eventData.price || 0);
@@ -188,6 +205,8 @@ export default function EditEventPage() {
 
       const idToken = await authUser.getIdToken();
 
+      const theCity = await cityMap(city);
+
       const updateEvent: Event = {
         creatorId: user?.id || "1",
         title: title,
@@ -197,7 +216,9 @@ export default function EditEventPage() {
         adImage: adImage,
         price: price,
         status: status,
-        location: location,
+        city: theCity,
+        venue: venue,
+        locationUrl: locationUrl,
         isDnd: isDnd,
         createdAt: event!.createdAt,
         updatedAt: new Date(),
@@ -325,13 +346,44 @@ export default function EditEventPage() {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="location">Location</Label>
-                  <Input
-                    id="location"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder="Riyadh"
+                  <Label htmlFor="city">City</Label>
+                  <Select
+                    value={city}
+                    onValueChange={(value) => {
+                      setCity(value);
+                    }}
                     required
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={city} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cities?.city?.map((c) => (
+                        <SelectItem key={c.en} value={c.en}>
+                          {c.en}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="venue">Venue Name</Label>
+                  <Input
+                    id="venue"
+                    value={venue}
+                    onChange={(e) => setVenue(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="locationUrl">Location URL</Label>
+                  <Input
+                    id="locationUrl"
+                    value={locationUrl}
+                    onChange={(e) => setLocationUrl(e.target.value)}
+                    placeholder="https://maps.app.goo.gl"
                   />
                 </div>
 

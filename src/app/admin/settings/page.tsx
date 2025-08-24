@@ -1,4 +1,5 @@
 "use client";
+import { Badge } from "@/src/components/ui/badge";
 import { Button } from "@/src/components/ui/button";
 import {
   Card,
@@ -7,18 +8,25 @@ import {
   CardTitle,
 } from "@/src/components/ui/card";
 import { Input } from "@/src/components/ui/input";
+import Loading from "@/src/components/ui/loading";
+import { Separator } from "@/src/components/ui/separator";
 import { useIsMobile } from "@/src/hooks/use-mobile";
 import { useMobileSidebar } from "@/src/lib/stores/useMobileSidebar";
-import { PanelLeft } from "lucide-react";
+import { getRoleBadgeColor } from "@/src/lib/utils/styles";
+import { MapPin, MonitorCog, PanelLeft } from "lucide-react";
 import React, { useState } from "react";
+import useSWR, { mutate } from "swr";
 
 const SettingsPage = () => {
-  // State for cities and roles
-  const [cities, setCities] = useState<string[]>([
-    "Riyadh",
-    "Jeddah",
-    "Makkah",
-  ]);
+  interface CityResponse {
+    city: {
+      ar: string;
+      en: string;
+    }[];
+  }
+
+  const { data: cities } = useSWR<CityResponse>("/api/admin/settings/city");
+
   const [roles, setRoles] = useState<string[]>([
     "Admin",
     "Organizer",
@@ -26,18 +34,42 @@ const SettingsPage = () => {
     "Analyst",
     "Partner",
   ]);
-  const [newCity, setNewCity] = useState("");
+  const [newCityEn, setNewCityEn] = useState("");
+  const [newCityAr, setNewCityAr] = useState("");
+  const [newCityIsAdding, setnewCityIsAdding] = useState(false);
+
   const [newRole, setNewRole] = useState("");
   const isMobile = useIsMobile();
   const setMobileOpen = useMobileSidebar((state) => state.setMobileOpen);
 
   // Handlers
-  const handleAddCity = (e: React.FormEvent) => {
+  const handleAddCity = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newCity.trim() && !cities.includes(newCity.trim())) {
-      setCities([...cities, newCity.trim()]);
-      setNewCity("");
+    setnewCityIsAdding(true);
+    if (
+      newCityEn &&
+      !cities?.city.some(
+        (cityObj) =>
+          cityObj.en.toLowerCase() === newCityEn.toLowerCase() ||
+          cityObj.ar === newCityAr
+      )
+    ) {
+      const response = await fetch("/api/admin/settings/city", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          // Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ data: { en: newCityEn, ar: newCityAr } }),
+      });
+
+      if (response.ok) {
+        await mutate("/api/admin/settings/city");
+        setNewCityEn("");
+        setNewCityAr("");
+      }
     }
+    setnewCityIsAdding(false);
   };
 
   const handleAddRole = (e: React.FormEvent) => {
@@ -66,60 +98,92 @@ const SettingsPage = () => {
       </div>
 
       {/* Cities Section */}
-      <div className="flex flex-col lg:flex-row gap-6 mb-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-lg font-medium">Events Cities</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleAddCity} className="flex gap-2 mb-4">
-              <Input
-                type="text"
-                className="border rounded px-3 py-2 flex-1"
-                placeholder="Add new city"
-                value={newCity}
-                onChange={(e) => setNewCity(e.target.value)}
-              />
-              <Button type="submit">Add City</Button>
-            </form>
-            <ul className="list-disc pl-5 space-y-1">
-              {cities.map((city, idx) => (
-                <li key={idx} className="text-gray-700">
-                  {city}
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+      <div>
+        <h2 className="text-xl font-bold mb-3">Event Settings</h2>
+
+        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 mb-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="flex items-center text-lg font-medium">
+                <MapPin className="h-5 w-5 me-1 text-redColor" />
+                Event Cities
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form
+                onSubmit={handleAddCity}
+                className="flex flex-col gap-2 my-4"
+              >
+                <Input
+                  type="text"
+                  className="border rounded px-3 py-2 flex-1"
+                  placeholder="City Name (English)"
+                  value={newCityEn}
+                  onChange={(e) => setNewCityEn(e.target.value)}
+                />
+                <Input
+                  type="text"
+                  className="border rounded px-3 py-2 flex-1 text-right"
+                  placeholder="اسم المدينة (عربي)"
+                  value={newCityAr}
+                  onChange={(e) => setNewCityAr(e.target.value)}
+                  disabled={newCityIsAdding}
+                />
+                <Button type="submit">
+                  {newCityIsAdding ? <>...</> : <>Add City</>}
+                </Button>
+              </form>
+              <div>
+                {cities?.city.map((city, idx) => (
+                  <Badge
+                    key={idx}
+                    className="text-gray-700 bg-neutral-200 px-3 py-1 me-2 mb-2"
+                  >
+                    {city.en} {city.ar}
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+      <Separator />
+      <div>
+        <h2 className="text-xl font-bold my-3">Members Settings</h2>
 
         {/* Roles Section */}
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-lg font-medium">
-              Dashboard Roles
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleAddRole} className="flex gap-2 mb-4">
-              <Input
-                type="text"
-                className="border rounded px-3 py-2 flex-1"
-                placeholder="Add new role"
-                value={newRole}
-                onChange={(e) => setNewRole(e.target.value)}
-              />
-              <Button type="submit">Add Role</Button>
-            </form>
-            <ul className="list-disc pl-5 space-y-1">
-              {roles.map((role, idx) => (
-                <li key={idx} className="text-gray-700 text-sm">
-                  {role}
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 mb-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="flex items-center me-1 text-lg font-medium">
+                <MonitorCog className="h-5 w-5 me-1 text-redColor" /> Dashboard
+                Roles
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleAddRole} className="flex gap-2 my-4">
+                <Input
+                  type="text"
+                  className="border rounded px-3 py-2 flex-1"
+                  placeholder="Add new role"
+                  value={newRole}
+                  onChange={(e) => setNewRole(e.target.value)}
+                />
+                <Button type="submit">Add Role</Button>
+              </form>
+              <div>
+                {roles.map((role, idx) => (
+                  <Badge
+                    key={idx}
+                    className={`${getRoleBadgeColor(role)} px-3 py-1 me-2 mb-2`}
+                  >
+                    {role}
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

@@ -103,7 +103,7 @@ export default function QrScanner() {
   }, []);
 
   return (
-    <div className="flex flex-row justify-center items-center">
+    <div className="flex flex-col justify-center items-center">
       <canvas ref={canvasRef} className="hidden" />
 
       <video
@@ -113,7 +113,7 @@ export default function QrScanner() {
         muted
       />
 
-      {errorMsg && <p className="text-red-500 text-sm">{errorMsg}</p>}
+      {errorMsg && <p className="text-red-500 text-sm my-2">{errorMsg}</p>}
     </div>
   );
 }

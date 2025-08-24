@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   CalendarIcon,
@@ -41,11 +41,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/src/components/ui/popover";
-import { cn, compressImage } from "@/src/lib/utils/utils";
-import { EventDate, EventStatus } from "@/src/models/event";
+import { cityMap, cn, compressImage } from "@/src/lib/utils/utils";
+import { City, EventDate, EventStatus } from "@/src/models/event";
 import { formatDate } from "@/src/lib/utils/formatDate";
 import { getAuth } from "firebase/auth";
-import { mutate } from "swr";
+import useSWR, { mutate } from "swr";
 import { Progress } from "@/src/components/ui/progress";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { storage } from "@/src/lib/firebase/firebaseConfig";
@@ -58,11 +58,24 @@ export default function CreateEventPage() {
   const auth = getAuth();
   const authUser = auth.currentUser!;
 
+  interface Response {
+    city: {
+      ar: string;
+      en: string;
+    }[];
+  }
+
+  const { data, error, isLoading } = useSWR<Response>(
+    `/api/admin/settings/city`
+  );
+
   // Initialize state variables with default values
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
-  const [location, setLocaton] = useState("Riyadh");
+  const [city, setCity] = useState("Riyadh");
+  const [venue, setVenue] = useState("");
+  const [locationUrl, setLocationUrl] = useState("");
   const [eventImage, setEventImage] = useState("");
   const [adImage, setAdImage] = useState("");
   const [price, setPrice] = useState<number>(0);
@@ -137,6 +150,8 @@ export default function CreateEventPage() {
 
     const idToken = await authUser.getIdToken();
 
+    const theCity = await cityMap(city);
+
     try {
       let event = {
         creatorId: user?.id || "1",
@@ -147,7 +162,9 @@ export default function CreateEventPage() {
         adImage: adImage,
         price: price,
         status: status,
-        location: location,
+        city: theCity,
+        venue: venue,
+        locationUrl: locationUrl,
         isDnd: isDnd,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -255,13 +272,46 @@ export default function CreateEventPage() {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  value={location}
-                  onChange={(e) => setLocaton(e.target.value)}
-                  placeholder="Riyadh"
+                <Label htmlFor="city">City</Label>
+
+                <Select
+                  value={city}
+                  onValueChange={(value) => {
+                    console.log("value city: ", value);
+                    setCity(value);
+                  }}
                   required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={city} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {data?.city?.map((c) => (
+                      <SelectItem key={c.en} value={c.en}>
+                        {c.en}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="venue">Venue Name</Label>
+                <Input
+                  id="venue"
+                  value={venue}
+                  onChange={(e) => setVenue(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="locationUrl">Location URL</Label>
+                <Input
+                  id="locationUrl"
+                  value={locationUrl}
+                  onChange={(e) => setLocationUrl(e.target.value)}
+                  placeholder="https://maps.app.goo.gl"
                 />
               </div>
 
