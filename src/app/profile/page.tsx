@@ -142,6 +142,7 @@ function Profile() {
         toast({
           title: "Profile updated",
           description: "Your profile has been updated successfully",
+          variant: "success",
         });
       }
     } catch (error) {

@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/src/components/ui/card";
 import { Input } from "@/src/components/ui/input";
+import { Label } from "@/src/components/ui/label";
 import Loading from "@/src/components/ui/loading";
 import { Separator } from "@/src/components/ui/separator";
 import { useIsMobile } from "@/src/hooks/use-mobile";
@@ -103,17 +104,15 @@ const SettingsPage = () => {
 
         <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 mb-6">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="flex items-center text-lg font-medium">
+            <CardHeader className="flex space-y-0 pb-2">
+              <CardTitle className="flex justify-center items-center text-lg font-medium">
                 <MapPin className="h-5 w-5 me-1 text-redColor" />
                 Event Cities
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <form
-                onSubmit={handleAddCity}
-                className="flex flex-col gap-2 my-4"
-              >
+            <CardContent className="space-y-8">
+              <form onSubmit={handleAddCity} className="flex flex-col gap-2">
+                <Label className="text-md">Add New City</Label>
                 <Input
                   type="text"
                   className="border rounded px-3 py-2 flex-1"
@@ -147,11 +146,12 @@ const SettingsPage = () => {
           </Card>
         </div>
       </div>
+      {/* 
       <Separator />
       <div>
         <h2 className="text-xl font-bold my-3">Members Settings</h2>
 
-        {/* Roles Section */}
+    Roles Section 
         <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 mb-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -185,6 +185,7 @@ const SettingsPage = () => {
           </Card>
         </div>
       </div>
+       */}
     </div>
   );
 };

@@ -39,7 +39,7 @@ export default function RegisterPage() {
     try {
       await register(name, email, password);
       toast({
-        title: "✅ " + t("auth.registrationSuccess"),
+        title: t("auth.registrationSuccess"),
         description: t("auth.registrationSuccessDesc"),
         variant: "success",
       });
@@ -60,7 +60,7 @@ export default function RegisterPage() {
     try {
       await signInWithGoogle();
       toast({
-        title: "✅ " + t("auth.loginSuccess"),
+        title: t("auth.loginSuccess"),
         description: t("auth.loginGoogleSuccessDesc"),
         variant: "success",
       });

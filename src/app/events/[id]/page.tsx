@@ -145,7 +145,9 @@ export default function EventPage() {
           </div>
           <div className="space-y-4">
             <h2 className="text-xl font-bold">{t("event.details")}</h2>
-            <p className="text-muted-foreground">{event.description}</p>
+            <p className="text-muted-foreground whitespace-pre-line">
+              {event.description}
+            </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg border border-neutral-200 bg-card text-card-foreground shadow-sm">
               <div className="flex items-center gap-2">

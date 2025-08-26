@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
       doc.data()
     ) as Ticket[];
 
+    // TODO: Uncomment
     // const data = await resend.emails.send({
     //   from: "Bona Banana <info@bona-banana.com>",
     //   to: "ihadeel.1024@gmail.com", // TODO: email

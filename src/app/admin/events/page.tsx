@@ -115,15 +115,16 @@ export default function EventsPage() {
         await mutate("/api/admin/orders");
 
         toast({
-          title: "✅ Event deleted",
+          title: "Event deleted",
           description: "Your event has been deleted successfully",
+          variant: "success",
         });
       } else {
         throw new Error("Failed to delete event");
       }
     } catch (error) {
       toast({
-        title: "⚠️ Error deleting event",
+        title: "Error deleting event",
         description: "Failed to delete event. Please try again later.",
         variant: "destructive",
       });

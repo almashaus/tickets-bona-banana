@@ -181,7 +181,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await fetch("/api/logout");
 
         setUser(null);
-        router.push("/login");
+        router.replace("/login");
       })
       .catch(() => {
         throw new Error("Logout failed");

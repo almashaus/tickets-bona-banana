@@ -100,7 +100,7 @@ export default function UserProfilePage() {
         await mutate(`/api/profile/${id}`);
 
         toast({
-          title: "✅ Member updated",
+          title: "Member updated",
           description: "Member details have been successfully updated.",
           variant: "success",
         });
@@ -108,14 +108,14 @@ export default function UserProfilePage() {
         router.push("/admin/members");
       } else {
         toast({
-          title: "⚠️ Error updating member",
+          title: "Error updating member",
           description: "Failed to update member details. Please try again.",
           variant: "destructive",
         });
       }
     } catch (error) {
       toast({
-        title: "⚠️ Error updating member",
+        title: "Error updating member",
         description: "Failed to update member details. Please try again.",
         variant: "destructive",
       });

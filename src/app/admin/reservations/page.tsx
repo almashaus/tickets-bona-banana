@@ -167,6 +167,7 @@ export default function ReservationsPage() {
         toast({
           title: "Reservation Cancelled",
           description: "The reservation has been cancelled successfully.",
+          variant: "success",
         });
       }
     } catch (error) {
@@ -189,6 +190,7 @@ export default function ReservationsPage() {
     toast({
       title: "Payment Confirmed",
       description: "The reservation has been confirmed successfully.",
+      variant: "success",
     });
   };
 
@@ -211,6 +213,7 @@ export default function ReservationsPage() {
         toast({
           title: "Ticket Resent",
           description: "The ticket has been resent to the customer's email.",
+          variant: "success",
         });
       } else {
         toast({

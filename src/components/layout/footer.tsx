@@ -16,7 +16,11 @@ export default function Footer() {
           <div className="container flex flex-col items-center justify-between gap-6 ">
             {/* Logo */}
             <div className="flex flex-col items-center gap-2">
-              <img src="/logo.svg" alt="Bona Banana Logo" className="h-20" />
+              <img
+                src="/images/logo.svg"
+                alt="Bona Banana Logo"
+                className="h-20"
+              />
             </div>
 
             {/* Social Media */}

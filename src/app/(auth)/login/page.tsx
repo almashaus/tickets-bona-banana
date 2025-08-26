@@ -29,11 +29,11 @@ function Login() {
     try {
       await login(email, password);
       toast({
-        title: "✅ " + t("auth.loginSuccess"),
+        title: t("auth.loginSuccess"),
         description: t("auth.loginSuccessDesc"),
         variant: "success",
       });
-      router.push(redirectUrl);
+      router.replace(redirectUrl);
     } catch (error) {
       toast({
         title: t("auth.loginFailed"),
@@ -50,11 +50,11 @@ function Login() {
     try {
       await signInWithGoogle();
       toast({
-        title: "✅ " + t("auth.loginSuccess"),
+        title: t("auth.loginSuccess"),
         description: t("auth.loginGoogleSuccessDesc"),
         variant: "success",
       });
-      router.push(redirectUrl);
+      router.replace(redirectUrl);
     } catch (error) {
       toast({
         title: t("auth.googleSignInFailed"),

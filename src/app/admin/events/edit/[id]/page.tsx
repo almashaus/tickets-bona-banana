@@ -184,7 +184,7 @@ export default function EditEventPage() {
         if (event?.status === EventStatus.PUBLISHED) {
           if (!eventDate.date || !eventDate.startTime || !eventDate.endTime) {
             toast({
-              title: "⚠️ Error",
+              title: "Error",
               description: "Please fill in all date fields.",
               variant: "destructive",
             });
@@ -193,7 +193,7 @@ export default function EditEventPage() {
           }
           if (eventDate.startTime >= eventDate.endTime) {
             toast({
-              title: "⚠️ Error",
+              title: "Error",
               description: "Start time must be before end time.",
               variant: "destructive",
             });
@@ -241,22 +241,23 @@ export default function EditEventPage() {
         await mutate("/api/admin/orders");
 
         toast({
-          title: "✅ Event updated",
+          title: "Event updated",
           description: "Your event has been updated successfully",
+          variant: "success",
         });
 
         // Redirect to admin events page
         router.push("/admin/events");
       } else {
         toast({
-          title: "⚠️ Error",
+          title: "Error",
           description: "There was an error updating the event ❗️",
           variant: "destructive",
         });
       }
     } catch (error) {
       toast({
-        title: "⚠️ Error",
+        title: "Error",
         description: "There was an error updating the event ❗️",
         variant: "destructive",
       });
@@ -510,11 +511,10 @@ export default function EditEventPage() {
                                 selected={eventDate.date}
                                 onSelect={(day) => {
                                   if (day) {
+                                    const date = new Date(eventDate.date);
                                     const newDate = new Date(day);
-                                    newDate.setHours(eventDate.date.getHours());
-                                    newDate.setMinutes(
-                                      eventDate.date.getMinutes()
-                                    );
+                                    newDate.setHours(date.getHours());
+                                    newDate.setMinutes(date.getMinutes());
                                     updateEventDate(
                                       eventDate.id,
                                       "date",

@@ -187,21 +187,22 @@ export default function CreateEventPage() {
         await mutate("/api/admin/orders");
 
         toast({
-          title: "✅ Event created",
+          title: "Event created",
           description: "Your event has been created successfully",
+          variant: "success",
         });
 
         router.push("/admin/events");
       } else {
         toast({
-          title: "⚠️ Error",
+          title: "Error",
           description: "There was an error creating the event ❗️",
           variant: "destructive",
         });
       }
     } catch (error) {
       toast({
-        title: "⚠️ Error",
+        title: "Error",
         description: "There was an error creating the event ❗️",
         variant: "destructive",
       });
@@ -462,11 +463,24 @@ export default function CreateEventPage() {
                           type="time"
                           value={format(eventDate.startTime, "HH:mm")}
                           onChange={(e) => {
-                            const [hours, minutes] = e.target.value.split(":");
-                            const newDate = new Date(eventDate.date);
-                            newDate.setHours(Number.parseInt(hours));
-                            newDate.setMinutes(Number.parseInt(minutes));
-                            updateEventDate(eventDate.id, "startTime", newDate);
+                            try {
+                              const { value } = e.target;
+
+                              if (!value) {
+                                return;
+                              }
+
+                              const [hours, minutes] = value.split(":");
+                              const newDate = new Date(eventDate.date);
+                              newDate.setHours(Number(hours));
+                              newDate.setMinutes(Number(minutes));
+
+                              updateEventDate(
+                                eventDate.id,
+                                "startTime",
+                                newDate
+                              );
+                            } catch (_) {}
                           }}
                         />
                       </div>
@@ -477,12 +491,23 @@ export default function CreateEventPage() {
                             type="time"
                             value={format(eventDate.endTime, "HH:mm")}
                             onChange={(e) => {
-                              const [hours, minutes] =
-                                e.target.value.split(":");
-                              const newDate = new Date(eventDate.date);
-                              newDate.setHours(Number.parseInt(hours));
-                              newDate.setMinutes(Number.parseInt(minutes));
-                              updateEventDate(eventDate.id, "endTime", newDate);
+                              try {
+                                const { value } = e.target;
+
+                                if (!value) {
+                                  return;
+                                }
+
+                                const [hours, minutes] = value.split(":");
+                                const newDate = new Date(eventDate.date);
+                                newDate.setHours(Number.parseInt(hours));
+                                newDate.setMinutes(Number.parseInt(minutes));
+                                updateEventDate(
+                                  eventDate.id,
+                                  "endTime",
+                                  newDate
+                                );
+                              } catch (_) {}
                             }}
                           />
                         </div>

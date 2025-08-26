@@ -30,6 +30,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const eventData: Event = event;
 
+    console.log(eventData);
+
     const docRef = db.collection("events").doc();
 
     if (eventData.eventImage) {

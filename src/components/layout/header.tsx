@@ -20,7 +20,11 @@ export default function Header() {
       <div className="ps-4 pe-8 flex h-16 items-center justify-between">
         <div className="flex justify-start items-center">
           <Link href="/" className="flex items-center space-x-2">
-            <img src="/logo.svg" alt="Bona Banana Logo" className="h-10" />
+            <img
+              src="/images/bona-banana.svg"
+              alt="Bona Banana Logo"
+              className="h-10"
+            />
             <span
               className={`hidden ${pathname.startsWith("/admin") ? "text-white" : "text-black"} font-bold sm:inline-block`}
             >

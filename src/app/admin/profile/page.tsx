@@ -130,6 +130,7 @@ export default function UserProfilePage() {
         toast({
           title: "Password reset email sent",
           description: `A password reset link has been sent to ${member?.email}`,
+          variant: "success",
         });
       } else {
         toast({

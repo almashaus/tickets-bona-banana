@@ -51,7 +51,12 @@ export function OrderConfirmationEmail(
           <Section style={{ textAlign: "center", paddingTop: 32 }}>
             <div style={logoDiv}>
               {/* CheckCircle SVG */}
-              <Img src="/public/logo.svg" width={80} height={80} alt="Logo" />
+              <Img
+                src="/public/images/logo.svg"
+                width={80}
+                height={80}
+                alt="Logo"
+              />
             </div>
             <Heading
               style={{
