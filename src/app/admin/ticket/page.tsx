@@ -24,7 +24,7 @@ import {
   CheckCheck,
   PanelLeft,
 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { Suspense, useEffect, useState } from "react";
 import useSWR, { mutate } from "swr";
@@ -38,15 +38,20 @@ function ValidateTicket() {
 
   const isMobile = useIsMobile();
   const setMobileOpen = useMobileSidebar((state) => state.setMobileOpen);
+  const router = useRouter();
+
+  if (!token) {
+    router.replace("/admin");
+    return;
+  }
 
   interface Response {
     user: AppUser;
     event: Event;
     ticket: Ticket;
   }
-
   const { data, error, isLoading } = useSWR<Response>(
-    `/api/ticket?token=${token}`
+    !token ? `/api/ticket?token=${token}` : null
   );
 
   useEffect(() => {

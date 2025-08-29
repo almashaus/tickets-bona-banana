@@ -185,8 +185,6 @@ export default function NewMemberPage() {
       dashboard: dashboard,
     };
 
-    console.log(appUser);
-
     try {
       const idToken = await authUser.getIdToken();
       const response = await fetch("/api/admin/members/new", {
@@ -201,7 +199,7 @@ export default function NewMemberPage() {
           member: appUser,
         }),
       });
-      console.log("response.ok :>> ", response.ok);
+
       if (response.ok) {
         toast({
           title: "User created successfully",

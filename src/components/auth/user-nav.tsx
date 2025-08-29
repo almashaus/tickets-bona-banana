@@ -2,7 +2,11 @@
 
 import { User } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Avatar, AvatarFallback } from "@/src/components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/src/components/ui/avatar";
 import { Button } from "@/src/components/ui/button";
 import {
   DropdownMenu,
@@ -25,9 +29,9 @@ export function UserNav({ user }: { user: AppUser }) {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="relative h-10 w-10 rounded-lg bg-muted"
+          className="relative h-9 w-9 rounded-lg bg-muted"
         >
-          <Avatar className="h-10 w-10 text-black">
+          <Avatar className="h-9 w-9 text-black">
             <AvatarFallback>
               <User className="h-[1.2rem] w-[1.2rem]" />
             </AvatarFallback>

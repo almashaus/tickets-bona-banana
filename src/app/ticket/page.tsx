@@ -13,22 +13,31 @@ import { Event, EventDate } from "@/src/models/event";
 import { Ticket, TicketStatus } from "@/src/models/ticket";
 import { AppUser } from "@/src/models/user";
 import { Calendar } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import useSWR from "swr";
 
 function TicketView() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
   const [date, setDate] = useState<EventDate | null>(null);
   const [isValid, setIsValid] = useState<Boolean>();
   const searchParams = useSearchParams();
   const token = searchParams?.get("token");
+  const router = useRouter();
+
+  if (!token) {
+    router.push("/");
+    return;
+  }
 
   interface Response {
     user: AppUser;
     event: Event;
     ticket: Ticket;
   }
-
   const { data, error, isLoading } = useSWR<Response>(
     `/api/ticket?token=${token}`
   );

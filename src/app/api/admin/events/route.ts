@@ -32,7 +32,15 @@ export async function GET() {
               .doc(ticketData!.userId!)
               .get();
 
-            const userData = userDoc.data() as AppUser;
+            const userData = userDoc.exists
+              ? (userDoc.data() as AppUser)
+              : {
+                  id: "Unknown",
+                  email: "Unknown",
+                  name: "Unknown",
+                  phone: "Unknown",
+                  hasDashboardAccess: false,
+                };
 
             return {
               ticket: ticketData,

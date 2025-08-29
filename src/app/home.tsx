@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/src/components/ui/button";
 import { Event } from "@/src/models/event";
 import Loading from "@/src/components/ui/loading";
-import { CalendarDays, ClockIcon } from "lucide-react";
+import { CalendarDays, ClockIcon, InfoIcon } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/src/components/ui/card";
 import { formatDate, formatTime } from "@/src/lib/utils/formatDate";
 import useSWR from "swr";
@@ -59,19 +59,26 @@ export default function Home() {
               </div>
             </div>
           )}
-          {error ||
-            (data?.length == 0 && (
-              <div className="flex flex-col justify-center items-center py-12">
-                <img
-                  src="/no-data.png"
-                  alt="no data"
-                  className="h-1/2 w-1/2 md:h-1/6 md:w-1/6"
-                />
-                <p className="text-muted-foreground text-center">
-                  There is no event currently, Come back later!
-                </p>
-              </div>
-            ))}
+          {error && (
+            <div className="flex flex-col justify-center items-center space-y-3 py-12">
+              <InfoIcon className="h-8 w-8 text-muted-foreground" />
+              <p className="text-muted-foreground text-center">
+                Something went wrong. Please try again later.
+              </p>
+            </div>
+          )}
+          {!error && data?.length == 0 && (
+            <div className="flex flex-col justify-center items-center py-12">
+              <img
+                src="/no-data.png"
+                alt="no data"
+                className="h-1/2 w-1/2 md:h-1/6 md:w-1/6"
+              />
+              <p className="text-muted-foreground text-center">
+                There is no event currently, Come back later!
+              </p>
+            </div>
+          )}
         </div>
       </section>
     </div>

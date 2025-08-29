@@ -70,11 +70,6 @@ function Profile() {
   const tabParam = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState(tabParam || "profile");
 
-  if (!user) {
-    router.push(`/login?redirect=${encodeURIComponent("/profile")}`);
-    return null;
-  }
-
   interface Response {
     appUser: AppUser;
     tickets: {
@@ -161,7 +156,7 @@ function Profile() {
           <ProfileImageInput
             profileImage={profileImage}
             setProfileImage={setProfileImage}
-            id={user.id}
+            id={user?.id ?? ""}
           />
           <div>
             <h1 className="text-3xl font-bold">{user?.name}</h1>
@@ -481,7 +476,7 @@ function ProfileImageInput({
       <Avatar className="h-16 w-16 bg-neutral-200">
         <AvatarImage src={profileImage} alt="Profile Image" />
         <AvatarFallback className="text-lg">
-          <User className="h-8 w-8" />
+          {uploading ? <Loading /> : <User className="h-8 w-8" />}
         </AvatarFallback>
       </Avatar>
       <div className="">
@@ -497,7 +492,7 @@ function ProfileImageInput({
           type="button"
           variant="ghost"
           size="icon"
-          className="absolute bottom-1 right-1 h-7 w-7 px-2 text-xs bg-stone-200 rounded-full"
+          className="absolute bottom-1 right-1 h-7 w-7 px-2 text-xs bg-stone-200 border border-white rounded-full"
           onClick={() => document.getElementById("ad-image-upload")?.click()}
         >
           <EditIcon className="w-4 h-4" />

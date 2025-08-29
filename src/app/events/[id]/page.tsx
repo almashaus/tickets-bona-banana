@@ -43,6 +43,7 @@ import { useCheckoutStore } from "@/src/lib/stores/useCheckoutStore";
 import useSWR from "swr";
 import { isSafeImageUrl } from "@/src/lib/utils/utils";
 import { useLanguage } from "@/src/components/i18n/language-provider";
+import { Skeleton } from "@/src/components/ui/skeleton";
 
 export default function EventPage() {
   const { user } = useAuth();
@@ -104,7 +105,7 @@ export default function EventPage() {
             "The event you're looking for doesn't exist or has been removed."}
         </p>
         <Button asChild>
-          <Link href="/events">{t("home.events")}</Link>
+          <Link href="/">{t("home.allEvents")}</Link>
         </Button>
       </div>
     );
@@ -112,8 +113,41 @@ export default function EventPage() {
 
   if (isLoading || !event) {
     return (
-      <div className="flex justify-center items-center py-56">
-        <Loading />
+      <div className="px-5 py-10 md:container">
+        <div className="space-y-6 md:space-y-0 md:grid md:grid-cols-2 md:gap-6 lg:grid lg:grid-cols-3 lg:gap-6">
+          {/* Event Details */}
+          <div className="md:col-span-1 lg:col-span-2 lg:me-6">
+            <div className="flex justify-start gap-4">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => router.back()}
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="flex justify-center items-center py-24">
+              <Loading />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg border border-neutral-200 bg-card text-card-foreground shadow-sm">
+              <Skeleton className="h-10" />
+              <Skeleton className="h-10" />
+              <Skeleton className="h-10" />
+              <Skeleton className="h-10" />
+            </div>
+          </div>
+
+          {/* Ticket Info */}
+          <div className="flex flex-col ">
+            <Card>
+              <CardContent className="space-y-8 my-4">
+                <Skeleton className="h-10 rounded-lg" />
+                <Skeleton className="h-10 rounded-lg" />
+                <Skeleton className="h-10 rounded-lg" />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     );
   }
