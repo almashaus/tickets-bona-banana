@@ -119,6 +119,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const fbUser = result.user;
 
         if (fbUser) {
+          const idToken = await fbUser.getIdToken();
+
+          await fetch("/api/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idToken }),
+          });
+
           await updateProfile(fbUser, {
             displayName: name || email?.split("@")[0],
           });
@@ -157,6 +165,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const fbUser = result.user;
 
       if (fbUser) {
+        const idToken = await fbUser.getIdToken();
+
+        await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken }),
+        });
+
         await updateProfile(fbUser, {
           displayName: fbUser.displayName || fbUser.email?.split("@")[0],
         });

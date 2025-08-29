@@ -6,6 +6,7 @@ import { verifyIdToken } from "@/src/lib/firebase/verifyIdToken";
 import { DashboardEvent, Event } from "@/src/models/event";
 import { Ticket } from "@/src/models/ticket";
 import { AppUser } from "@/src/models/user"; // Add this import
+import { AggregateField } from "firebase-admin/firestore";
 import { NextRequest } from "next/server";
 
 function getDateRangeStrings(startDate: Date, days: number): Set<string> {
@@ -83,8 +84,26 @@ export async function GET() {
         new Date(b.eventDate.date).getTime()
     );
 
+    // count
+    const collectionRef = db.collection("tickets");
+    const snapshotCount = await collectionRef.count().get();
+    const ticketsCount = snapshotCount.data().count;
+
+    // sum
+    const sumQuery = collectionRef.aggregate({
+      totalPurchasePrice: AggregateField.sum("purchasePrice"),
+    });
+
+    const snapshotSum = await sumQuery.get();
+    const ticketsTotal = snapshotSum.data().totalPurchasePrice;
+
     return new Response(
-      JSON.stringify({ events: sortedEvents, number: eventsNumber }),
+      JSON.stringify({
+        events: sortedEvents,
+        eventsNumber: eventsNumber,
+        ticketsCount: ticketsCount,
+        ticketsTotal: ticketsTotal,
+      }),
       {
         status: 200,
         headers: {

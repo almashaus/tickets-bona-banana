@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import {
+  CalendarRange,
   CameraIcon,
   Check,
   CheckCircle,
@@ -10,7 +10,6 @@ import {
   SearchIcon,
   Ticket,
   TicketIcon,
-  Users,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import {
@@ -20,12 +19,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/src/components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/src/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -43,7 +36,6 @@ import {
 } from "@/src/components/ui/dialog";
 import Image from "next/image";
 import { useToast } from "@/src/components/ui/use-toast";
-import UsersPage from "./members/page";
 import useSWR, { mutate } from "swr";
 import { PanelLeft } from "lucide-react";
 import { useIsMobile } from "@/src/hooks/use-mobile";
@@ -69,7 +61,9 @@ export default function AdminPage() {
 
   interface Response {
     events: DashboardEvent[];
-    number: number;
+    eventsNumber: number;
+    ticketsCount: number;
+    ticketsTotal: number;
   }
 
   const { data, error, isLoading } = useSWR<Response>(
@@ -101,89 +95,65 @@ export default function AdminPage() {
 
       <div className="grid gap-6 md:grid-cols-3 mb-8">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Events</CardTitle>
-            <Ticket className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {isLoading || error ? "..." : (data?.number ?? 0)}
+          <CardContent className="p-6">
+            <div className="flex flex-row items-center justify-between ">
+              <div>
+                <CardTitle className="text-sm font-medium mb-1">
+                  Total Events
+                </CardTitle>
+                <span className="text-2xl font-bold">
+                  {isLoading || error ? "..." : (data?.eventsNumber ?? 0)}
+                </span>
+                <span className="text-sm font-normal"> Events</span>
+              </div>
+              <CalendarRange
+                strokeWidth={1}
+                className="h-12 w-12 text-orangeColor"
+              />
             </div>
-            <p className="text-xs text-muted-foreground">+2 from last month</p>
+            <p className="text-sm text-muted-foreground"></p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Ticket Sales</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">+573</div>
-            <p className="text-xs text-muted-foreground">
-              +201 from last month
-            </p>
+          <CardContent className="p-6">
+            <div className="flex flex-row items-center justify-between ">
+              <div>
+                <CardTitle className="text-sm font-medium mb-1">
+                  Ticket Sales
+                </CardTitle>
+                <span className="text-2xl font-bold">
+                  {isLoading || error ? "..." : (data?.ticketsCount ?? 0)}
+                </span>
+                <span className="text-sm font-normal"> Tickets</span>
+              </div>
+              <Ticket strokeWidth={1} className="h-12 w-12 text-orangeColor" />
+            </div>
+            <p className="text-sm text-muted-foreground"></p>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Revenue</CardTitle>
-            <DollarSignIcon className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              <span className="icon-saudi_riyal" />
-              {45231.89}
+          <CardContent className="p-6">
+            <div className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-sm font-medium mb-1">
+                  Revenue
+                </CardTitle>
+                <span className="text-2xl font-bold">
+                  {isLoading || error ? "..." : (data?.ticketsTotal ?? 0)}
+                </span>
+                <span className="icon-saudi_riyal text-md font-light" />
+              </div>
+              <DollarSignIcon
+                strokeWidth={1}
+                className="h-12 w-12 text-orangeColor"
+              />
             </div>
-            <p className="text-xs text-muted-foreground">
-              +20.1% from last month
-            </p>
+            <p className="text-sm text-muted-foreground"></p>
           </CardContent>
         </Card>
       </div>
 
-      {/* ------------- Tabs ------------ */}
-      <Tabs defaultValue="events">
-        <TabsList className="grid w-full grid-cols-3 mb-8">
-          <TabsTrigger value="events">Events</TabsTrigger>
-          <TabsTrigger value="tickets">Tickets</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="events">
-          <DashboardEventsList />
-        </TabsContent>
-
-        <TabsContent value="tickets">
-          <Card>
-            <CardHeader>
-              <CardTitle>Ticket Sales</CardTitle>
-              <CardDescription>
-                View and manage ticket sales for all events.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">
-                  No recent ticket sales to display.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="users">
-          <Card>
-            <CardContent>
-              <UsersPage />
-              <div className="flex justify-center ">
-                <Button asChild>
-                  <Link href="/admin/users">View All Users</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <DashboardEventsList />
     </div>
   );
 }
@@ -201,7 +171,9 @@ function DashboardEventsList() {
 
   interface Response {
     events: DashboardEvent[];
-    number: number;
+    eventsNumber: number;
+    ticketsCount: number;
+    ticketsTotal: number;
   }
 
   const { data, error, isLoading } = useSWR<Response>("/api/admin/dashboard");
@@ -388,66 +360,75 @@ function DashboardEventsList() {
                 </TableHeader>
 
                 <TableBody>
-                  {events
-                    .find((e) => e.id === selectedEvent)
-                    ?.tickets.map((ticket) => {
-                      return (
-                        <TableRow key={ticket.id}>
-                          <TableCell>{ticket.user.name}</TableCell>
-                          <TableCell className="text-muted-foreground">
-                            <div className="flex flex-col">
-                              <p>{ticket.user.phone}</p>
-                              <p>{ticket.user.email}</p>
-                            </div>
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            {ticket.id}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex justify-center bg-white p-2 rounded-lg  mb-2 w-20 h-20 md:w-full md:h-full">
-                              <Image
-                                src={
-                                  generateQRCode(ticket.token || ticket.id) ||
-                                  "/no-image.svg"
-                                }
-                                alt={"QR code"}
-                                width={80}
-                                height={80}
-                              />
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge
-                              className={`${getTicketStatusBadgeColor(ticket.status)}`}
-                            >
-                              {ticket.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {ticket.status === TicketStatus.VALID ? (
-                              <Button
-                                className="w-12 h-12 bg-green-600 hover:bg-green-600/70"
-                                onClick={() =>
-                                  handleValidToUsedTicket(ticket.id)
-                                }
+                  {events.find((e) => e.id === selectedEvent)?.tickets
+                    .length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6}>
+                        <p className="text-center p-6">No tickets</p>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    events
+                      .find((e) => e.id === selectedEvent)
+                      ?.tickets.map((ticket) => {
+                        return (
+                          <TableRow key={ticket.id}>
+                            <TableCell>{ticket.user.name}</TableCell>
+                            <TableCell className="text-muted-foreground">
+                              <div className="flex flex-col">
+                                <p>{ticket.user.phone}</p>
+                                <p>{ticket.user.email}</p>
+                              </div>
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              {ticket.id}
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex justify-center bg-white p-2 rounded-lg  mb-2 w-20 h-20 md:w-full md:h-full">
+                                <Image
+                                  src={
+                                    generateQRCode(ticket.token || ticket.id) ||
+                                    "/no-image.svg"
+                                  }
+                                  alt={"QR code"}
+                                  width={80}
+                                  height={80}
+                                />
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                className={`${getTicketStatusBadgeColor(ticket.status)}`}
                               >
-                                {isValidtion ? (
-                                  <div className="flex justify-center">
-                                    <Loading />
-                                  </div>
-                                ) : (
-                                  <CheckCircle size={50} />
-                                )}
-                              </Button>
-                            ) : (
-                              <Button variant="ghost" size="icon" disabled>
-                                <Check className="text-gray-600" size={25} />
-                              </Button>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
+                                {ticket.status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {ticket.status === TicketStatus.VALID ? (
+                                <Button
+                                  className="w-12 h-12 bg-green-600 hover:bg-green-600/70"
+                                  onClick={() =>
+                                    handleValidToUsedTicket(ticket.id)
+                                  }
+                                >
+                                  {isValidtion ? (
+                                    <div className="flex justify-center">
+                                      <Loading />
+                                    </div>
+                                  ) : (
+                                    <CheckCircle size={50} />
+                                  )}
+                                </Button>
+                              ) : (
+                                <Button variant="ghost" size="icon" disabled>
+                                  <Check className="text-gray-600" size={25} />
+                                </Button>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                  )}
                 </TableBody>
               </Table>
             )}

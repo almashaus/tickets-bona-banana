@@ -80,7 +80,7 @@ function Profile() {
   }
 
   const { data, error, isLoading } = useSWR<Response>(
-    `/api/profile/${user?.id}`
+    user ? `/api/profile/${user.id}` : null
   );
 
   useEffect(() => {
