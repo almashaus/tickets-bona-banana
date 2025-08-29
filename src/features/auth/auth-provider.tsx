@@ -8,7 +8,7 @@ import {
   useState,
   useCallback,
 } from "react";
-import { auth, functions } from "@/src/lib/firebase/firebaseConfig";
+import { auth } from "@/src/lib/firebase/firebaseConfig";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -27,13 +27,14 @@ import {
 } from "@/src/lib/firebase/firestore";
 import type { AppUser } from "@/src/models/user";
 import { useAuthStore } from "@/src/lib/stores/useAuthStore";
+import { httpsCallable } from "@firebase/functions";
 
 type AuthContextType = {
   user: AppUser | null;
   loading: boolean;
+  initialLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
-
   logout: () => void;
   signInWithGoogle: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
@@ -43,6 +44,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
   const router = useRouter();
@@ -63,55 +65,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!user) {
       // Listen for Firebase Auth state changes
       const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-        if (!loading) {
+        try {
           if (fbUser) {
-            try {
-              const result = await getDocumentById("users", fbUser.uid);
-              const appUser: AppUser = result as AppUser;
-              if (appUser) {
-                setUser(appUser as AppUser);
-                if (appUser.hasDashboardAccess) {
-                  await fetch("/api/login", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ member: "true" }),
-                  });
-                }
-              }
-            } catch {
-              setUser(null);
+            const result = await getDocumentById("users", fbUser.uid);
+            const appUser: AppUser = result as AppUser;
+            if (appUser) {
+              setUser(appUser as AppUser);
+              setInitialLoading(false);
             }
           } else {
             setUser(null);
           }
+        } catch {
+          setUser(null);
+        } finally {
+          setInitialLoading(false);
+          setLoading(false);
         }
-        setLoading(false);
       });
 
       return () => unsubscribe();
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }
-  }, [loading, setUser, user]);
+  }, [loading, initialLoading, setUser, user]);
 
   const login = useCallback(async (email: string, password: string) => {
     setLoading(true);
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
-      // const token = await result.user.getIdToken();
-      const user = await getDocumentById("users", result.user.uid);
-      const appUser: AppUser = user as AppUser;
+      const idToken = await result.user.getIdToken();
 
-      setUser(appUser);
-
-      if (appUser) {
-        if (appUser.hasDashboardAccess) {
-          await fetch("/api/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ member: "true" }),
-          });
-        }
-      }
+      await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+      });
     } catch {
       throw new Error("Login failed");
     } finally {
@@ -147,33 +135,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     },
     [mapFirebaseUserToAppUser]
   );
-
-  // const registerMember = useCallback(
-  //   async (member: AppUser, password: string) => {
-  //     setLoading(true);
-  //     try {
-  //       const createMemberFn = httpsCallable(functions, "createNewMember");
-
-  //       const result = await createMemberFn({
-  //         email: member.email,
-  //         password: password,
-  //         member: member,
-  //       });
-
-  //       const typedResult = result as { data: { success: boolean } };
-
-  //       if (!typedResult.data.success) {
-  //         throw new Error("Registration failed");
-  //       }
-  //     } catch (error) {
-  //       console.error(error);
-  //       throw new Error("Registration failed");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   },
-  //   []
-  // );
 
   const logout = useCallback(() => {
     signOut(auth)
@@ -227,9 +188,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         loading,
+        initialLoading,
         login,
         register,
-
         logout,
         signInWithGoogle,
         resetPassword,

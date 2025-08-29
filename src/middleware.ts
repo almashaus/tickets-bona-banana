@@ -1,14 +1,24 @@
 import { NextResponse, NextRequest } from "next/server";
 
-// Middleware for /admin
-// Middleware for /ticket
-export function middleware(request: NextRequest) {
-  const cookie = request.cookies.get("member")?.value;
-  const url = request.nextUrl;
+const protectedRoutes = ["/profile", "/checkout", "/confirmation"];
 
-  if (url.pathname.startsWith("/ticket")) {
-    const hasTicketAccess = cookie === "true";
-    const token = url.searchParams.get("token");
+export function middleware(request: NextRequest) {
+  const memberCookie = request.cookies.get("member")?.value;
+  const sessionCookie = request.cookies.get("session")?.value;
+  const { pathname, searchParams } = request.nextUrl;
+
+  const isProtectedRoute = protectedRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
+  if (isProtectedRoute && !sessionCookie) {
+    const url = new URL("/login", request.url);
+    return NextResponse.redirect(url);
+  }
+
+  if (pathname.startsWith("/ticket")) {
+    const hasTicketAccess = memberCookie === "true";
+    const token = searchParams.get("token");
 
     if (hasTicketAccess) {
       return NextResponse.redirect(
@@ -19,8 +29,8 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  if (url.pathname.startsWith("/admin")) {
-    const isAdmin = cookie === "true";
+  if (pathname.startsWith("/admin")) {
+    const isAdmin = memberCookie === "true";
     if (isAdmin) {
       return NextResponse.next();
     } else {
@@ -30,5 +40,11 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/ticket/:path*"],
+  matcher: [
+    "/admin/:path*",
+    "/ticket/:path*",
+    "/profile/:path*",
+    "/checkout/:path*",
+    "/confirmation/:path*",
+  ],
 };

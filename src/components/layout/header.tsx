@@ -2,16 +2,24 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, MonitorCog, PanelLeft, Ticket, User } from "lucide-react";
+import { MonitorCog } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { LanguageToggle } from "@/src/components/i18n/language-toggle";
 import { UserNav } from "@/src/components/auth/user-nav";
 import { useAuth } from "@/src/features/auth/auth-provider";
 import { ModeToggle } from "@/src/components/theme/mode-toggle";
+import { Skeleton } from "../ui/skeleton";
+import { AppUser } from "@/src/models/user";
+import { useAuthStore } from "@/src/lib/stores/useAuthStore";
+import { useEffect } from "react";
 
-export default function Header() {
+export default function Header({
+  initialUser,
+}: {
+  initialUser?: AppUser | null;
+}) {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, initialLoading } = useAuth();
 
   return (
     <header
@@ -63,7 +71,15 @@ export default function Header() {
           </Button>
           {/* <ModeToggle /> */}
           <LanguageToggle />
-          {user ? (
+          {initialLoading ? (
+            initialUser ? (
+              <UserNav user={initialUser!} />
+            ) : (
+              <Button asChild variant="outline" size="default">
+                <Link href="/login">Login</Link>
+              </Button>
+            )
+          ) : user ? (
             <UserNav user={user} />
           ) : (
             <Button asChild variant="outline" size="default">
