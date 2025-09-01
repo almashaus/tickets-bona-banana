@@ -8,10 +8,8 @@ import { LanguageToggle } from "@/src/components/i18n/language-toggle";
 import { UserNav } from "@/src/components/auth/user-nav";
 import { useAuth } from "@/src/features/auth/auth-provider";
 import { ModeToggle } from "@/src/components/theme/mode-toggle";
-import { Skeleton } from "../ui/skeleton";
 import { AppUser } from "@/src/models/user";
-import { useAuthStore } from "@/src/lib/stores/useAuthStore";
-import { useEffect } from "react";
+import { useLanguage } from "../i18n/language-provider";
 
 export default function Header({
   initialUser,
@@ -20,6 +18,7 @@ export default function Header({
 }) {
   const pathname = usePathname();
   const { user, initialLoading } = useAuth();
+  const { t } = useLanguage();
 
   return (
     <header
@@ -27,14 +26,14 @@ export default function Header({
     >
       <div className="ps-4 pe-8 flex h-16 items-center justify-between">
         <div className="flex justify-start items-center">
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center">
             <img
               src="/images/bona-banana.svg"
               alt="Bona Banana Logo"
-              className="h-10"
+              className="h-10 me-2"
             />
             <span
-              className={`hidden ${pathname.startsWith("/admin") ? "text-white" : "text-black"} font-bold sm:inline-block`}
+              className={`hidden ${pathname.startsWith("/admin") ? "text-white" : "text-orangeColor"} font-bold sm:inline-block`}
             >
               Bona Banana
             </span>
@@ -76,14 +75,14 @@ export default function Header({
               <UserNav user={initialUser!} />
             ) : (
               <Button asChild variant="outline" size="default">
-                <Link href="/login">Login</Link>
+                <Link href="/login">{t("nav.login")}</Link>
               </Button>
             )
           ) : user ? (
             <UserNav user={user} />
           ) : (
             <Button asChild variant="outline" size="default">
-              <Link href="/login">Login</Link>
+              <Link href="/login">{t("nav.login")}</Link>
             </Button>
           )}
         </div>

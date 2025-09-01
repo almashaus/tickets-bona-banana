@@ -11,9 +11,11 @@ import { formatDate, formatTime } from "@/src/lib/utils/formatDate";
 import useSWR from "swr";
 import { useLanguage } from "@/src/components/i18n/language-provider";
 import Image from "next/image";
+import { price } from "../lib/utils/locales";
 
 export default function Home() {
   const { t, language } = useLanguage();
+
   const fetcher = (url: string) =>
     fetch(url, { cache: "no-store" }).then((res) => res.json());
 
@@ -117,13 +119,14 @@ function EventsList({
             <CardContent className="p-4 bg-lightColor mx-3 rounded-md">
               <h3 className="line-clamp-1 text-lg font-bold">{event.title}</h3>
               <div className="mt-2 flex items-center text-sm text-muted-foreground">
-                <CalendarDays className="mr-1 h-4 w-4 text-redColor" />
-                {`${formatDate(event.dates[0].date)}`}
+                <CalendarDays className="me-1 h-4 w-4 text-redColor" />
+                {`${formatDate(event.dates[0].date, language)}`}
               </div>
               <div className="mt-1 flex items-center text-sm text-muted-foreground">
-                <ClockIcon className="mr-1 h-4 w-4 text-redColor" />
-                {`${formatTime(event.dates[0].startTime)} - ${formatTime(
-                  event.dates[0].endTime
+                <ClockIcon className="me-1 h-4 w-4 text-redColor" />
+                {`${formatTime(event.dates[0].startTime, language)} - ${formatTime(
+                  event.dates[0].endTime,
+                  language
                 )}`}
               </div>
             </CardContent>
@@ -134,8 +137,7 @@ function EventsList({
                 </span>
               </div>
               <div className="bg-yellowColor py-3 rounded-md text-white  text-center">
-                <span className="icon-saudi_riyal" />
-                {event.price}
+                {price(event.price, language)}
               </div>
             </CardFooter>
           </Card>

@@ -80,7 +80,7 @@ function Login() {
         <div className="grid gap-6">
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4">
-              <div className="grid gap-2">
+              <div className="grid gap-3">
                 <Label htmlFor="email">{t("auth.email")}</Label>
                 <Input
                   id="email"
@@ -89,18 +89,20 @@ function Login() {
                   autoCapitalize="none"
                   autoComplete="email"
                   autoCorrect="off"
+                  dir="ltr"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
-              <div className="grid gap-2">
+              <div className="grid gap-3">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">{t("auth.password")}</Label>
                 </div>
                 <Input
                   id="password"
                   type="password"
+                  dir="ltr"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -137,7 +139,7 @@ function Login() {
               disabled={isLoading}
             >
               <img src="/icons/google.svg" alt="Google Logo" className="h-5" />
-              {t("auth.google")}
+              Google
             </Button>
           </div>
         </div>

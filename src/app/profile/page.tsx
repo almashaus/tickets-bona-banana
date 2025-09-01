@@ -55,6 +55,7 @@ import Image from "next/image";
 import { useAuthStore } from "@/src/lib/stores/useAuthStore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { storage } from "@/src/lib/firebase/firebaseConfig";
+import { useLanguage } from "@/src/components/i18n/language-provider";
 
 function Profile() {
   const auth = getAuth();
@@ -67,8 +68,10 @@ function Profile() {
   const [userData, setUserData] = useState<AppUser | null>(null);
   const [profileImage, setProfileImage] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const tabParam = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState(tabParam || "profile");
+  const { t, language } = useLanguage();
 
   interface Response {
     appUser: AppUser;
@@ -104,6 +107,11 @@ function Profile() {
     router.replace(`?${params.toString()}`, { scroll: false });
   };
 
+  const validatePhone = (phone: string) => {
+    // Only digits, length 9 or 10
+    return /^\d{9,10}$/.test(phone);
+  };
+
   const handleInputChange = (field: string, value: any) => {
     setUserData((prev) => {
       if (!prev) return prev;
@@ -112,10 +120,22 @@ function Profile() {
         [field]: value,
       };
     });
+    if (field === "phone") {
+      if (!validatePhone(value)) {
+        setPhoneError("Phone number must be numbers and 10 digits");
+      } else {
+        setPhoneError(null);
+      }
+    }
   };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Validate phone before submitting
+    if (userData?.phone && !validatePhone(userData.phone)) {
+      setPhoneError("Phone number must be numbers and 10 digits");
+      return;
+    }
     setIsUpdating(true);
     try {
       const idToken = await authUser.getIdToken();
@@ -167,19 +187,20 @@ function Profile() {
         <Tabs
           defaultValue="profile"
           className="w-full"
+          dir={language === "en" ? "ltr" : "rtl"}
           value={activeTab}
           onValueChange={handleTabChange}
         >
           <TabsList className="grid w-full grid-cols-3 mb-8">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="tickets">My Tickets</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="profile">{t("profile.profile")}</TabsTrigger>
+            <TabsTrigger value="tickets">{t("profile.myTickets")}</TabsTrigger>
+            <TabsTrigger value="settings">{t("profile.settings")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile">
             <div className="rounded-lg border p-6 shadow-sm bg-white">
               <h2 className="text-xl font-semibold mb-4">
-                Personal Information
+                {t("profile.personalInformation")}
               </h2>
 
               {isLoading && (
@@ -190,8 +211,8 @@ function Profile() {
               {!isLoading && userData && (
                 <form onSubmit={handleUpdateProfile}>
                   <div className="grid gap-4 px-2 md:px-10 py-5">
-                    <div className="grid gap-2">
-                      <Label htmlFor="name">Name</Label>
+                    <div className="grid gap-3">
+                      <Label htmlFor="name">{t("profile.name")}</Label>
                       <Input
                         id="name"
                         value={userData?.name}
@@ -201,8 +222,8 @@ function Profile() {
                         required
                       />
                     </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="email">Email</Label>
+                    <div className="grid gap-3">
+                      <Label htmlFor="email">{t("profile.email")}</Label>
                       <Input
                         id="email"
                         type="email"
@@ -214,8 +235,8 @@ function Profile() {
                         disabled
                       />
                     </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="phone">phone</Label>
+                    <div className="grid gap-3">
+                      <Label htmlFor="phone">{t("profile.phone")}</Label>
                       <Input
                         id="phone"
                         type="phone"
@@ -223,12 +244,22 @@ function Profile() {
                         onChange={(e) =>
                           handleInputChange("phone", e.target.value)
                         }
+                        pattern="\d{9,10}"
+                        maxLength={10}
+                        minLength={9}
+                        required={false}
                       />
+                      {phoneError && (
+                        <span className="text-red-500 text-xs mt-1">
+                          {phoneError}
+                        </span>
+                      )}
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2">
-                      <div className="grid gap-2">
-                        <Label htmlFor="status">Status</Label>
+                      <div className="grid gap-3">
+                        <Label htmlFor="gender">{t("profile.gender")}</Label>
                         <Select
+                          dir={language === "en" ? "ltr" : "rtl"}
                           value={userData?.gender}
                           onValueChange={(value) => {
                             handleInputChange("gender", value);
@@ -241,17 +272,23 @@ function Profile() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Male">
-                              <div className="flex items-center">Male</div>
+                              <div className="flex items-center">
+                                {t("profile.male")}
+                              </div>
                             </SelectItem>
                             <SelectItem value="Female">
-                              <div className="flex items-center">Female</div>
+                              <div className="flex items-center">
+                                {t("profile.female")}
+                              </div>
                             </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
-                    <div className="grid gap-2">
-                      <Label htmlFor="birthDate">Birth Date</Label>
+                    <div className="grid gap-3">
+                      <Label htmlFor="birthDate">
+                        {t("profile.birthDate")}
+                      </Label>
 
                       <div className="flex flex-col space-y-2">
                         <Popover>
@@ -264,9 +301,12 @@ function Profile() {
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
                               {userData?.birthDate ? (
-                                formatDate(new Date(userData?.birthDate))
+                                formatDate(
+                                  new Date(userData?.birthDate),
+                                  language
+                                )
                               ) : (
-                                <span>Pick a date</span>
+                                <span>{t("pickDate")}</span>
                               )}
                             </Button>
                           </PopoverTrigger>
@@ -288,7 +328,9 @@ function Profile() {
                   </div>
                   <div className="flex justify-center">
                     <Button type="submit" disabled={isUpdating}>
-                      {isUpdating ? "Updating..." : "Update Profile"}
+                      {isUpdating
+                        ? t("profile.updating")
+                        : t("profile.updateProfile")}
                     </Button>
                   </div>
                 </form>
@@ -298,7 +340,9 @@ function Profile() {
 
           <TabsContent value="tickets">
             <div className="rounded-lg border p-6 shadow-sm bg-white">
-              <h2 className="text-xl font-semibold mb-4">My Tickets</h2>
+              <h2 className="text-xl font-semibold mb-4">
+                {t("profile.myTickets")}
+              </h2>
               <div className="text-center py-3">
                 {isLoading && (
                   <div className="flex justify-center items-center py-12">
@@ -308,10 +352,10 @@ function Profile() {
                 {!isLoading && data?.tickets.length === 0 && (
                   <div>
                     <p className="text-muted-foreground mb-4">
-                      You don't have any tickets yet.
+                      {t("profile.dontHaveTickets")}
                     </p>
                     <Button asChild>
-                      <Link href="/">Browse Events</Link>
+                      <Link href="/">{t("profile.browseEvents")}</Link>
                     </Button>
                   </div>
                 )}
@@ -320,11 +364,11 @@ function Profile() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Event Title</TableHead>
-                          <TableHead>Event Date</TableHead>
-                          <TableHead>Ticket ID</TableHead>
-                          <TableHead>QR Code</TableHead>
-                          <TableHead>Status</TableHead>
+                          <TableHead>{t("profile.eventTitle")}</TableHead>
+                          <TableHead>{t("profile.eventDate")}</TableHead>
+                          <TableHead>{t("profile.ticketID")}</TableHead>
+                          <TableHead>{t("profile.QRCode")}</TableHead>
+                          <TableHead>{t("profile.status")}</TableHead>
                         </TableRow>
                       </TableHeader>
 
@@ -336,7 +380,7 @@ function Profile() {
                                 {ticketData.event?.title || ""}
                               </TableCell>
                               <TableCell>
-                                {formatDate(ticketData.date!)}
+                                {formatDate(ticketData.date!, language)}
                               </TableCell>
                               <TableCell>{ticketData.ticket.id}</TableCell>
 
@@ -375,7 +419,9 @@ function Profile() {
 
           <TabsContent value="settings">
             <div className="rounded-lg border p-6 shadow-sm bg-white">
-              <h2 className="text-xl font-semibold mb-4">Account Settings</h2>
+              <h2 className="text-xl font-semibold mb-4">
+                {t("profile.accountSettings")}
+              </h2>
 
               <div className="space-y-6">
                 {/* <Separator /> */}
@@ -492,7 +538,7 @@ function ProfileImageInput({
           type="button"
           variant="ghost"
           size="icon"
-          className="absolute bottom-1 right-1 h-7 w-7 px-2 text-xs bg-stone-200 border border-white rounded-full"
+          className="absolute -bottom-1 -right-1 h-8 w-8 px-2 text-xs bg-stone-100 border border-stone-200 rounded-full"
           onClick={() => document.getElementById("ad-image-upload")?.click()}
         >
           <EditIcon className="w-4 h-4" />

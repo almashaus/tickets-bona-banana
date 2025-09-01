@@ -32,12 +32,13 @@ import Loading from "@/src/components/ui/loading";
 import { useCheckoutStore } from "@/src/lib/stores/useCheckoutStore";
 import { useLanguage } from "@/src/components/i18n/language-provider";
 import { mutate } from "swr";
+import { price } from "@/src/lib/utils/locales";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
 
   const storedEvent = useCheckoutStore((state) => state.event);
   const dateId = useCheckoutStore((state) => state.eventDateId);
@@ -54,7 +55,9 @@ export default function CheckoutPage() {
       setEvent(eventData as Event);
 
       const sdate = eventData.dates.find((item) => item.id === dateId);
-      setSelectedDate(eventDateTimeString(sdate ?? eventData.dates[0]));
+      setSelectedDate(
+        eventDateTimeString(sdate ?? eventData.dates[0], language)
+      );
     }
   }, [storedEvent]);
 
@@ -208,19 +211,19 @@ export default function CheckoutPage() {
               <div>
                 <h3 className="text-lg font-medium">{event.title}</h3>
                 <div className="flex items-center text-sm text-muted-foreground mt-1">
-                  <CalendarDays className="mr-1 h-4 w-4 text-redColor" />
+                  <CalendarDays className="me-1 h-4 w-4 text-redColor" />
                   {selectedDate.split("-")[1]}
                 </div>
                 <div className="flex items-center text-sm text-muted-foreground mt-1">
-                  <ClockIcon className="mr-1 h-4 w-4 text-redColor" />
+                  <ClockIcon className="me-1 h-4 w-4 text-redColor" />
                   {selectedDate.split("-")[2]} - {selectedDate.split("-")[3]}
                 </div>
                 <div className="flex items-center text-sm text-muted-foreground mt-1">
-                  <MapPin className="mr-1 h-4 w-4 text-redColor" />
+                  <MapPin className="me-1 h-4 w-4 text-redColor" />
                   {event.city.en}
                 </div>
                 <div className="flex items-center text-sm mt-1">
-                  <TicketIcon className="mr-1 h-4 w-4 text-redColor" />
+                  <TicketIcon className="me-1 h-4 w-4 text-redColor" />
                   {quantity}{" "}
                   {quantity === 1 ? t("event.ticket") : t("event.tickets")}
                 </div>
@@ -257,10 +260,7 @@ export default function CheckoutPage() {
                     *{t("checkout.VAT")}
                   </span> */}
                 </span>
-                <span>
-                  <span className="icon-saudi_riyal" />
-                  {total}
-                </span>
+                <span>{price(total, language)}</span>
               </div>
             </div>
           </div>

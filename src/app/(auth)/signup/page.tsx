@@ -90,7 +90,7 @@ export default function RegisterPage() {
         <div className="grid gap-6">
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4">
-              <div className="grid gap-2">
+              <div className="grid gap-3">
                 <Label htmlFor="name">{t("auth.name")}</Label>
                 <Input
                   id="name"
@@ -103,7 +103,7 @@ export default function RegisterPage() {
                   required
                 />
               </div>
-              <div className="grid gap-2">
+              <div className="grid gap-3">
                 <Label htmlFor="email">{t("auth.email")}</Label>
                 <Input
                   id="email"
@@ -112,28 +112,31 @@ export default function RegisterPage() {
                   autoCapitalize="none"
                   autoComplete="email"
                   autoCorrect="off"
+                  dir="ltr"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
-              <div className="grid gap-2">
+              <div className="grid gap-3">
                 <Label htmlFor="password">{t("auth.password")}</Label>
                 <Input
                   id="password"
                   type="password"
+                  dir="ltr"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
-              <div className="grid gap-2">
+              <div className="grid gap-3">
                 <Label htmlFor="confirm-password">
                   {t("auth.confirmPassword")}
                 </Label>
                 <Input
                   id="confirm-password"
                   type="password"
+                  dir="ltr"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
@@ -164,7 +167,7 @@ export default function RegisterPage() {
               disabled={isLoading}
             >
               <img src="/icons/google.svg" alt="Google Logo" className="h-5" />
-              {t("auth.google")}
+              Google
             </Button>
           </div>
         </div>

@@ -1,8 +1,8 @@
-import { useLanguage } from "@/src/components/i18n/language-provider";
 import { EventDate } from "@/src/models/event";
 
-export function formatDate(date: Date): string {
-  return new Date(date).toLocaleString("en-UK", {
+export function formatDate(date: Date, language: string = "en"): string {
+  const locale = language === "en" ? "en-UK" : "ar-UK";
+  return new Date(date).toLocaleString(locale, {
     weekday: "long",
     year: "numeric",
     month: "numeric",
@@ -10,8 +10,9 @@ export function formatDate(date: Date): string {
   });
 }
 
-export function formatTime(date: Date): string {
-  return new Date(date).toLocaleString("en-UK", {
+export function formatTime(date: Date, language: string = "en"): string {
+  const locale = language === "en" ? "en-UK" : "ar-UK";
+  return new Date(date).toLocaleString(locale, {
     hour: "2-digit",
     minute: "2-digit",
     hour12: true,
@@ -37,10 +38,14 @@ export function formatTime24H(date: Date): string {
   });
 }
 
-export const eventDateTimeString = (date: EventDate): string => {
-  return `${date.id}-${formatDate(date.date)}-${formatTime(
-    date.startTime
-  )}-${formatTime(date.endTime)}-${date.capacity}`;
+export const eventDateTimeString = (
+  date: EventDate,
+  language: string = "en"
+): string => {
+  return `${date.id}-${formatDate(date.date, language)}-${formatTime(
+    date.startTime,
+    language
+  )}-${formatTime(date.endTime, language)}-${date.capacity}`;
 };
 
 export const eventDateTimeShortString = (date: EventDate): string => {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from "@/src/components/i18n/language-provider";
 import {
   Card,
   CardContent,
@@ -27,6 +28,7 @@ function TicketView() {
   const searchParams = useSearchParams();
   const token = searchParams?.get("token");
   const router = useRouter();
+  const { language } = useLanguage();
 
   if (!token) {
     router.push("/");
@@ -87,15 +89,15 @@ function TicketView() {
                   <Label className="text-sm font-medium text-muted-foreground">
                     Date
                   </Label>
-                  <p>{formatDate(date?.date!)}</p>
+                  <p>{formatDate(date?.date!, language)}</p>
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">
                     Time
                   </Label>
                   <p>
-                    {formatTime(date?.startTime!)} -{" "}
-                    {formatTime(date?.endTime!)}
+                    {formatTime(date?.startTime!, language)} -{" "}
+                    {formatTime(date?.endTime!, language)}
                   </p>
                 </div>
               </CardContent>

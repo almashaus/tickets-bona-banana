@@ -18,6 +18,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { Ticket } from "@/src/models/ticket";
 import Image from "next/image";
+import { price } from "@/src/lib/utils/locales";
 
 function Confirmation() {
   const [event, setEvent] = useState<Event | null>(null);
@@ -26,7 +27,7 @@ function Confirmation() {
   const [quantity, setQuantity] = useState<number>(1);
 
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const searchParams = useSearchParams();
   const orderNumber = searchParams?.get("orderNumber");
   const cardRef = useRef<HTMLDivElement>(null);
@@ -138,7 +139,7 @@ function Confirmation() {
                 <div className="text-xl font-semibold">{event.title}</div>
                 <div className="flex items-center text-sm text-muted-foreground mt-1">
                   <CalendarDays className="mr-1 h-4 w-4" />
-                  {formatDate(date)}
+                  {formatDate(date, language)}
                 </div>
                 <div className="flex items-center text-sm text-muted-foreground mt-1">
                   <MapPin className="mr-1 h-4 w-4" />
@@ -190,8 +191,7 @@ function Confirmation() {
                     t("event.tickets").slice(1)}
                 </span>
                 <span>
-                  {quantity} × <span className="icon-saudi_riyal" />
-                  {event.price}
+                  {quantity} × {price(event.price, language)}
                 </span>
               </div>
               {/* TODO: VAT*/}
@@ -221,10 +221,7 @@ function Confirmation() {
                     *{t("checkout.VAT")}
                   </span> */}
                 </span>
-                <span>
-                  <span className="icon-saudi_riyal" />
-                  {total}
-                </span>
+                <span>{price(total, language)}</span>
               </div>
             </div>
           </CardContent>

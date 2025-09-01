@@ -19,10 +19,12 @@ import {
 } from "@/src/components/ui/dropdown-menu";
 import { useAuth } from "@/src/features/auth/auth-provider";
 import { AppUser } from "@/src/models/user";
+import { useLanguage } from "../i18n/language-provider";
 
 export function UserNav({ user }: { user: AppUser }) {
   const { logout } = useAuth();
   const router = useRouter();
+  const { t, language } = useLanguage();
 
   return (
     <DropdownMenu>
@@ -38,7 +40,11 @@ export function UserNav({ user }: { user: AppUser }) {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
+      <DropdownMenuContent
+        className="w-56"
+        style={{ direction: language === "ar" ? "rtl" : "ltr" }}
+        forceMount
+      >
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{user.name}</p>
@@ -50,22 +56,24 @@ export function UserNav({ user }: { user: AppUser }) {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem onClick={() => router.push("/profile")}>
-            Profile
+            {t("nav.profile")}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => router.push("/profile?tab=tickets")}>
-            My Tickets
+            {t("nav.myTickets")}
           </DropdownMenuItem>
           {user.hasDashboardAccess && (
             <DropdownMenuItem
               className="text-redColor"
               onClick={() => router.push("/admin")}
             >
-              Dashboard
+              {t("nav.dashboard")}
             </DropdownMenuItem>
           )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => logout()}>Log out</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => logout()}>
+          {t("nav.logout")}
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

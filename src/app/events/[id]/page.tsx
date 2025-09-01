@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowLeft,
+  ArrowRight,
   Building,
   CalendarDays,
   ClockIcon,
@@ -44,6 +45,7 @@ import useSWR from "swr";
 import { isSafeImageUrl } from "@/src/lib/utils/utils";
 import { useLanguage } from "@/src/components/i18n/language-provider";
 import { Skeleton } from "@/src/components/ui/skeleton";
+import { price } from "@/src/lib/utils/locales";
 
 export default function EventPage() {
   const { user } = useAuth();
@@ -64,7 +66,7 @@ export default function EventPage() {
     const eventData: Event = data as Event;
     if (eventData && eventData.dates && eventData.dates.length > 0) {
       setEvent(eventData);
-      setSelectedDate(eventDateTimeString(eventData.dates[0]));
+      setSelectedDate(eventDateTimeString(eventData.dates[0], language));
     }
   }, [data]);
 
@@ -159,7 +161,11 @@ export default function EventPage() {
         <div className="md:col-span-1 lg:col-span-2 lg:me-6">
           <div className="flex justify-start gap-4">
             <Button variant="outline" size="icon" onClick={() => router.back()}>
-              <ArrowLeft className="h-4 w-4" />
+              {language === "en" ? (
+                <ArrowLeft className="h-4 w-4" />
+              ) : (
+                <ArrowRight className="h-4 w-4" />
+              )}
             </Button>
             <h1 className="text-3xl font-bold">{event.title}</h1>
           </div>
@@ -193,10 +199,11 @@ export default function EventPage() {
                       ? `${selectedDate.split("-")[1]}`
                       : event.dates && event.dates.length > 0
                         ? event.dates.length > 1
-                          ? `${formatDate(event.dates[0].date)} - ${formatDate(
-                              event.dates[event.dates.length - 1].date
+                          ? `${formatDate(event.dates[0].date, language)} - ${formatDate(
+                              event.dates[event.dates.length - 1].date,
+                              language
                             )}`
-                          : `${formatDate(event.dates[0].date)}`
+                          : `${formatDate(event.dates[0].date, language)}`
                         : t("event.noDatesAvailable") || "No dates available"}
                   </p>
                 </div>
@@ -211,8 +218,9 @@ export default function EventPage() {
                           selectedDate.split("-")[3]
                         }`
                       : event.dates && event.dates.length > 0
-                        ? `${formatTime(event.dates[0].startTime)} - ${formatTime(
-                            event.dates[0].endTime
+                        ? `${formatTime(event.dates[0].startTime, language)} - ${formatTime(
+                            event.dates[0].endTime,
+                            language
                           )}`
                         : t("event.noTimesAvailable") || "No times available"}
                   </p>
@@ -291,10 +299,11 @@ export default function EventPage() {
                     {event.dates?.map((date) => (
                       <SelectItem
                         key={date.id}
-                        value={eventDateTimeString(date)}
+                        value={eventDateTimeString(date, language)}
                       >
-                        {formatDate(date.date)} | {formatTime(date.startTime)} -{" "}
-                        {formatTime(date.endTime)}
+                        {formatDate(date.date, language)} |{" "}
+                        {formatTime(date.startTime, language)} -{" "}
+                        {formatTime(date.endTime, language)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -349,17 +358,13 @@ export default function EventPage() {
                       </span>
                     </div>
                     <span className="font-bold">
-                      <span className="icon-saudi_riyal" />
-                      {event.price}
+                      {price(event.price, language)}
                     </span>
                   </div>
                   <Separator />
                   <div className="flex items-center justify-between font-bold">
                     <span>{t("event.total")}</span>
-                    <span>
-                      <span className="icon-saudi_riyal" />
-                      {event.price * quantity}
-                    </span>
+                    <span>{price(event.price * quantity, language)}</span>
                   </div>
                   <div className="pt-3">
                     <Button
