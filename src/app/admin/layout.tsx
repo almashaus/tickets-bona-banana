@@ -1,3 +1,4 @@
+import type React from "react";
 import { DashboardSidebar } from "@/src/components/ui/dashboard-sidebar";
 
 export default function DashboardLayout({

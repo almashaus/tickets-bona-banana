@@ -37,7 +37,7 @@ export default function Home() {
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
               <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                {t("home.title")}
+                ✨ {t("home.title")} ✨
               </h2>
               <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                 {t("home.subtitle")}
@@ -65,7 +65,7 @@ export default function Home() {
             <div className="flex flex-col justify-center items-center space-y-3 py-12">
               <InfoIcon className="h-8 w-8 text-muted-foreground" />
               <p className="text-muted-foreground text-center">
-                Something went wrong. Please try again later.
+                {t("home.error")}
               </p>
             </div>
           )}
@@ -77,7 +77,7 @@ export default function Home() {
                 className="h-1/2 w-1/2 md:h-1/6 md:w-1/6"
               />
               <p className="text-muted-foreground text-center">
-                There is no event currently, Come back later!
+                {t("home.noEvents")}
               </p>
             </div>
           )}

@@ -25,18 +25,24 @@ export async function POST(req: NextRequest) {
       doc.data()
     ) as Ticket[];
 
-    // TODO: Uncomment
-    // const data = await resend.emails.send({
-    //   from: "Bona Banana <info@bona-banana.com>",
-    //   to: "ihadeel.1024@gmail.com", // TODO: email
-    //   subject: "Order Confirmation",
-    //   react: OrderConfirmationEmail(order, tickets, event),
-    // });
-
-    return new Response(JSON.stringify({ data: "Email sent" }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
+    const data = await resend.emails.send({
+      from: "Bona Banana <info@bona-banana.com>",
+      to: email,
+      subject: "Order Confirmation",
+      react: OrderConfirmationEmail(order, tickets, event),
     });
+
+    if (data.data) {
+      return new Response(JSON.stringify({ data: "Email sent" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    } else {
+      return new Response(JSON.stringify({ data: "Error" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
   } catch (error) {
     console.error(error);
     return new Response(JSON.stringify({ data: "Error" }), {

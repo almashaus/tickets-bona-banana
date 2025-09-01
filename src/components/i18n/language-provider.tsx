@@ -4,6 +4,7 @@ import type React from "react";
 
 import { createContext, useContext, useState, useEffect } from "react";
 import { translations } from "./language-translations";
+import { usePathname } from "next/navigation";
 
 type Language = "en" | "ar";
 
@@ -19,6 +20,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguage] = useState<Language>("en");
+  const pathname = usePathname();
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("language") as Language;
@@ -31,6 +33,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("language", language);
     document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
     document.documentElement.lang = language;
+
+    if (pathname.startsWith("/admin")) {
+      document.documentElement.dir = "ltr";
+      document.documentElement.lang = "en";
+    }
   }, [language]);
 
   const t = (key: string) => {

@@ -306,7 +306,7 @@ function Profile() {
                                   language
                                 )
                               ) : (
-                                <span>{t("pickDate")}</span>
+                                <span>{t("profile.pickDate")}</span>
                               )}
                             </Button>
                           </PopoverTrigger>
