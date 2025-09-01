@@ -175,6 +175,7 @@ function Confirmation() {
                         alt={"QR code"}
                         width={150}
                         height={150}
+                        priority
                       />
                     </div>
                   </div>

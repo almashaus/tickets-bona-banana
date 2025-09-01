@@ -105,6 +105,7 @@ function EventsList({
                 alt={event.title}
                 width={300}
                 height={260}
+                priority
                 style={{
                   width: "300px",
                   height: "260px",

@@ -82,7 +82,7 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="container py-6">
+    <div className="p-4 md:p-6">
       <div className="mb-6">
         {isMobile && (
           <Button

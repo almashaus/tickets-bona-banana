@@ -55,7 +55,7 @@ function TicketView() {
   }, [data]);
 
   return (
-    <div className="container py-6">
+    <div className="p-4 md:p-6">
       {isLoading && (
         <div className="flex justify-center items-center py-12">
           <Loading />

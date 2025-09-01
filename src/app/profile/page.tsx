@@ -396,6 +396,7 @@ function Profile() {
                                     alt={"QR code"}
                                     width={80}
                                     height={80}
+                                    priority
                                   />
                                 </div>
                               </TableCell>

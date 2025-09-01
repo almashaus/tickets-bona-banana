@@ -36,7 +36,7 @@ import {
   formatDate,
   formatTime,
 } from "@/src/lib/utils/formatDate";
-import { Event } from "@/src/models/event";
+import { Event, EventStatus } from "@/src/models/event";
 import { useAuth } from "@/src/features/auth/auth-provider";
 import { useToast } from "@/src/components/ui/use-toast";
 import Loading from "@/src/components/ui/loading";
@@ -181,6 +181,9 @@ export default function EventPage() {
               className="object-cover"
               sizes="(min-width: 1024px) 75vw, 100vw"
               priority
+              onError={(e) => {
+                e.currentTarget.src = "/no-image.svg";
+              }}
             />
           </div>
           <div className="space-y-4">
@@ -188,6 +191,21 @@ export default function EventPage() {
             <p className="text-muted-foreground whitespace-pre-line">
               {event.description}
             </p>
+
+            <div>
+              <img
+                src={
+                  isSafeImageUrl(event.adImage)
+                    ? event.adImage!
+                    : "/no-image.svg"
+                }
+                alt={event.title}
+                className="object-cover rounded-xl my-10"
+                onError={(e) => {
+                  e.currentTarget.src = "/no-image.svg";
+                }}
+              />
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg border border-neutral-200 bg-card text-card-foreground shadow-sm">
               <div className="flex items-center gap-2">
@@ -371,8 +389,11 @@ export default function EventPage() {
                       className="w-full"
                       size="lg"
                       onClick={handleBuyTicket}
+                      disabled={event.status === EventStatus.COMPLETED}
                     >
-                      {t("event.buyTicket")}
+                      {event.status === EventStatus.COMPLETED
+                        ? t("event.completed")
+                        : t("event.buyTicket")}
                     </Button>
                   </div>
                 </div>

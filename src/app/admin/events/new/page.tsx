@@ -212,7 +212,7 @@ export default function CreateEventPage() {
   };
 
   return (
-    <div className="container py-6">
+    <div className="p-4 md:p-6">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Create New Event</h1>
         <Button variant="outline" onClick={() => router.back()}>
@@ -638,6 +638,7 @@ function EventImageInput({
                 alt="Event"
                 className="w-full h-full object-cover rounded-md"
                 fill
+                priority
                 onError={(e) => {
                   e.currentTarget.src = "/no-image.svg";
                 }}
@@ -763,6 +764,7 @@ function AdImageInput({
                 alt="Advertisement"
                 className="w-full h-full object-cover rounded-md"
                 fill
+                priority
                 onError={(e) => {
                   e.currentTarget.src = "/no-image.svg";
                 }}

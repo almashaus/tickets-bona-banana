@@ -77,7 +77,7 @@ export default function AdminPage() {
   );
 
   return (
-    <div className="container py-6">
+    <div className="p-4 md:p-6">
       <div className="mb-6">
         {isMobile && (
           <Button
@@ -282,6 +282,7 @@ function DashboardEventsList() {
                             alt={event.title}
                             className="h-full w-full object-cover"
                             fill
+                            priority
                             onError={(e) => {
                               e.currentTarget.src = "/no-image.svg";
                             }}
@@ -393,6 +394,7 @@ function DashboardEventsList() {
                                   alt={"QR code"}
                                   width={80}
                                   height={80}
+                                  priority
                                 />
                               </div>
                             </TableCell>

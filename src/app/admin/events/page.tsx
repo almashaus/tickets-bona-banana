@@ -139,7 +139,7 @@ export default function EventsPage() {
   };
 
   return (
-    <div className="container py-6">
+    <div className="p-4 md:p-6">
       {eventUrl && (
         <div className="flex flex-row justify-between items-end md:items-center gap-4 mb-6">
           <div className="">
@@ -219,6 +219,7 @@ export default function EventsPage() {
                           alt={response.event.title}
                           className="h-full w-full object-cover"
                           fill
+                          priority
                           onError={(e) => {
                             e.currentTarget.src = "/no-image.svg";
                           }}

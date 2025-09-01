@@ -8,7 +8,7 @@ export async function GET() {
   try {
     const eventsSnapshot = await db
       .collection("events")
-      .where("status", "==", EventStatus.PUBLISHED)
+      .where("status", "in", [EventStatus.PUBLISHED, EventStatus.COMPLETED])
       .orderBy("updatedAt", "desc")
       .get();
 

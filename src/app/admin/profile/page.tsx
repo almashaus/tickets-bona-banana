@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Activity, Check, X } from "lucide-react";
+import { Activity, Check, PanelLeft, X } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -41,6 +41,9 @@ import Link from "next/link";
 import { getRoleBadgeColor, getStatusBadgeColor } from "@/src/lib/utils/styles";
 import { formatDate } from "@/src/lib/utils/formatDate";
 import Loading from "@/src/components/ui/loading";
+import { useIsMobile } from "@/src/hooks/use-mobile";
+import { useMobileSidebar } from "@/src/lib/stores/useMobileSidebar";
+import { Button } from "@/src/components/ui/button";
 
 // Mock permissions data
 const mockPermissions = [
@@ -115,6 +118,8 @@ export default function UserProfilePage() {
   const { toast } = useToast();
   const [permissions, setPermissions] = useState(mockPermissions);
   const [internalNotes, setInternalNotes] = useState("");
+  const isMobile = useIsMobile();
+  const setMobileOpen = useMobileSidebar((state) => state.setMobileOpen);
 
   const {
     data: member,
@@ -149,10 +154,22 @@ export default function UserProfilePage() {
   };
 
   return (
-    <div className="container py-6">
+    <div className="p-4 md:p-6">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
-        <div className="flex-1">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div>
+          {isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="flex justify-start items-center rounded-lg text-neutral-400 dark:text-white hover:bg-transparent"
+              onClick={() => setMobileOpen(true)}
+              aria-label="Open sidebar"
+            >
+              <PanelLeft />
+            </Button>
+          )}
+
           <h1 className="text-3xl font-bold">Member Profile</h1>
           <p className="text-muted-foreground">View and manage details</p>
         </div>
