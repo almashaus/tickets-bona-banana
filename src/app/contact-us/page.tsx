@@ -31,8 +31,8 @@ export default function contactUsPage() {
             {t("contact.description")}
           </p>
         </div>
-        <div className="flex flex-col md:flex-row md:space-x-6 space-y-6 md:space-y-0 justify-center">
-          <Card className="px-2 py-4 w-full md:w-1/4">
+        <div className="flex flex-col md:flex-row  space-y-6 md:space-y-0 justify-center">
+          <Card className="px-2 py-4 me-4 w-full md:w-1/3 lg:w-1/4">
             <CardHeader className="text-center">
               <CardTitle>{t("contact.sendMessage")}</CardTitle>
             </CardHeader>
@@ -70,7 +70,7 @@ export default function contactUsPage() {
             </CardContent>
           </Card>
 
-          <Card className="px-2 py-4 w-full md:w-1/4">
+          <Card className="px-2 py-4 w-full md:w-1/3 lg:w-1/4">
             <CardHeader className="text-center">
               <CardTitle>{t("contact.getTouch")}</CardTitle>
             </CardHeader>

@@ -27,18 +27,19 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     if (savedLanguage && ["en", "ar"].includes(savedLanguage)) {
       setLanguage(savedLanguage);
     }
-
-    if (pathname.startsWith("/admin")) {
-      document.documentElement.dir = "ltr";
-      document.documentElement.lang = "en";
-    }
   }, []);
 
   useEffect(() => {
     localStorage.setItem("language", language);
-    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
-    document.documentElement.lang = language;
-  }, [language]);
+
+    if (pathname.startsWith("/admin")) {
+      document.documentElement.dir = "ltr";
+      document.documentElement.lang = "en";
+    } else {
+      document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+      document.documentElement.lang = language;
+    }
+  }, [language, pathname]);
 
   const t = (key: string) => {
     return (
