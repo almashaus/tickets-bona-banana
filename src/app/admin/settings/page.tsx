@@ -9,12 +9,7 @@ import {
 } from "@/src/components/ui/card";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
-import Loading from "@/src/components/ui/loading";
-import { Separator } from "@/src/components/ui/separator";
-import { useIsMobile } from "@/src/hooks/use-mobile";
-import { useMobileSidebar } from "@/src/lib/stores/useMobileSidebar";
-import { getRoleBadgeColor } from "@/src/lib/utils/styles";
-import { MapPin, MonitorCog, PanelLeft } from "lucide-react";
+import { MapPin } from "lucide-react";
 import React, { useState } from "react";
 import useSWR, { mutate } from "swr";
 
@@ -38,10 +33,7 @@ const SettingsPage = () => {
   const [newCityEn, setNewCityEn] = useState("");
   const [newCityAr, setNewCityAr] = useState("");
   const [newCityIsAdding, setnewCityIsAdding] = useState(false);
-
   const [newRole, setNewRole] = useState("");
-  const isMobile = useIsMobile();
-  const setMobileOpen = useMobileSidebar((state) => state.setMobileOpen);
 
   // Handlers
   const handleAddCity = async (e: React.FormEvent) => {
@@ -84,17 +76,6 @@ const SettingsPage = () => {
   return (
     <div className="p-4 md:p-6">
       <div className="mb-6">
-        {isMobile && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="flex justify-start items-center rounded-lg text-neutral-400 dark:text-white hover:bg-transparent"
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open sidebar"
-          >
-            <PanelLeft />
-          </Button>
-        )}
         <h1 className="text-3xl font-bold">Settings</h1>
       </div>
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MonitorCog } from "lucide-react";
+import { Menu, MonitorCog } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { LanguageToggle } from "@/src/components/i18n/language-toggle";
 import { UserNav } from "@/src/components/auth/user-nav";
@@ -10,6 +10,8 @@ import { useAuth } from "@/src/features/auth/auth-provider";
 import { ModeToggle } from "@/src/components/theme/mode-toggle";
 import { AppUser } from "@/src/models/user";
 import { useLanguage } from "../i18n/language-provider";
+import { useIsMobile } from "@/src/hooks/use-mobile";
+import { useMobileSidebar } from "@/src/lib/stores/useMobileSidebar";
 
 export default function Header({
   initialUser,
@@ -17,6 +19,9 @@ export default function Header({
   initialUser?: AppUser | null;
 }) {
   const pathname = usePathname();
+  const isMobile = useIsMobile();
+  const setMobileOpen = useMobileSidebar((state) => state.setMobileOpen);
+
   const { user, initialLoading } = useAuth();
   const { t } = useLanguage();
 
@@ -24,8 +29,19 @@ export default function Header({
     <header
       className={`fixed top-0 z-50 w-full bg-white/95 backdrop-blur ${pathname.startsWith("/admin") ? "supports-[backdrop-filter]:bg-greenColor/90" : "supports-[backdrop-filter]:bg-white/60 border-b"}`}
     >
-      <div className="ps-4 pe-8 flex h-16 items-center justify-between">
+      <div className="px-4 flex h-16 items-center justify-between">
         <div className="flex justify-start items-center">
+          {pathname.startsWith("/admin") && isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="flex justify-start items-center rounded-lg text-neutral-400 dark:text-white hover:bg-transparent"
+              onClick={() => setMobileOpen(true)}
+              aria-label="Open sidebar"
+            >
+              <Menu className="me-2 text-white" />
+            </Button>
+          )}
           <Link href="/" className="flex items-center">
             <img
               src="/images/bona-banana.svg"
@@ -61,15 +77,22 @@ export default function Header({
           </nav>
         </div>
         <div className="flex items-center gap-2">
-          <Button asChild variant="outline" size="default">
-            {user?.hasDashboardAccess && (
-              <Button onClick={() => (window.location.href = "/admin")}>
-                <MonitorCog className="text-redColor" />
-              </Button>
-            )}
-          </Button>
-          {/* <ModeToggle /> */}
-          <LanguageToggle />
+          {!pathname.startsWith("/admin") && (
+            <div className="flex items-center gap-2">
+              {user?.hasDashboardAccess && (
+                <Button
+                  variant="outline"
+                  size="default"
+                  onClick={() => (window.location.href = "/admin")}
+                >
+                  <MonitorCog className="text-redColor" />
+                </Button>
+              )}
+
+              {/* <ModeToggle /> */}
+              <LanguageToggle />
+            </div>
+          )}
           {initialLoading ? (
             initialUser ? (
               <UserNav user={initialUser!} />

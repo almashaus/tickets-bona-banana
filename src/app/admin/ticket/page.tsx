@@ -9,21 +9,11 @@ import {
 } from "@/src/components/ui/card";
 import { Label } from "@/src/components/ui/label";
 import Loading from "@/src/components/ui/loading";
-import { useIsMobile } from "@/src/hooks/use-mobile";
-import { useMobileSidebar } from "@/src/lib/stores/useMobileSidebar";
 import { formatDate, formatTime } from "@/src/lib/utils/formatDate";
-import { getTicketStatusBadgeColor } from "@/src/lib/utils/styles";
 import { Event, EventDate } from "@/src/models/event";
 import { Ticket, TicketStatus } from "@/src/models/ticket";
 import { AppUser } from "@/src/models/user";
-import {
-  Check,
-  Calendar,
-  User,
-  CheckCircle,
-  CheckCheck,
-  PanelLeft,
-} from "lucide-react";
+import { Check, Calendar, User, CheckCircle, CheckCheck } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { Suspense, useEffect, useState } from "react";
@@ -35,9 +25,6 @@ function ValidateTicket() {
   const [isUpdating, setIsUpdating] = useState<Boolean>(false);
   const searchParams = useSearchParams();
   const token = searchParams?.get("token");
-
-  const isMobile = useIsMobile();
-  const setMobileOpen = useMobileSidebar((state) => state.setMobileOpen);
   const router = useRouter();
 
   if (!token) {
@@ -83,17 +70,6 @@ function ValidateTicket() {
   return (
     <div className="p-4 md:p-6">
       <div className="mb-6">
-        {isMobile && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="flex justify-start items-center rounded-lg text-neutral-400 dark:text-white hover:bg-transparent"
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open sidebar"
-          >
-            <PanelLeft />
-          </Button>
-        )}
         <h1 className="text-3xl font-bold">Attendance</h1>
       </div>
 

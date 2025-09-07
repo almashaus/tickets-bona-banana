@@ -25,7 +25,6 @@ import {
   SelectValue,
 } from "@/src/components/ui/select";
 import { getAuth } from "firebase/auth";
-import { useAuthStore } from "@/src/lib/stores/useAuthStore";
 
 export default function UserProfilePage() {
   const auth = getAuth();
@@ -124,7 +123,7 @@ export default function UserProfilePage() {
   };
 
   return (
-    <div className="container py-10">
+    <div className="p-4 md:p-6">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <Button variant="outline" size="icon" onClick={() => router.back()}>

@@ -82,8 +82,6 @@ export default function membersPage() {
   const [email, setEmail] = useState("");
   const [convertDialogOpen, setConvertDialogOpen] = useState(false);
   const [isConverting, setIsConverting] = useState(false);
-  const isMobile = useIsMobile();
-  const setMobileOpen = useMobileSidebar((state) => state.setMobileOpen);
 
   interface Response {
     members: AppUser[];
@@ -261,17 +259,6 @@ export default function membersPage() {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          {isMobile && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="flex justify-start items-center rounded-lg text-neutral-400 dark:text-white hover:bg-transparent"
-              onClick={() => setMobileOpen(true)}
-              aria-label="Open sidebar"
-            >
-              <PanelLeft />
-            </Button>
-          )}
           <h1 className="text-3xl font-bold">Team Members Management</h1>
           <p className="text-muted-foreground">
             Manage members, roles, and permissions

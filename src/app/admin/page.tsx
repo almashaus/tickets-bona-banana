@@ -37,9 +37,6 @@ import {
 import Image from "next/image";
 import { useToast } from "@/src/components/ui/use-toast";
 import useSWR, { mutate } from "swr";
-import { PanelLeft } from "lucide-react";
-import { useIsMobile } from "@/src/hooks/use-mobile";
-import { useMobileSidebar } from "@/src/lib/stores/useMobileSidebar";
 import { DashboardEvent } from "@/src/models/event";
 import { getStatusIcon } from "@/src/lib/utils/statusIcons";
 import Loading from "@/src/components/ui/loading";
@@ -53,9 +50,6 @@ import { getAuth } from "firebase/auth";
 import QrScanner from "@/src/features/scanner/qr-scanner";
 
 export default function AdminPage() {
-  const isMobile = useIsMobile();
-  const setMobileOpen = useMobileSidebar((state) => state.setMobileOpen);
-
   const fetcher = (url: string) =>
     fetch(url, { cache: "no-store" }).then((res) => res.json());
 
@@ -79,17 +73,6 @@ export default function AdminPage() {
   return (
     <div className="p-4 md:p-6">
       <div className="mb-6">
-        {isMobile && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="flex justify-start items-center rounded-lg text-neutral-400 dark:text-white hover:bg-transparent"
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open sidebar"
-          >
-            <PanelLeft />
-          </Button>
-        )}
         <h1 className="text-3xl font-bold">Dashboard</h1>
       </div>
 

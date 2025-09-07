@@ -41,9 +41,6 @@ export default function customersPage() {
     useState<CustomerResponse | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const isMobile = useIsMobile();
-  const setMobileOpen = useMobileSidebar((state) => state.setMobileOpen);
-
   interface Response {
     customers: CustomerResponse[];
   }
@@ -83,17 +80,6 @@ export default function customersPage() {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          {isMobile && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="flex justify-start items-center rounded-lg text-neutral-400 dark:text-white hover:bg-transparent"
-              onClick={() => setMobileOpen(true)}
-              aria-label="Open sidebar"
-            >
-              <PanelLeft />
-            </Button>
-          )}
           <h1 className="text-3xl font-bold">Customers Management</h1>
           <p className="text-muted-foreground">Manage customers</p>
         </div>

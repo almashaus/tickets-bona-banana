@@ -228,7 +228,7 @@ export default function NewMemberPage() {
   };
 
   return (
-    <div className="container py-10">
+    <div className="p-4 md:p-6">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <Button variant="outline" size="icon" onClick={() => router.back()}>

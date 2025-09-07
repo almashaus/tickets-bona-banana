@@ -172,15 +172,8 @@ export default function UserProfilePage() {
     });
   };
 
-  const handleSaveNotes = () => {
-    toast({
-      title: "Notes saved",
-      description: "Internal notes have been saved successfully.",
-    });
-  };
-
   return (
-    <div className="container py-10">
+    <div className="p-4 md:p-6">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <Button variant="outline" size="icon" onClick={() => router.back()}>
@@ -233,11 +226,10 @@ export default function UserProfilePage() {
 
       {/* Tabs */}
       <Tabs defaultValue="personal" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="personal">Personal Info</TabsTrigger>
           <TabsTrigger value="permissions">Permissions</TabsTrigger>
           <TabsTrigger value="activity">Activity Log</TabsTrigger>
-          <TabsTrigger value="notes">Internal Notes</TabsTrigger>
         </TabsList>
 
         {/* Personal Info Tab */}
@@ -448,37 +440,6 @@ export default function UserProfilePage() {
                     </div>
                   </div>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* TODO: Internal Notes Tab */}
-        <TabsContent value="notes">
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                Internal Notes
-                <span className="text-red-500 text-sm font-light">
-                  *In progress*
-                </span>
-              </CardTitle>
-              <CardDescription>
-                Private notes visible only to administrators
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Textarea
-                placeholder="Add internal notes about this user..."
-                value={internalNotes}
-                onChange={(e) => setInternalNotes(e.target.value)}
-                rows={10}
-              />
-              <div className="flex justify-end">
-                <Button onClick={handleSaveNotes}>
-                  <FileText className="mr-2 h-4 w-4" />
-                  Save Notes
-                </Button>
               </div>
             </CardContent>
           </Card>

@@ -8,10 +8,13 @@ import {
   ChevronDown,
   ChevronUp,
   CircleAlertIcon,
+  CircleDot,
+  DicesIcon,
   Edit2,
   MapPin,
   PanelLeft,
   Plus,
+  StarIcon,
   TicketIcon,
   Trash,
 } from "lucide-react";
@@ -53,23 +56,23 @@ import LoadingDots from "@/src/components/ui/loading-dots";
 import Loading from "@/src/components/ui/loading";
 import { getStatusIcon } from "@/src/lib/utils/statusIcons";
 import useSWR, { mutate } from "swr";
-import { useIsMobile } from "@/src/hooks/use-mobile";
-import { useMobileSidebar } from "@/src/lib/stores/useMobileSidebar";
 import { Badge } from "@/src/components/ui/badge";
 import { Ticket } from "@/src/models/ticket";
 import { getTicketStatusBadgeColor } from "@/src/lib/utils/styles";
 import { getAuth } from "firebase/auth";
 import { AppUser } from "@/src/models/user";
 import Image from "next/image";
+import { useAuthStore } from "@/src/lib/stores/useAuthStore";
+import { useIsMobile } from "@/src/hooks/use-mobile";
 
 export default function EventsPage() {
   const { toast } = useToast();
+  const user = useAuthStore((state) => state.user);
   const auth = getAuth();
   const authUser = auth.currentUser!;
   const pathname = usePathname();
   const eventUrl = pathname?.includes("/events");
   const isMobile = useIsMobile();
-  const setMobileOpen = useMobileSidebar((state) => state.setMobileOpen);
   const [responseData, setResponseData] = useState<Response[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [openCollapsibleIds, setOpenCollapsibleIds] = useState<Set<string>>(
@@ -141,26 +144,15 @@ export default function EventsPage() {
   return (
     <div className="p-4 md:p-6">
       {eventUrl && (
-        <div className="flex flex-row justify-between items-end md:items-center gap-4 mb-6">
-          <div className="">
-            {isMobile && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="flex justify-start items-center rounded-lg text-neutral-400 dark:text-white hover:bg-transparent"
-                onClick={() => setMobileOpen(true)}
-                aria-label="Open sidebar"
-              >
-                <PanelLeft />
-              </Button>
-            )}
+        <div className="flex flex-col md:flex-row justify-between  md:items-center gap-4 mb-3">
+          <div>
             <h1 className="text-3xl font-bold">Events Management</h1>
             <p className="text-muted-foreground">
               Manage your events, edit details, or remove events
             </p>
           </div>
 
-          <div>
+          <div className="flex justify-end">
             <Button asChild>
               <Link href="/admin/events/new">
                 <Plus className="me-2 h-4 w-4" />
@@ -209,88 +201,96 @@ export default function EventsPage() {
               return (
                 <div
                   key={response.event.id}
-                  className={`${index !== array.length - 1 && "border-b pb-6"} p-5 mb-3 `}
+                  className={`${index !== array.length - 1 && "border-b pb-6"} p-3 mb-3 `}
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-2 md:gap-4">
-                      <div className="h-20 w-20 md:h-24 md:w-24 overflow-hidden rounded-md relative">
-                        <Image
-                          src={response.event.eventImage || "/no-image.svg"}
-                          alt={response.event.title}
-                          className="h-full w-full object-cover"
-                          fill
-                          priority
-                          onError={(e) => {
-                            e.currentTarget.src = "/no-image.svg";
-                          }}
-                        />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-lg">
-                            {response.event.title}
-                          </h3>
-                        </div>
-
-                        <div className="flex items-end mb-1 text-xs md:text-sm text-muted-foreground">
-                          <MapPin className="mr-1 h-3 w-3 md:h-4 md:w-4 text-orangeColor" />
-                          {response.event.city.en}
-                        </div>
-                        <div className="flex items-end mb-1 text-xs md:text-sm text-muted-foreground">
-                          <span className="icon-saudi_riyal text-orangeColor" />
-                          {response.event.price}
-                        </div>
-                        <div className="flex items-end mb-1 text-xs md:text-sm text-muted-foreground">
-                          {getStatusIcon(response.event.status)}
-                          {response.event.status}
-                        </div>
-                      </div>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-lg">
+                        {response.event.title}
+                      </h3>
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <Button variant="outline" size="sm" asChild>
-                        <Link href={`/admin/events/edit/${response.event.id}`}>
-                          <Edit2 className="h-3 w-3" /> Edit
-                        </Link>
-                      </Button>
 
-                      <AlertDialog>
-                        <AlertDialogTrigger>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            disabled={isDeleting}
+                    <div className="flex flex-row items-start justify-between gap-2 md:gap-4">
+                      <div className="flex flex-row gap-2 items-center">
+                        <div className="h-20 w-20 md:h-24 md:w-24 overflow-hidden relative rounded-md">
+                          <Image
+                            src={response.event.eventImage || "/no-image.svg"}
+                            alt={response.event.title}
+                            className="h-full w-full object-cover"
+                            fill
+                            priority
+                            onError={(e) => {
+                              e.currentTarget.src = "/no-image.svg";
+                            }}
+                          />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-end text-xs md:text-sm text-muted-foreground">
+                            <MapPin className="mr-1 h-4 w-4 md:h-4 md:w-4 text-orangeColor" />
+                            {response.event.city.en}
+                          </div>
+                          <div className="flex items-end text-xs md:text-sm text-muted-foreground">
+                            <span className="icon-saudi_riyal text-orangeColor" />
+                            {response.event.price}
+                          </div>
+                          <div className="flex items-end text-xs md:text-sm text-muted-foreground">
+                            {getStatusIcon(response.event.status)}
+                            {response.event.status}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <Button variant="outline" size="sm" asChild>
+                          <Link
+                            href={`/admin/events/edit/${response.event.id}`}
                           >
-                            <Trash className="h-3 w-3" /> Delete
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              Are you absolutely sure?
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This action cannot be undone. This will
-                              permanently delete the event data.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              onClick={() => deleteEvent(response.event.id)}
-                              disabled={isDeleting}
-                            >
-                              {isDeleting ? (
-                                <LoadingDots />
-                              ) : (
-                                <>
-                                  <Trash className="h-3 w-3 me-1" /> Delete
-                                </>
-                              )}
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                            <Edit2 className="h-3 w-3" /> {!isMobile && "Edit"}
+                          </Link>
+                        </Button>
+                        {user?.dashboard?.role === "Admin" && (
+                          <AlertDialog>
+                            <AlertDialogTrigger>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                disabled={isDeleting}
+                              >
+                                <Trash className="h-3 w-3" />{" "}
+                                {!isMobile && "Delete"}
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Are you absolutely sure?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will
+                                  permanently delete the event data.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  onClick={() => deleteEvent(response.event.id)}
+                                  disabled={isDeleting}
+                                >
+                                  {isDeleting ? (
+                                    <LoadingDots />
+                                  ) : (
+                                    <>
+                                      <Trash className="h-3 w-3 me-1" /> Delete
+                                    </>
+                                  )}
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <Collapsible
@@ -307,7 +307,7 @@ export default function EventsPage() {
                       });
                     }}
                   >
-                    <CollapsibleTrigger className="flex items-end mt-2 font-medium gap-1">
+                    <CollapsibleTrigger className="flex items-end mt-4 font-medium gap-1">
                       {openCollapsibleIds.has(response.event.id) ? (
                         <ChevronUp />
                       ) : (
@@ -320,9 +320,7 @@ export default function EventsPage() {
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead>Date</TableHead>
-                              <TableHead>Start Time</TableHead>
-                              <TableHead>End Time</TableHead>
+                              <TableHead>Date and Time</TableHead>
                               <TableHead>Available Tickets</TableHead>
                               <TableHead>Purchased Tickets</TableHead>
                               <TableHead>View Tickets</TableHead>
@@ -333,14 +331,13 @@ export default function EventsPage() {
                             {response.event.dates?.map((date) => (
                               <TableRow key={date.id}>
                                 <TableCell className="font-medium">
-                                  {formatDate(date.date)}
+                                  <div>{formatDate(date.date)}</div>
+                                  <div className="text-muted-foreground">
+                                    {formatTime(date.startTime)} -{" "}
+                                    {formatTime(date.endTime)}
+                                  </div>
                                 </TableCell>
-                                <TableCell>
-                                  {formatTime(date.startTime)}
-                                </TableCell>
-                                <TableCell>
-                                  {formatTime(date.endTime)}
-                                </TableCell>
+
                                 <TableCell>
                                   <Badge
                                     className={`${

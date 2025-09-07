@@ -64,8 +64,6 @@ import Loading from "@/src/components/ui/loading";
 import { OrderResponse, OrderStatus } from "@/src/models/order";
 import { formatDate } from "@/src/lib/utils/formatDate";
 import { getOrderStatusBadgeColor } from "@/src/lib/utils/styles";
-import { useIsMobile } from "@/src/hooks/use-mobile";
-import { useMobileSidebar } from "@/src/lib/stores/useMobileSidebar";
 import Image from "next/image";
 import { handlePrintOrder } from "@/src/lib/utils/printOrder";
 import {
@@ -89,8 +87,6 @@ export default function ReservationsPage() {
     useState<OrderResponse | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [copiedOrderNumber, setCopiedOrderNumber] = useState("");
-  const isMobile = useIsMobile();
-  const setMobileOpen = useMobileSidebar((state) => state.setMobileOpen);
 
   const {
     data: orders,
@@ -230,17 +226,6 @@ export default function ReservationsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          {isMobile && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="flex justify-start items-center rounded-lg text-neutral-400 dark:text-white hover:bg-transparent"
-              onClick={() => setMobileOpen(true)}
-              aria-label="Open sidebar"
-            >
-              <PanelLeft />
-            </Button>
-          )}
           <h1 className="text-3xl font-bold">Reservations Management</h1>
           <p className="text-muted-foreground">
             View and manage all event orders and tickets

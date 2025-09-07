@@ -37,13 +37,9 @@ import { useAuth } from "@/src/features/auth/auth-provider";
 import { useToast } from "@/src/components/ui/use-toast";
 import useSWR from "swr";
 import { MemberStatus, MemberRole, AppUser } from "@/src/models/user";
-import Link from "next/link";
 import { getRoleBadgeColor, getStatusBadgeColor } from "@/src/lib/utils/styles";
 import { formatDate } from "@/src/lib/utils/formatDate";
 import Loading from "@/src/components/ui/loading";
-import { useIsMobile } from "@/src/hooks/use-mobile";
-import { useMobileSidebar } from "@/src/lib/stores/useMobileSidebar";
-import { Button } from "@/src/components/ui/button";
 
 // Mock permissions data
 const mockPermissions = [
@@ -118,8 +114,6 @@ export default function UserProfilePage() {
   const { toast } = useToast();
   const [permissions, setPermissions] = useState(mockPermissions);
   const [internalNotes, setInternalNotes] = useState("");
-  const isMobile = useIsMobile();
-  const setMobileOpen = useMobileSidebar((state) => state.setMobileOpen);
 
   const {
     data: member,
@@ -158,18 +152,6 @@ export default function UserProfilePage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          {isMobile && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="flex justify-start items-center rounded-lg text-neutral-400 dark:text-white hover:bg-transparent"
-              onClick={() => setMobileOpen(true)}
-              aria-label="Open sidebar"
-            >
-              <PanelLeft />
-            </Button>
-          )}
-
           <h1 className="text-3xl font-bold">Member Profile</h1>
           <p className="text-muted-foreground">View and manage details</p>
         </div>
@@ -214,11 +196,10 @@ export default function UserProfilePage() {
 
       {/* Tabs */}
       <Tabs defaultValue="personal" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="personal">Personal Info</TabsTrigger>
           <TabsTrigger value="permissions">Permissions</TabsTrigger>
           <TabsTrigger value="activity">Activity Log</TabsTrigger>
-          <TabsTrigger value="notes">Internal Notes</TabsTrigger>
         </TabsList>
 
         {/* Personal Info Tab */}
@@ -404,31 +385,6 @@ export default function UserProfilePage() {
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* TODO: Internal Notes Tab */}
-        <TabsContent value="notes">
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                Internal Notes
-                <span className="text-red-500 text-sm font-light">
-                  *In progress*
-                </span>
-              </CardTitle>
-              <CardDescription>
-                Private notes visible only to administrators
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Textarea
-                placeholder="Add internal notes about this user..."
-                value={internalNotes}
-                onChange={(e) => setInternalNotes(e.target.value)}
-                rows={10}
-              />
             </CardContent>
           </Card>
         </TabsContent>
