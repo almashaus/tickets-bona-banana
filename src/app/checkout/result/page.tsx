@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { OrderStatus } from "@/src/models/order";
 import { useAuth } from "@/src/features/auth/auth-provider";
@@ -9,7 +9,7 @@ import { mutate } from "swr";
 import Loading from "@/src/components/ui/loading";
 import { sendOrderConfirmationEmail } from "@/src/lib/firebase/sendEmail";
 
-export default function CheckoutResult() {
+function CheckoutResult() {
   const search = useSearchParams();
   const paymentId = search?.get("paymentId");
   const orderId = search?.get("orderId");
@@ -91,5 +91,13 @@ export default function CheckoutResult() {
       )}
       {status && <pre>{JSON.stringify(status, null, 2)}</pre>}
     </main>
+  );
+}
+
+export default function CheckoutResultPage() {
+  return (
+    <Suspense>
+      <CheckoutResult />
+    </Suspense>
   );
 }

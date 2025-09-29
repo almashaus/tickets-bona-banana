@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-export default function CheckoutError() {
+function CheckoutError() {
   const search = useSearchParams();
   const paymentId =
     search?.get("PaymentId") ||
@@ -43,5 +43,13 @@ export default function CheckoutError() {
       {loading && <p>Checking payment status…</p>}
       {status && <pre>{JSON.stringify(status, null, 2)}</pre>}
     </main>
+  );
+}
+
+export default function CheckoutErrorPage() {
+  return (
+    <Suspense>
+      <CheckoutError />
+    </Suspense>
   );
 }
