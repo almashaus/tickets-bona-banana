@@ -31,16 +31,18 @@ function CheckoutResult() {
     (async () => {
       setLoading(true);
       try {
-        const statusRespone = await fetch("/api/payment/status", {
+        const statusResponse = await fetch("/api/payment/status", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ paymentId }),
         });
 
-        if (!statusRespone.ok) throw new Error("Status fetch failed");
+        if (!statusResponse.ok) throw new Error("Status fetch failed");
 
-        const json = await statusRespone.json();
+        const json = await statusResponse.json();
         setStatus(json.data);
+
+        console.log("status response result checkout :>> ", json.data);
 
         const updateResponse = await fetch("/api/checkout", {
           method: "PUT",
@@ -50,6 +52,9 @@ function CheckoutResult() {
             status: json.data?.Data?.InvoiceStatus,
           }),
         });
+
+        const jsonUpdate = await updateResponse.json();
+        console.log("json update result checkout :>> ", jsonUpdate);
 
         if (updateResponse.ok) {
           await mutate("/api/admin/events");

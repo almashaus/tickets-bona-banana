@@ -20,7 +20,7 @@ function CheckoutError() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ paymentId }),
         });
-        console.log("response :>> ", await res.json());
+        console.log("status response in error checkout:>> ", await res.json());
         if (!res.ok) throw new Error("Status fetch failed");
 
         const json = await res.json();
@@ -45,7 +45,7 @@ function CheckoutError() {
     <div className="container py-10">
       <h1>Payment ERROR !</h1>
       {loading && <p>Checking payment status…</p>}
-      {status && <pre>{JSON.stringify(status, null, 2)}</pre>}
+      {status && <pre>{status.Data.InvoiceStatus}</pre>}
     </div>
   );
 }

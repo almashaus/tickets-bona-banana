@@ -7,8 +7,6 @@ import { Ticket } from "@/src/models/ticket";
 import { collection, getDocs, query, where } from "@firebase/firestore";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export const sendOrderConfirmationEmail = async (
   email: string,
   orderId: string
@@ -23,6 +21,8 @@ export const sendOrderConfirmationEmail = async (
   const tickets: Ticket[] = ticketsSnapshot.docs.map((doc) =>
     doc.data()
   ) as Ticket[];
+
+  const resend = new Resend(process.env.RESEND_API_KEY);
 
   const data = await resend.emails.send({
     from: "Bona Banana <info@bona-banana.com>",
