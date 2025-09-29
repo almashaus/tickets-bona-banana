@@ -91,7 +91,6 @@ export default function CheckoutPage() {
 
         if (response.ok) {
           const jsonData = await response.json();
-          console.log(jsonData);
           setPaymentMethods(jsonData?.data?.Data?.PaymentMethods || []);
         }
         setIsLoading(false);

@@ -57,7 +57,7 @@ export async function PATCH(req: NextRequest) {
 
       if (snapshot.empty) {
         return NextResponse.json(
-          { message: `No tickets found for orderId: ${orderId}` },
+          { error: `No tickets found for orderId: ${orderId}` },
           { status: 404, headers: { "Content-Type": "application/json" } }
         );
       }
@@ -76,6 +76,10 @@ export async function PATCH(req: NextRequest) {
       );
     }
     // TODO: else status is pending
+    return NextResponse.json(
+      { message: "Payment Pending" },
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
   } catch (error) {
     return NextResponse.json(
       { error: "Error" },

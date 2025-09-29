@@ -5,11 +5,8 @@ import { useSearchParams } from "next/navigation";
 
 function CheckoutError() {
   const search = useSearchParams();
-  const paymentId =
-    search?.get("PaymentId") ||
-    search?.get("paymentId") ||
-    search?.get("paymentid") ||
-    search?.get("paymentID");
+  const paymentId = search?.get("paymentId");
+
   const [status, setStatus] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
@@ -23,8 +20,10 @@ function CheckoutError() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ paymentId }),
         });
+        console.log("response :>> ", await res.json());
+        if (!res.ok) throw new Error("Status fetch failed");
+
         const json = await res.json();
-        if (!res.ok) throw new Error(json?.error || "Status fetch failed");
         setStatus(json.data);
       } catch (err) {
         console.error("status error", err);

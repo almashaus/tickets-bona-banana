@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
     });
 
     const data = await res.json();
+
     if (!res.ok) {
       console.error("GetPaymentStatus error", data);
       return NextResponse.json(
@@ -29,7 +30,7 @@ export async function POST(req: NextRequest) {
         { status: 502 }
       );
     }
-
+    console.log("Payment Status :>> ", data);
     return NextResponse.json({ data });
   } catch (err) {
     console.error("GetPaymentStatus handler error", err);

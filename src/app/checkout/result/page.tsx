@@ -65,12 +65,12 @@ function CheckoutResult() {
           // Navigate to confirmation page
           router.replace(`/confirmation?orderNumber=${orderId}`);
         } else if (updateResponse.status === 402) {
-          router.replace(`/checkout/error?orderId=${orderId}`);
+          //   router.replace(`/checkout/error?orderId=${orderId}`);
         }
       } catch (err) {
         console.error("status error", err);
         setStatus({ error: err || "Unknown error" });
-        router.replace(`/checkout/error?orderId=${orderId}`);
+        // router.replace(`/checkout/error?orderId=${orderId}`);
       } finally {
         setLoading(false);
       }
