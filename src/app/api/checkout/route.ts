@@ -1,7 +1,7 @@
 import { db } from "@/src/lib/firebase/firebaseAdminConfig";
-import { NextRequest } from "next/server";
-import { Order } from "@/src/models/order";
-import { Ticket } from "@/src/models/ticket";
+import { NextRequest, NextResponse } from "next/server";
+import { Order, OrderStatus } from "@/src/models/order";
+import { Ticket, TicketStatus } from "@/src/models/ticket";
 import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
@@ -21,14 +21,65 @@ export async function POST(req: NextRequest) {
       })
     );
 
-    return new Response(JSON.stringify({ success: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
+    return NextResponse.json(
+      { success: true },
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return NextResponse.json(
+      { error: "Error" },
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { orderId, status } = body;
+
+    if (status === "Canceled") {
+      return NextResponse.json(
+        { error: "Payment Canceled" },
+        { status: 402, headers: { "Content-Type": "application/json" } }
+      );
+    } else if (status === "Paid") {
+      await db
+        .collection("orders")
+        .doc(orderId)
+        .update({ status: OrderStatus.PAID });
+
+      // 1. Query tickets by orderId
+      const snapshot = await db
+        .collection("tickets")
+        .where("orderId", "==", orderId)
+        .get();
+
+      if (snapshot.empty) {
+        return NextResponse.json(
+          { message: `No tickets found for orderId: ${orderId}` },
+          { status: 404, headers: { "Content-Type": "application/json" } }
+        );
+      }
+
+      // 2. Firestore batch update
+      const batch = db.batch();
+      snapshot.docs.forEach((doc) => {
+        batch.update(doc.ref, { status: TicketStatus.VALID });
+      });
+
+      await batch.commit();
+
+      return NextResponse.json(
+        { success: true },
+        { status: 200, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    // TODO: else status is pending
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Error" },
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
   }
 }

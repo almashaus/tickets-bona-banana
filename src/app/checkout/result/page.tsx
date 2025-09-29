@@ -1,0 +1,95 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { OrderStatus } from "@/src/models/order";
+import { useAuth } from "@/src/features/auth/auth-provider";
+import { useLanguage } from "@/src/components/i18n/language-provider";
+import { mutate } from "swr";
+import Loading from "@/src/components/ui/loading";
+import { sendOrderConfirmationEmail } from "@/src/lib/firebase/sendEmail";
+
+export default function CheckoutResult() {
+  const search = useSearchParams();
+  const paymentId = search?.get("paymentId");
+  const orderId = search?.get("orderId");
+  const router = useRouter();
+  const { user } = useAuth();
+  const { t, language } = useLanguage();
+
+  const [status, setStatus] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+
+  if (!user) {
+    router.replace("/login");
+    return;
+  }
+
+  useEffect(() => {
+    if (!paymentId) return;
+
+    (async () => {
+      setLoading(true);
+      try {
+        const statusRespone = await fetch("/api/payment/status", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ paymentId }),
+        });
+
+        if (!statusRespone.ok) throw new Error("Status fetch failed");
+
+        const json = await statusRespone.json();
+        setStatus(json.data);
+
+        const updateResponse = await fetch("/api/checkout", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderId: orderId,
+            status: json.data?.Data?.InvoiceStatus,
+          }),
+        });
+
+        if (updateResponse.ok) {
+          await mutate("/api/admin/events");
+          await mutate("/api/admin/orders");
+          await mutate("/api/admin/customers", undefined, { revalidate: true });
+          await mutate("/api/published-events");
+
+          // Send order confirmation email
+          if (user.email && orderId) {
+            await sendOrderConfirmationEmail(user.email, orderId);
+          }
+
+          // Navigate to confirmation page
+          router.replace(`/confirmation?orderNumber=${orderId}`);
+        } else if (updateResponse.status === 402) {
+          router.replace(`/checkout/error?orderId=${orderId}`);
+        }
+      } catch (err) {
+        console.error("status error", err);
+        setStatus({ error: err || "Unknown error" });
+        router.replace(`/checkout/error?orderId=${orderId}`);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [paymentId]);
+
+  if (!paymentId) return <div>No payment id found in URL.</div>;
+
+  return (
+    <main style={{ padding: 24 }}>
+      {loading && (
+        <div className="space-y-3">
+          <div className="flex justify-center items-center py-12">
+            <Loading />
+          </div>
+          <p>Checking payment status…</p>
+        </div>
+      )}
+      {status && <pre>{JSON.stringify(status, null, 2)}</pre>}
+    </main>
+  );
+}

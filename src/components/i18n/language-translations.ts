@@ -42,8 +42,10 @@ export const translations = {
     "checkout.subtotal": "Subtotal",
     "checkout.tax": "VAT",
     "checkout.VAT": "Including VAT",
-    "checkout.paymentDetails": "Payment Details",
+    "checkout.paymentMethods": "Payment Methods",
+    "checkout.noPaymentMethods": "No payment methods available",
     "checkout.pay": "Pay Now",
+    "checkout.securePay": "Secure Checkout | Powered by ",
     "checkout.invalidInfo": "Invalid checkout information",
     "checkout.selectEventDate":
       "Please select an event and date before proceeding to checkout.",
@@ -191,8 +193,10 @@ export const translations = {
     "checkout.subtotal": "المجموع الفرعي",
     "checkout.tax": "ضريبة القيمة المضافة",
     "checkout.VAT": "شامل ضريبة القيمة المضافة",
-    "checkout.paymentDetails": "تفاصيل الدفع",
+    "checkout.paymentMethods": "طرق الدفع",
+    "checkout.noPaymentMethods": "لا توجد طريقة دفع حالياً",
     "checkout.pay": "ادفع الآن",
+    "checkout.securePay": "عملية دفع آمنة | مزوَّدة من ",
     "checkout.invalidInfo": "معلومات الدفع غير صالحة",
     "checkout.selectEventDate":
       "يرجى اختيار فعالية وتاريخ قبل المتابعة إلى الدفع.",

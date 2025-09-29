@@ -1,5 +1,6 @@
 export enum TicketStatus {
   VALID = "Valid",
+  PENDING = "Pending",
   USED = "Used",
   CANCELLED = "Cancelled",
 }

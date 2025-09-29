@@ -167,6 +167,7 @@ export function OrderConfirmationEmail(
                   Total{" "}
                   <span style={{ fontWeight: 300, fontSize: 12 }}>
                     *VAT included
+                    {/* TODO: remove VAT */}
                   </span>
                 </Text>
               </Column>

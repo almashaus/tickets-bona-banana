@@ -5,22 +5,20 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
+  ArrowRight,
   CalendarDays,
   ClockIcon,
   CreditCard,
+  LockIcon,
   MapPin,
+  Receipt,
+  ReceiptText,
   TicketIcon,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { Separator } from "@/src/components/ui/separator";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/src/components/ui/tabs";
 import { useToast } from "@/src/components/ui/use-toast";
 import { generateIDNumber } from "@/src/lib/utils/utils";
 import { useAuth } from "@/src/features/auth/auth-provider";
@@ -33,6 +31,16 @@ import { useCheckoutStore } from "@/src/lib/stores/useCheckoutStore";
 import { useLanguage } from "@/src/components/i18n/language-provider";
 import { mutate } from "swr";
 import { price } from "@/src/lib/utils/locales";
+import { RadioGroup, RadioGroupItem } from "@/src/components/ui/radio-group";
+import { paymentMethodsIds } from "@/src/data/appData";
+
+type PaymentMethod = {
+  PaymentMethodId: number;
+  PaymentMethodAr: string;
+  PaymentMethodEn: string;
+  PaymentMethodCode: string;
+  ImageUrl: string;
+};
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -45,7 +53,9 @@ export default function CheckoutPage() {
   const quantity = useCheckoutStore((state) => state.quantity);
 
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("card");
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState<number>(6);
   const [event, setEvent] = useState<Event | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
 
@@ -66,21 +76,44 @@ export default function CheckoutPage() {
   const subtotal = total - total * 0.15;
   const fees = (total - subtotal).toFixed(2);
 
+  useEffect(() => {
+    if (total && total > 0) {
+      const initiate = async () => {
+        setIsLoading(true);
+        const response = await fetch("/api/payment/initiate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            invoiceAmount: total,
+            currencyIso: "KWD",
+          }),
+        });
+
+        if (response.ok) {
+          const jsonData = await response.json();
+          console.log(jsonData);
+          setPaymentMethods(jsonData?.data?.Data?.PaymentMethods || []);
+        }
+        setIsLoading(false);
+      };
+
+      initiate();
+    }
+  }, [total]);
+
   // handle payment
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handlePaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
 
     if (!user) {
-      toast({
-        title: "Login Required",
-        description: "Please log in to proceed with the checkout.",
-        variant: "destructive",
-      });
       setIsProcessing(false);
+      router.replace("/login");
+
       return;
     }
 
+    // -------------- Insert order and tickets to database ------------
     const orderId = generateIDNumber("ORDER");
 
     const ticketsIds: string[] = [];
@@ -96,7 +129,7 @@ export default function CheckoutPage() {
         eventId: event?.id!,
         eventDateId: event?.dates.find((item) => item.id === dateId)?.id!,
         qrCode: "",
-        status: TicketStatus.VALID,
+        status: TicketStatus.PENDING,
         purchasePrice: event?.price || 0,
       };
       ticketsIds.push(ticketId);
@@ -108,11 +141,13 @@ export default function CheckoutPage() {
       userId: user.id,
       eventId: event?.id!,
       orderDate: new Date(),
-      status: OrderStatus.PAID, // TODO: status of the payment
+      status: OrderStatus.PENDING,
       totalAmount: total,
       promoCodeId: null, // V-2.0
       discountAmount: 0, // V-2.0
-      paymentMethod: "Visa", // TODO: the payment method
+      paymentMethod:
+        paymentMethods.find((m) => m.PaymentMethodId === selectedMethod)
+          ?.PaymentMethodEn || "MADA",
       tickets: ticketsIds,
     };
 
@@ -131,34 +166,62 @@ export default function CheckoutPage() {
       await mutate("/api/admin/customers", undefined, { revalidate: true });
       await mutate("/api/published-events");
 
-      // Send order confirmation email
-      if (user.email) {
-        await sendOrderConfirmationEmail(user.email, orderId);
-      }
+      try {
+        const payload = {
+          paymentMethodId: selectedMethod,
+          invoiceValue: total,
+          customerName: user.name,
+          customerEmail: user.email,
+          orderId,
+        };
 
-      // Navigate to confirmation page
-      router.replace(`/confirmation?orderNumber=${orderId}`);
+        const res = await fetch("/api/payment/execute", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const json = await res.json();
+        if (!res.ok)
+          throw new Error(json?.data.ValidationErrors.Error || "Execute error");
+
+        const redirectUrl = json?.data?.Data?.PaymentURL;
+
+        if (!redirectUrl) throw new Error("Missing redirect url from gateway");
+
+        window.location.href = redirectUrl;
+      } catch (err: any) {
+        toast({
+          title: "Payment Failed",
+          description:
+            "Something went wrong on the payment. Please try again later.",
+          variant: "destructive",
+        });
+        console.error("execute error", err);
+      } finally {
+        setIsProcessing(false);
+      }
     }
   };
 
-  // Send order confirmation email
-  async function sendOrderConfirmationEmail(
-    email: string,
-    orderNumber: string
-  ) {
-    if (event) {
-      await fetch("/api/send-ticket", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: email,
-          orderNumber: orderNumber,
-          event: event,
-          dateId: dateId,
-        }),
-      });
-    }
-  }
+  // // Send order confirmation email
+  // async function sendOrderConfirmationEmail(
+  //   email: string,
+  //   orderNumber: string
+  // ) {
+  //   if (event) {
+  //     await fetch("/api/send-ticket", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         email: email,
+  //         orderNumber: orderNumber,
+  //         event: event,
+  //         dateId: dateId,
+  //       }),
+  //     });
+  //   }
+  // }
 
   if (!event?.id! || !dateId) {
     return (
@@ -188,7 +251,11 @@ export default function CheckoutPage() {
     <div className="container py-10">
       <div className="flex justify-start gap-4 mb-5">
         <Button variant="outline" size="icon" onClick={() => router.back()}>
-          <ArrowLeft className="h-4 w-4" />
+          {language === "en" ? (
+            <ArrowLeft className="h-4 w-4" />
+          ) : (
+            <ArrowRight className="h-4 w-4" />
+          )}
         </Button>
         <h1 className="text-3xl font-bold">{t("checkout.checkout")}</h1>
       </div>
@@ -196,9 +263,10 @@ export default function CheckoutPage() {
         {/* Order Summary */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg border p-6 shadow-sm">
-            <h2 className="text-xl font-semibold mb-4">
+            <div className="flex items-end gap-1 text-xl font-semibold mb-4">
+              <ReceiptText />
               {t("checkout.summary")}
-            </h2>
+            </div>
 
             <div className="flex items-start gap-4 mb-6">
               <div className="h-20 w-20 overflow-hidden rounded-md">
@@ -269,48 +337,68 @@ export default function CheckoutPage() {
         {/* Payment Form */}
         <div className="lg:col-span-1">
           <form
-            onSubmit={handleSubmit}
+            onSubmit={handlePaymentSubmit}
             className="bg-white rounded-lg border p-6 shadow-sm"
           >
-            <h2 className="text-xl font-semibold mb-4">
-              {t("checkout.paymentDetails")}
-            </h2>
+            <div className="flex items-end gap-1 text-xl font-semibold mb-4">
+              <CreditCard />
+              {t("checkout.paymentMethods")}
+            </div>
 
-            <Tabs defaultValue="card" onValueChange={setPaymentMethod}>
-              <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="card">Credit Card</TabsTrigger>
-                <TabsTrigger value="paypal">PayPal</TabsTrigger>
-              </TabsList>
-              <TabsContent value="card" className="space-y-4">
-                <div className="space-y-1">
-                  <Label htmlFor="name">
-                    {t("checkout.cardholderName") || "Cardholder Name"}
-                  </Label>
-                  <Input id="name" defaultValue={user?.name || ""} required />
+            {isLoading && (
+              <div className="flex justify-center items-center py-12">
+                <Loading />
+              </div>
+            )}
+
+            {paymentMethods && !isLoading && (
+              <>
+                <div className="grid gap-2">
+                  {paymentMethods.length === 0 && (
+                    <div>{t("checkout.noPaymentMethods")}</div>
+                  )}
+
+                  {paymentMethods
+                    .filter((m) =>
+                      paymentMethodsIds.includes(m.PaymentMethodId)
+                    )
+                    .map((method: PaymentMethod) => (
+                      <div
+                        key={method.PaymentMethodId}
+                        onClick={() =>
+                          setSelectedMethod(method.PaymentMethodId)
+                        }
+                        className={`${selectedMethod === method.PaymentMethodId ? "border-2 border-orangeColor" : " border-muted-foreground/20"} border rounded-lg flex justify-between items-center p-2 cursor-pointer`}
+                      >
+                        <div className="flex items-center">
+                          <input
+                            type="radio"
+                            name="paymentMethod"
+                            className="accent-greenColor cursor-pointer"
+                            value={String(method.PaymentMethodId)}
+                            checked={selectedMethod === method.PaymentMethodId}
+                            onChange={() =>
+                              setSelectedMethod(method.PaymentMethodId)
+                            }
+                          />
+                          <img
+                            src={method.ImageUrl}
+                            alt={method.PaymentMethodEn}
+                            className="ms-3 me-2"
+                            width={50}
+                            height={10}
+                          />
+                          <Label
+                            htmlFor={String(method.PaymentMethodId)}
+                            className="cursor-pointer"
+                          >
+                            {method.PaymentMethodEn}
+                          </Label>
+                        </div>
+                      </div>
+                    ))}
                 </div>
-                <div className="space-y-1">
-                  <Label htmlFor="card-number">
-                    {t("checkout.cardNumber") || "Card Number"}
-                  </Label>
-                  <Input
-                    id="card-number"
-                    placeholder="1234 5678 9012 3456"
-                    required
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <Label htmlFor="expiry">
-                      {t("checkout.expiryDate") || "Expiry Date"}
-                    </Label>
-                    <Input id="expiry" placeholder="MM/YY" required />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="cvc">{t("checkout.cvc") || "CVC"}</Label>
-                    <Input id="cvc" placeholder="123" required />
-                  </div>
-                </div>
-                <div className="grid gap-4">
+                <div className="mt-6 w-full space-y-2">
                   <Button
                     type="submit"
                     className="w-full"
@@ -318,7 +406,7 @@ export default function CheckoutPage() {
                     disabled={isProcessing}
                   >
                     {isProcessing ? (
-                      <span className="flex items-center ">
+                      <span className="flex items-center gap-3">
                         <CreditCard className="h-4 w-4 animate-pulse" />
                         {t("checkout.processing") || "Processing..."}
                       </span>
@@ -330,39 +418,17 @@ export default function CheckoutPage() {
                       </span>
                     )}
                   </Button>
+                  <div className="flex items-center gap-1 text-xs text-gray-600">
+                    <LockIcon className="w-3 h-3" /> {t("checkout.securePay")}{" "}
+                    <img
+                      src="/images/MF-logo.svg"
+                      alt="My Fatoorah Logo"
+                      className="h-3"
+                    />
+                  </div>
                 </div>
-              </TabsContent>
-              <TabsContent
-                value="paypal"
-                className="flex flex-col justify-center items-center h-40"
-              >
-                <p className="text-center text-muted-foreground">
-                  {t("checkout.paypalRedirect") ||
-                    "You will be redirected to PayPal to complete your payment."}
-                </p>
-                <div className="mt-6 w-full">
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    size="lg"
-                    disabled={isProcessing}
-                  >
-                    {isProcessing ? (
-                      <span className="flex items-center gap-2">
-                        <CreditCard className="h-4 w-4 animate-pulse" />
-                        {t("checkout.processing") || "Processing..."}
-                      </span>
-                    ) : (
-                      <span>
-                        {t("checkout.pay")}{" "}
-                        <span className="icon-saudi_riyal" />
-                        {total}
-                      </span>
-                    )}
-                  </Button>
-                </div>
-              </TabsContent>
-            </Tabs>
+              </>
+            )}
           </form>
         </div>
       </div>
