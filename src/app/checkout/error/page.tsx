@@ -34,14 +34,19 @@ function CheckoutError() {
     })();
   }, [paymentId]);
 
-  if (!paymentId) return <div>No payment id found in URL.</div>;
+  if (!paymentId)
+    return (
+      <div className="container py-10 text-center">
+        No payment id found in URL.
+      </div>
+    );
 
   return (
-    <main style={{ padding: 24 }}>
+    <div className="container py-10">
       <h1>Payment ERROR !</h1>
       {loading && <p>Checking payment status…</p>}
       {status && <pre>{JSON.stringify(status, null, 2)}</pre>}
-    </main>
+    </div>
   );
 }
 

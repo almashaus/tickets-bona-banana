@@ -43,7 +43,7 @@ function CheckoutResult() {
         setStatus(json.data);
 
         const updateResponse = await fetch("/api/checkout", {
-          method: "PATCH",
+          method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             orderId: orderId,
@@ -77,10 +77,15 @@ function CheckoutResult() {
     })();
   }, [paymentId]);
 
-  if (!paymentId) return <div>No payment id found in URL.</div>;
+  if (!paymentId)
+    return (
+      <div className="container py-10 text-center">
+        No payment id found in URL.
+      </div>
+    );
 
   return (
-    <main style={{ padding: 24 }}>
+    <div className="container py-10">
       {loading && (
         <div className="space-y-3">
           <div className="flex justify-center items-center py-12">
@@ -90,7 +95,7 @@ function CheckoutResult() {
         </div>
       )}
       {status && <pre>{JSON.stringify(status, null, 2)}</pre>}
-    </main>
+    </div>
   );
 }
 

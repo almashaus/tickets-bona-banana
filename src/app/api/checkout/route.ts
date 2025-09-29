@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function PATCH(req: NextRequest) {
+export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
     const { orderId, status } = body;
