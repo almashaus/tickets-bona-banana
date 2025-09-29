@@ -15,6 +15,7 @@ import type * as React from "react";
 import { Order } from "@/src/models/order";
 import { Event } from "@/src/models/event";
 import { Ticket } from "@/src/models/ticket";
+import { generateQRCode } from "./utils";
 
 const baseUrl = process.env.BASE_URL ? `https://${process.env.BASE_URL}` : "";
 
@@ -52,7 +53,7 @@ export function OrderConfirmationEmail(
             <div style={logoDiv}>
               {/* CheckCircle SVG */}
               <Img
-                src="/public/images/logo.svg"
+                src="https://firebasestorage.googleapis.com/v0/b/bona-banana.firebasestorage.app/o/app%2Fbona-banana.png?alt=media&token=e7ea830c-98da-4a01-b7e8-d68a684d9916"
                 width={80}
                 height={80}
                 alt="Logo"
@@ -114,10 +115,10 @@ export function OrderConfirmationEmail(
                 <Column align="right">
                   {/* Placeholder QR code */}
                   <Img
-                    src={`${baseUrl}/api/qr?data=${ticket.id}`}
+                    src={generateQRCode(ticket.token || ticket.id)}
                     alt="QR Code"
-                    width="200"
-                    height="200"
+                    width="150"
+                    height="150"
                   />
                 </Column>
               </Row>
@@ -129,7 +130,7 @@ export function OrderConfirmationEmail(
           <Section style={{ padding: "24px" }}>
             <Row>
               <Column>
-                <Text style={mutedTextSm}>Tickets</Text>
+                <Text style={mutedTextSm}>Tickets </Text>
               </Column>
               <Column align="right">
                 <Text style={{ fontSize: 20 }}>
@@ -138,38 +139,11 @@ export function OrderConfirmationEmail(
                 </Text>
               </Column>
             </Row>
-            <Row>
-              <Column>
-                <Text style={mutedTextSm}>Subtotal</Text>
-              </Column>
-              <Column align="right">
-                <Text style={{ fontSize: 20 }}>
-                  {subtotal}
-                  <span> SR </span>
-                </Text>
-              </Column>
-            </Row>
-            <Row>
-              <Column>
-                <Text style={mutedTextSm}>Tax & Fees</Text>
-              </Column>
-              <Column align="right">
-                <Text style={{ fontSize: 20 }}>
-                  {fees}
-                  <span> SR </span>
-                </Text>
-              </Column>
-            </Row>
+
             <Hr style={hr} />
             <Row>
               <Column>
-                <Text style={{ fontWeight: 700, fontSize: 20 }}>
-                  Total{" "}
-                  <span style={{ fontWeight: 300, fontSize: 12 }}>
-                    *VAT included
-                    {/* TODO: remove VAT */}
-                  </span>
-                </Text>
+                <Text style={{ fontWeight: 700, fontSize: 20 }}>Total</Text>
               </Column>
               <Column align="right">
                 <Text style={{ fontWeight: 700, fontSize: 20 }}>
@@ -187,6 +161,11 @@ export function OrderConfirmationEmail(
               You can view your tickets anytime in your account. If you have any
               questions, please contact us.
             </Text>
+            <a href="https://tickets.bona-banana.com" target="_blank">
+              <Text style={{ color: "f49a34", marginTop: 16, fontSize: 12 }}>
+                www.tickets.bona-banana.com
+              </Text>
+            </a>
             <Text style={{ ...mutedText, marginTop: 16, fontSize: 12 }}>
               &copy; 2025 BonaBanana. All rights reserved.
             </Text>

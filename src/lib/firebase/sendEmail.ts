@@ -1,9 +1,10 @@
-import { db } from "@/src/lib/firebase/firebaseAdminConfig";
+import { db } from "@/src/lib/firebase/firebaseConfig";
 import { getDocumentById } from "@/src/lib/firebase/firestore";
 import OrderConfirmationEmail from "@/src/lib/utils/orderEmail";
 import { Event } from "@/src/models/event";
 import { Order } from "@/src/models/order";
 import { Ticket } from "@/src/models/ticket";
+import { collection, getDocs, query, where } from "@firebase/firestore";
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -14,13 +15,11 @@ export const sendOrderConfirmationEmail = async (
 ) => {
   const order: Order = (await getDocumentById("orders", orderId)) as Order;
 
-  // TODO: get event
   const event: Event = (await getDocumentById("event", order.eventId)) as Event;
 
-  const ticketsSnapshot = await db
-    .collection("tickets")
-    .where("orderId", "==", orderId)
-    .get();
+  const q = query(collection(db, "tickets"), where("orderId", "==", orderId));
+
+  const ticketsSnapshot = await getDocs(q);
   const tickets: Ticket[] = ticketsSnapshot.docs.map((doc) =>
     doc.data()
   ) as Ticket[];
