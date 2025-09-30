@@ -25,8 +25,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Callback URLs (MyFatoorah will append PaymentId)
-    const callbackUrl = `${BASE_URL}/checkout/result?orderId=${encodeURIComponent(orderId || "")}`;
-    const errorUrl = `${BASE_URL}/checkout/error?orderId=${encodeURIComponent(orderId || "")}`;
+    const callbackUrl = `${BASE_URL}/contact-us`;
+    const errorUrl = `${BASE_URL}`;
 
     const payload = {
       PaymentMethodId: paymentMethodId,
@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
     });
 
     const data = await res.json();
+    console.log("ExecutePayment data :>> ", data);
 
     if (!res.ok) {
       console.error("ExecutePayment error", data);

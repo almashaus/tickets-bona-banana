@@ -203,25 +203,6 @@ export default function CheckoutPage() {
     }
   };
 
-  // // Send order confirmation email
-  // async function sendOrderConfirmationEmail(
-  //   email: string,
-  //   orderNumber: string
-  // ) {
-  //   if (event) {
-  //     await fetch("/api/send-ticket", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({
-  //         email: email,
-  //         orderNumber: orderNumber,
-  //         event: event,
-  //         dateId: dateId,
-  //       }),
-  //     });
-  //   }
-  // }
-
   if (!event?.id! || !dateId) {
     return (
       <div className="container pt-20 text-center">

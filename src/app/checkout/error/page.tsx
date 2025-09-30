@@ -45,7 +45,7 @@ function CheckoutError() {
     <div className="container py-10">
       <h1>Payment ERROR !</h1>
       {loading && <p>Checking payment status…</p>}
-      {status && <pre>{status.Data.InvoiceStatus}</pre>}
+      {status && <pre>{status}</pre>}
     </div>
   );
 }

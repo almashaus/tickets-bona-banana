@@ -20,11 +20,6 @@ function CheckoutResult() {
   const [status, setStatus] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  if (!user) {
-    router.replace("/login");
-    return;
-  }
-
   useEffect(() => {
     if (!paymentId) return;
 
@@ -63,7 +58,7 @@ function CheckoutResult() {
           await mutate("/api/published-events");
 
           // Send order confirmation email
-          if (user.email && orderId) {
+          if (user?.email && orderId) {
             await sendOrderConfirmationEmail(user.email, orderId);
           }
 
