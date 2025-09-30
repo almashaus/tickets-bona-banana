@@ -21,12 +21,15 @@ export async function POST(req: NextRequest) {
     } = body;
 
     if (!paymentMethodId || !invoiceValue || Number(invoiceValue) <= 0) {
-      return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+      return NextResponse.json(
+        { data: { error: "Invalid payload" } },
+        { status: 400 }
+      );
     }
 
     // Callback URLs (MyFatoorah will append PaymentId)
-    const callbackUrl = `${BASE_URL}/contact-us`;
-    const errorUrl = `${BASE_URL}`;
+    const callbackUrl = `${BASE_URL}/checkout/result?orderId=${encodeURIComponent(orderId || "")}`;
+    const errorUrl = `${BASE_URL}/checkout/error?orderId=${encodeURIComponent(orderId || "")}`;
 
     const payload = {
       PaymentMethodId: paymentMethodId,
@@ -53,7 +56,7 @@ export async function POST(req: NextRequest) {
     if (!res.ok) {
       console.error("ExecutePayment error", data);
       return NextResponse.json(
-        { error: "Payment gateway error" },
+        { data: { error: "Payment gateway error" } },
         { status: 502 }
       );
     }
@@ -61,6 +64,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ data }, { status: 200 });
   } catch (err) {
     console.error("ExecutePayment handler error", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json(
+      { data: { error: "Server error" } },
+      { status: 500 }
+    );
   }
 }

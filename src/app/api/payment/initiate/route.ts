@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
     if (!invoiceAmount || invoiceAmount <= 0) {
       return NextResponse.json(
-        { error: "Invalid invoice amount" },
+        { data: { error: "Invalid invoice amount" } },
         { status: 400 }
       );
     }
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     if (!res.ok) {
       console.error("MyFatoorah InitiatePayment error", data);
       return NextResponse.json(
-        { error: "Payment gateway error" },
+        { data: { error: "Payment gateway error" } },
         { status: 502 }
       );
     }
@@ -48,6 +48,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ data });
   } catch (err) {
     console.error("InitiatePayment handler error", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json(
+      { data: { error: "Server error" } },
+      { status: 500 }
+    );
   }
 }
