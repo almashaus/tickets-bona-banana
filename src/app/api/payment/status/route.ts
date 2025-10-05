@@ -25,7 +25,6 @@ export async function POST(req: NextRequest) {
     });
 
     const data = await res.json();
-    console.log("Payment Status :>> ", data);
 
     if (!res.ok) {
       console.error("GetPaymentStatus error", data);

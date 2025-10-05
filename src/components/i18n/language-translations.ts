@@ -3,6 +3,7 @@ export const translations = {
     "home.title": "Discover Events",
     "home.subtitle": "Discover the most popular events happening near you",
     "home.allEvents": "View All Events",
+    "home.backToHome": "Back to Main Page",
     "home.noEvents": "There is no event currently, Come back later!",
     "home.error": "Something went wrong. Please try again later.",
     "nav.profile": "Profile",
@@ -30,7 +31,7 @@ export const translations = {
     "event.noTicketsAvailable": "No tickets available for this date",
     "event.PricePerTicket:": "Price per ticket:",
     "event.total": "Total Price",
-    "event.buyTicket": "Buy Ticket",
+    "event.buyTicket": "Continue To Checkout",
     "event.completed": "Event Completed",
     "event.price": "Price",
     "auth.login": "Login",
@@ -58,6 +59,21 @@ export const translations = {
     "checkout.expiryDate": "Expiry Date",
     "checkout.cvc": "CVC",
     "checkout.processing": "Processing...",
+    "checkout.checkingPaymentStatus": "Checking your payment status …",
+    "checkout.keepTapOpen":
+      "Keep this tab open while we confirm your payment status.",
+    "checkout.paymentPending": "Payment Pending",
+    "checkout.paymentPendingContactSupport":
+      "Your payment is pending. please contact our support team.",
+    "checkout.paymentCanceled": "Payment Canceled",
+    "checkout.paymentCanceledNoChargesMade":
+      "Your payment has been canceled and no charges were made.",
+    "checkout.paymentFailed": "Payment Failed",
+    "checkout.pleaseCheckPaymentAndTryAgain":
+      "Please check your payment details and try again, or use a different payment method.",
+    "checkout.warning": "Warning",
+    "checkout.somethingWentWrong":
+      "Something went wrong!, please try again later.",
     "confirm.confirm": "Order Confirmed!",
     "confirm.purchase": "Your ticket have been successfully purchased.",
     "confirm.orderNumber": "Order Number",
@@ -154,6 +170,7 @@ export const translations = {
     "home.title": "اكتشف الفعاليات",
     "home.subtitle": "ابحث واحجز تذاكر لأفضل الفعاليات بالقرب منك",
     "home.allEvents": "عرض جميع الفعاليات",
+    "home.backToHome": "العودة للصفحة الرئيسية",
     "home.noEvents": "لا توجد فعالية حاليًا، عد لاحقًا!",
     "home.error": "حدث خطأ ما. يُرجى المحاولة لاحقًا.",
     "nav.profile": "الملف الشخصي",
@@ -208,6 +225,19 @@ export const translations = {
     "checkout.expiryDate": "تاريخ الانتهاء",
     "checkout.cvc": "رمز التحقق (CVC)",
     "checkout.processing": "جاري المعالجة...",
+    "checkout.checkingPaymentStatus": "جاري التحقق من حالة الدفع ...",
+    "checkout.keepTapOpen": "أبقِ هذا التبويب مفتوحًا أثناء تأكيد حالة الدفع.",
+    "checkout.paymentPending": "الدفع قيد الانتظار",
+    "checkout.paymentPendingContactSupport":
+      "الدفع قيد الانتظار. يرجى التواصل مع الدعم.",
+    "checkout.paymentCanceled": "تم إلغاء الدفع",
+    "checkout.paymentCanceledNoChargesMade":
+      "تم إلغاء الدفع ولم يتم خصم أي مبلغ.",
+    "checkout.paymentFailed": "فشل الدفع",
+    "checkout.pleaseCheckPaymentAndTryAgain":
+      "يرجى التحقق من بيانات الدفع والمحاولة مرة أخرى أو استخدام طريقة دفع أخرى.",
+    "checkout.warning": "تحذير",
+    "checkout.somethingWentWrong": "حدث خطأ ما! يرجى المحاولة لاحقًا.",
     "confirm.confirm": "تم تأكيد الطلب!",
     "confirm.purchase": "تم شراء تذكرتك بنجاح.",
     "confirm.orderNumber": "رقم الطلب",

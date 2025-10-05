@@ -38,49 +38,54 @@ export async function PUT(req: NextRequest) {
     const body = await req.json();
     const { orderId, status } = body;
 
+    // [ Canceled ]
     if (status === "Canceled") {
       return NextResponse.json(
         { error: "Payment Canceled" },
         { status: 402, headers: { "Content-Type": "application/json" } }
       );
-    } else if (status === "Paid") {
-      await db
-        .collection("orders")
-        .doc(orderId)
-        .update({ status: OrderStatus.PAID });
-
-      // 1. Query tickets by orderId
-      const snapshot = await db
-        .collection("tickets")
-        .where("orderId", "==", orderId)
-        .get();
-
-      if (snapshot.empty) {
-        return NextResponse.json(
-          { error: `No tickets found for orderId: ${orderId}` },
-          { status: 404, headers: { "Content-Type": "application/json" } }
-        );
-      }
-
-      // 2. Firestore batch update
-      const batch = db.batch();
-      snapshot.docs.forEach((doc) => {
-        batch.update(doc.ref, { status: TicketStatus.VALID });
-      });
-
-      await batch.commit();
-
+    }
+    // [ Pending ]
+    else if (status === "Pending") {
       return NextResponse.json(
-        { success: true },
-        { status: 200, headers: { "Content-Type": "application/json" } }
+        { message: "Payment Pending" },
+        { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
-    // TODO: else status is pending
+
+    // [ Paid ]
+    await db
+      .collection("orders")
+      .doc(orderId)
+      .update({ status: OrderStatus.PAID });
+
+    // 1. Query tickets by orderId
+    const ticketsSnapshot = await db
+      .collection("tickets")
+      .where("orderId", "==", orderId)
+      .get();
+
+    if (ticketsSnapshot.empty) {
+      return NextResponse.json(
+        { error: `No tickets found for orderId: ${orderId}` },
+        { status: 404, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // 2. Firestore batch update
+    const batch = db.batch();
+    ticketsSnapshot.docs.forEach((doc) => {
+      batch.update(doc.ref, { status: TicketStatus.VALID });
+    });
+
+    await batch.commit();
+
     return NextResponse.json(
-      { message: "Payment Pending" },
+      { success: true },
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
+    console.log(error);
     return NextResponse.json(
       { error: "Error" },
       { status: 500, headers: { "Content-Type": "application/json" } }

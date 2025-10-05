@@ -2,10 +2,15 @@
 
 import React, { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { Button } from "@/src/components/ui/button";
+import { useLanguage } from "@/src/components/i18n/language-provider";
+import { Card } from "@/src/components/ui/card";
+import Loading from "@/src/components/ui/loading";
 
 function CheckoutError() {
   const search = useSearchParams();
   const paymentId = search?.get("paymentId");
+  const { t } = useLanguage();
 
   const [status, setStatus] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -20,14 +25,11 @@ function CheckoutError() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ paymentId }),
         });
-        console.log("status response in error checkout:>> ", await res.json());
-        if (!res.ok) throw new Error("Status fetch failed");
-
         const json = await res.json();
-        setStatus(json.data);
+
+        if (!res.ok) throw new Error("Status fetch failed");
+        setStatus(json);
       } catch (err) {
-        console.error("status error", err);
-        setStatus({ error: err || "Unknown error" });
       } finally {
         setLoading(false);
       }
@@ -42,10 +44,41 @@ function CheckoutError() {
     );
 
   return (
-    <div className="container py-10">
-      <h1>Payment ERROR !</h1>
-      {loading && <p>Checking payment status…</p>}
-      {status && <pre>{JSON.stringify(status, null, 2)}</pre>}
+    <div className="flex justify-center m-10">
+      <Card className="w-fit lg:w-1/3 px-10">
+        {loading ? (
+          <div className="flex flex-col justify-center items-center text-center py-12 space-y-4">
+            <Loading />
+
+            <p className="text-2xl font-medium">
+              {t("checkout.checkingPaymentStatus")}
+            </p>
+            <p className="text-sm text-muted-foreground pb-6">
+              {t("checkout.keepTapOpen")}
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col justify-center items-center text-center py-12 space-y-4">
+            <img
+              src="/images/payment-error.svg"
+              alt="Payment Error"
+              width={80}
+            />
+            <div>
+              <p className="text-2xl font-medium">
+                {t("checkout.paymentFailed")}
+              </p>
+
+              <p className="text-muted-foreground">
+                {t("checkout.pleaseCheckPaymentAndTryAgain")}
+              </p>
+            </div>
+            <Button className="mt-24" asChild>
+              <a href="/">{t("home.backToHome")}</a>
+            </Button>
+          </div>
+        )}
+      </Card>
     </div>
   );
 }

@@ -51,7 +51,6 @@ export async function POST(req: NextRequest) {
     });
 
     const data = await res.json();
-    console.log("ExecutePayment data :>> ", data);
 
     if (!res.ok) {
       console.error("ExecutePayment error", data);

@@ -150,6 +150,7 @@ export default function CheckoutPage() {
       tickets: ticketsIds,
     };
 
+    // ------ Insert order & tickets
     const response = await fetch("/api/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -174,6 +175,7 @@ export default function CheckoutPage() {
           orderId,
         };
 
+        // ------ execute payment
         const res = await fetch("/api/payment/execute", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -181,8 +183,7 @@ export default function CheckoutPage() {
         });
 
         const json = await res.json();
-        if (!res.ok)
-          throw new Error(json?.data.ValidationErrors.Error || "Execute error");
+        if (!res.ok) throw new Error("Execute error");
 
         const redirectUrl = json?.data?.Data?.PaymentURL;
 
@@ -196,7 +197,6 @@ export default function CheckoutPage() {
             "Something went wrong on the payment. Please try again later.",
           variant: "destructive",
         });
-        console.error("execute error", err);
       } finally {
         setIsProcessing(false);
       }
