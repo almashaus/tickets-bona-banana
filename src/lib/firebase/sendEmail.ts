@@ -12,8 +12,10 @@ export const sendOrderConfirmationEmail = async (
   orderId: string
 ) => {
   const order: Order = (await getDocumentById("orders", orderId)) as Order;
-
-  const event: Event = (await getDocumentById("event", order.eventId)) as Event;
+  const event: Event = (await getDocumentById(
+    "events",
+    order.eventId
+  )) as Event;
 
   const q = query(collection(db, "tickets"), where("orderId", "==", orderId));
 
@@ -22,7 +24,8 @@ export const sendOrderConfirmationEmail = async (
     doc.data()
   ) as Ticket[];
 
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  const resendKey = process.env.RESEND_API_KEY;
+  const resend = new Resend(resendKey);
 
   const data = await resend.emails.send({
     from: "Bona Banana <info@bona-banana.com>",
@@ -31,6 +34,7 @@ export const sendOrderConfirmationEmail = async (
     react: OrderConfirmationEmail(order, tickets, event),
   });
 
+  console.log("#4");
   if (data.data) {
     return true;
   } else {

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Order, OrderStatus } from "@/src/models/order";
 import { Ticket, TicketStatus } from "@/src/models/ticket";
 import crypto from "crypto";
+import { sendOrderConfirmationEmail } from "@/src/lib/firebase/sendEmail";
 
 export async function POST(req: NextRequest) {
   try {
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
-    const { orderId, status } = body;
+    const { orderId, status, email } = body;
 
     // [ Canceled ]
     if (status === "Canceled") {
@@ -79,6 +80,9 @@ export async function PUT(req: NextRequest) {
     });
 
     await batch.commit();
+
+    // 3. Send Email
+    await sendOrderConfirmationEmail(email, orderId);
 
     return NextResponse.json(
       { success: true },

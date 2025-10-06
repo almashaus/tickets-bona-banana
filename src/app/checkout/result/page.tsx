@@ -46,44 +46,43 @@ function CheckoutResult() {
 
         const json = await statusResponse.json();
         setStatus(json.data);
+        if (user?.email) {
+          // [ 2 ] update checkout
+          const updateResponse = await fetch("/api/checkout", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              orderId: orderId,
+              status: json.data?.Data?.InvoiceStatus,
+              email: user.email,
+            }),
+          });
 
-        // [ 2 ] update checkout
-        const updateResponse = await fetch("/api/checkout", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            orderId: orderId,
-            status: json.data?.Data?.InvoiceStatus,
-          }),
-        });
+          const jsonUpdate = await updateResponse.json();
 
-        const jsonUpdate = await updateResponse.json();
+          if (updateResponse.ok) {
+            await mutate("/api/admin/events");
+            await mutate("/api/admin/orders");
+            await mutate("/api/admin/customers", undefined, {
+              revalidate: true,
+            });
+            await mutate("/api/published-events");
 
-        if (updateResponse.ok) {
-          await mutate("/api/admin/events");
-          await mutate("/api/admin/orders");
-          await mutate("/api/admin/customers", undefined, { revalidate: true });
-          await mutate("/api/published-events");
-
-          // [ 3 ] send confirmation email
-          if (user?.email && orderId) {
-            await sendOrderConfirmationEmail(user.email, orderId);
+            // [ 3 ] Navigate to confirmation page
+            router.replace(`/confirmation?orderNumber=${orderId}`);
+          } else if (updateResponse.status === 400) {
+            setError({
+              title: t("checkout.paymentPending"),
+              message: t("checkout.paymentPendingContactSupport"),
+              contactSupport: true,
+            });
+          } else if (updateResponse.status === 402) {
+            setError({
+              title: t("checkout.paymentCanceled"),
+              message: t("checkout.paymentCanceledNoChargesMade"),
+              contactSupport: false,
+            });
           }
-
-          // [ 4 ] Navigate to confirmation page
-          router.replace(`/confirmation?orderNumber=${orderId}`);
-        } else if (updateResponse.status === 400) {
-          setError({
-            title: t("checkout.paymentPending"),
-            message: t("checkout.paymentPendingContactSupport"),
-            contactSupport: true,
-          });
-        } else if (updateResponse.status === 402) {
-          setError({
-            title: t("checkout.paymentCanceled"),
-            message: t("checkout.paymentCanceledNoChargesMade"),
-            contactSupport: false,
-          });
         }
       } catch (err) {
         setError({
@@ -95,7 +94,7 @@ function CheckoutResult() {
         setLoading(false);
       }
     })();
-  }, [paymentId]);
+  }, [paymentId, user?.email]);
 
   const subject = encodeURIComponent(
     `Payment Issue | Payment Id: ${paymentId}`

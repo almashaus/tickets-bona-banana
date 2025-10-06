@@ -17,7 +17,7 @@ import { Event } from "@/src/models/event";
 import { Ticket } from "@/src/models/ticket";
 import { generateQRCode } from "./utils";
 
-const baseUrl = process.env.BASE_URL ? `https://${process.env.BASE_URL}` : "";
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
 export function OrderConfirmationEmail(
   order?: Order,
@@ -54,8 +54,8 @@ export function OrderConfirmationEmail(
               {/* CheckCircle SVG */}
               <Img
                 src="https://firebasestorage.googleapis.com/v0/b/bona-banana.firebasestorage.app/o/app%2Fbona-banana.png?alt=media&token=e7ea830c-98da-4a01-b7e8-d68a684d9916"
-                width={80}
-                height={80}
+                width={100}
+                height={70}
                 alt="Logo"
               />
             </div>
