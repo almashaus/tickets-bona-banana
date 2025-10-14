@@ -139,6 +139,7 @@ export default function CheckoutPage() {
       id: orderId,
       userId: user.id,
       eventId: event?.id!,
+      invoiceId: null,
       orderDate: new Date(),
       status: OrderStatus.PENDING,
       totalAmount: total,
