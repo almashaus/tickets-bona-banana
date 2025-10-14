@@ -1,3 +1,4 @@
+import { db } from "@/src/lib/firebase/firebaseAdminConfig";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
@@ -59,6 +60,11 @@ export async function POST(req: NextRequest) {
         { status: 502 }
       );
     }
+
+    await db
+      .collection("orders")
+      .doc(orderId)
+      .update({ invoiceId: data?.Data?.InvoiceId });
 
     return NextResponse.json({ data }, { status: 200 });
   } catch (err) {

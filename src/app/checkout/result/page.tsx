@@ -2,15 +2,16 @@
 
 import React, { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { OrderStatus } from "@/src/models/order";
 import { useAuth } from "@/src/features/auth/auth-provider";
 import { useLanguage } from "@/src/components/i18n/language-provider";
 import { mutate } from "swr";
 import Loading from "@/src/components/ui/loading";
-import { sendOrderConfirmationEmail } from "@/src/lib/firebase/sendEmail";
-import { Info, TriangleAlert } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Card } from "@/src/components/ui/card";
+import { sendEmailToSupport } from "@/src/lib/utils/sendEmailToSupport";
+
+const POLL_INTERVAL_MS = 3000;
 
 function CheckoutResult() {
   const search = useSearchParams();
@@ -20,69 +21,115 @@ function CheckoutResult() {
   const { user } = useAuth();
   const { t, language } = useLanguage();
 
-  const [status, setStatus] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
+  const [polling, setPolling] = useState(true);
+  const [attempts, setAttempts] = useState(0);
+
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<{
     title: string;
     message: string;
     contactSupport: boolean;
   } | null>(null);
 
+  async function fetchStatus() {
+    try {
+      const statusResponse = await fetch("/api/payment/status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentId }),
+      });
+
+      if (!statusResponse.ok) throw new Error("Status fetch failed");
+
+      const json = await statusResponse.json();
+
+      return json;
+    } catch (err: any) {
+      setError({
+        title: t("checkout.warning"),
+        message: t("checkout.somethingWentWrong"),
+        contactSupport: false,
+      });
+      setLoading(false);
+    }
+  }
+
+  // Poll until status changes
+  useEffect(() => {
+    if (!polling || !paymentId) return;
+
+    const interval = setInterval(async () => {
+      setAttempts((a) => a + 1);
+      const result = await fetchStatus();
+
+      const currentStatus = result?.data?.Data?.InvoiceStatus;
+      if (currentStatus && currentStatus !== "Pending") {
+        clearInterval(interval);
+        setPolling(false);
+      }
+
+      // Stop polling
+      if (attempts > 5) {
+        clearInterval(interval);
+        setPolling(false);
+      }
+    }, POLL_INTERVAL_MS);
+
+    return () => clearInterval(interval);
+  }, [polling, paymentId, attempts]);
+
+  // Update order if status is Paid
   useEffect(() => {
     if (!paymentId) return;
 
     (async () => {
-      setLoading(true);
-
       try {
         // [ 1 ] get status
-        const statusResponse = await fetch("/api/payment/status", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ paymentId }),
-        });
+        const result = await fetchStatus();
 
-        if (!statusResponse.ok) throw new Error("Status fetch failed");
-
-        const json = await statusResponse.json();
-        setStatus(json.data);
-        if (user?.email) {
+        // ---- if [ Paid ]
+        if (result.data?.Data?.InvoiceStatus === "Paid" && user?.email) {
           // [ 2 ] update checkout
           const updateResponse = await fetch("/api/checkout", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               orderId: orderId,
-              status: json.data?.Data?.InvoiceStatus,
               email: user.email,
             }),
           });
 
-          const jsonUpdate = await updateResponse.json();
-
-          if (updateResponse.ok) {
-            await mutate("/api/admin/events");
-            await mutate("/api/admin/orders");
-            await mutate("/api/admin/customers", undefined, {
-              revalidate: true,
-            });
-            await mutate("/api/published-events");
-
-            // [ 3 ] Navigate to confirmation page
-            router.replace(`/confirmation?orderNumber=${orderId}`);
-          } else if (updateResponse.status === 400) {
-            setError({
-              title: t("checkout.paymentPending"),
-              message: t("checkout.paymentPendingContactSupport"),
-              contactSupport: true,
-            });
-          } else if (updateResponse.status === 402) {
-            setError({
-              title: t("checkout.paymentCanceled"),
-              message: t("checkout.paymentCanceledNoChargesMade"),
-              contactSupport: false,
-            });
+          if (!updateResponse.ok) {
+            throw new Error("Error in updating oorder");
           }
+
+          await mutate("/api/admin/events");
+          await mutate("/api/admin/orders");
+          await mutate("/api/admin/customers", undefined, {
+            revalidate: true,
+          });
+          await mutate("/api/published-events");
+
+          // [ 3 ] Navigate to confirmation page
+          router.replace(`/confirmation?orderNumber=${orderId}`);
+        }
+        // ---- if [ Pending ]
+        if (result.data?.Data?.InvoiceStatus === "Pending" && !polling) {
+          setLoading(false);
+          setError({
+            title: t("checkout.paymentPending"),
+            message: t("checkout.paymentPendingContactSupport"),
+            contactSupport: true,
+          });
+        }
+        // ---- if [ Canceld ]
+        if (result.data?.Data?.InvoiceStatus === "Canceled" && !polling) {
+          setLoading(false);
+          setError({
+            title: t("checkout.paymentCanceled"),
+            message: t("checkout.paymentCanceledNoChargesMade"),
+            contactSupport: false,
+          });
         }
       } catch (err) {
         setError({
@@ -90,19 +137,10 @@ function CheckoutResult() {
           message: t("checkout.somethingWentWrong"),
           contactSupport: false,
         });
-      } finally {
         setLoading(false);
       }
     })();
-  }, [paymentId, user?.email]);
-
-  const subject = encodeURIComponent(
-    `Payment Issue | Payment Id: ${paymentId}`
-  );
-  const body = encodeURIComponent(
-    `Hello,\n\nI need help with my payment in Bona Banana, my account is ${user?.email}\n\n\nThank you.`
-  );
-  const mailtoLink = `mailto:info@bona-banana.com?subject=${subject}&body=${body}`;
+  }, [paymentId, user, polling]);
 
   if (!paymentId)
     return (
@@ -136,7 +174,7 @@ function CheckoutResult() {
               <p className="text-lg text-muted-foreground">{error.message}</p>
               {error.contactSupport && (
                 <a
-                  href={mailtoLink}
+                  href={sendEmailToSupport(paymentId ?? "", user?.email ?? "")}
                   className="underline text-green-700 hover:text-green-600"
                 >
                   {t("footer.contactUs")}

@@ -12,6 +12,7 @@ export interface Order {
   id: string; //
   userId: string; // foreign key to User
   eventId: string; // foreign key to event
+  invoiceId?: string | null;
   orderDate: Date;
   status: OrderStatus;
   totalAmount: number;

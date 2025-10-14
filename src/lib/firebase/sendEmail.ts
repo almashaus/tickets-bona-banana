@@ -34,7 +34,6 @@ export const sendOrderConfirmationEmail = async (
     react: OrderConfirmationEmail(order, tickets, event),
   });
 
-  console.log("#4");
   if (data.data) {
     return true;
   } else {

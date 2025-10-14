@@ -37,30 +37,15 @@ export async function POST(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
-    const { orderId, status, email } = body;
+    const { orderId, email } = body;
 
-    // [ Canceled ]
-    if (status === "Canceled") {
-      return NextResponse.json(
-        { error: "Payment Canceled" },
-        { status: 402, headers: { "Content-Type": "application/json" } }
-      );
-    }
-    // [ Pending ]
-    else if (status === "Pending") {
-      return NextResponse.json(
-        { message: "Payment Pending" },
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      );
-    }
-
-    // [ Paid ]
+    // 1. Update status to Paid
     await db
       .collection("orders")
       .doc(orderId)
       .update({ status: OrderStatus.PAID });
 
-    // 1. Query tickets by orderId
+    // 2. Query tickets by orderId
     const ticketsSnapshot = await db
       .collection("tickets")
       .where("orderId", "==", orderId)
@@ -73,7 +58,7 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // 2. Firestore batch update
+    // 3. Firestore batch update
     const batch = db.batch();
     ticketsSnapshot.docs.forEach((doc) => {
       batch.update(doc.ref, { status: TicketStatus.VALID });
@@ -81,7 +66,7 @@ export async function PUT(req: NextRequest) {
 
     await batch.commit();
 
-    // 3. Send Email
+    // 4. Send Email
     await sendOrderConfirmationEmail(email, orderId);
 
     return NextResponse.json(
