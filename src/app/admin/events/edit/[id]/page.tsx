@@ -71,7 +71,7 @@ export default function EditEventPage() {
   const [locationUrl, setLocationUrl] = useState("");
   const [eventImage, setEventImage] = useState("");
   const [adImage, setAdImage] = useState("");
-  const [price, setPrice] = useState<number>(0);
+  const [price, setPrice] = useState("");
   const [status, setStatus] = useState<EventStatus>(EventStatus.DRAFT);
   const [isDnd, setisDnd] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -119,7 +119,7 @@ export default function EditEventPage() {
         setLocationUrl(eventData.locationUrl || "");
         setEventImage(eventData.eventImage || "");
         setAdImage(eventData.adImage || "");
-        setPrice(eventData.price || 0);
+        setPrice(eventData.price.toString() || "");
         setStatus(eventData.status || EventStatus.DRAFT);
         setisDnd(eventData.isDnd || false);
         setEventDates(eventData.dates || []);
@@ -214,7 +214,7 @@ export default function EditEventPage() {
         description: description,
         eventImage: eventImage,
         adImage: adImage,
-        price: price,
+        price: parseFloat(price),
         status: status,
         city: theCity,
         venue: venue,
@@ -331,14 +331,20 @@ export default function EditEventPage() {
                     <Input
                       id="price"
                       value={price}
-                      onChange={(e) =>
-                        setPrice(
-                          Number.isNaN(Number.parseFloat(e.target.value))
-                            ? 0
-                            : Number.parseFloat(e.target.value)
-                        )
-                      }
-                      placeholder="0.00"
+                      onChange={(e) => {
+                        const value = e.target.value;
+
+                        if (value === "") {
+                          setPrice("");
+                          return;
+                        }
+
+                        const numberValue = Number(value);
+                        if (!isNaN(numberValue)) {
+                          setPrice(value);
+                        }
+                      }}
+                      placeholder="25"
                       className="w-24"
                       required
                     />
@@ -411,9 +417,9 @@ export default function EditEventPage() {
                             <EyeIcon className=" w-4 h-4 text-blue-400 mx-1 " />
                           </div>
                         </SelectItem>
-                        <SelectItem value={EventStatus.CANCELLED}>
+                        <SelectItem value={EventStatus.CANCELED}>
                           <div className="flex items-center">
-                            Cancelled
+                            Canceled
                             <XIcon className=" w-4 h-4 text-red-400 mx-1 " />
                           </div>
                         </SelectItem>

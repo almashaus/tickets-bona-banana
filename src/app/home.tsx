@@ -12,6 +12,8 @@ import useSWR from "swr";
 import { useLanguage } from "@/src/components/i18n/language-provider";
 import Image from "next/image";
 import { price } from "../lib/utils/locales";
+import EmblaCarousel from "./EmblaCarousel";
+import { EmblaOptionsType } from "embla-carousel";
 
 export default function Home() {
   const { t, language } = useLanguage();
@@ -29,60 +31,70 @@ export default function Home() {
     }
   );
 
+  const OPTIONS: EmblaOptionsType = { loop: true };
+  const SLIDE_COUNT = 5;
+  const SLIDES = Array.from(Array(SLIDE_COUNT).keys());
+
   return (
-    <div className="flex flex-col min-h-screen ">
+    <div className="flex flex-col min-h-screen">
       {/* Featured Events Section */}
-      <section className="w-full py-12 md:py-24 lg:py-24">
-        <div className="container px-8 md:px-6">
-          <div className="flex flex-col items-center justify-center space-y-4 text-center">
-            <div className="space-y-2">
-              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                ✨ {t("home.title")} ✨
-              </h2>
-              <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                {t("home.subtitle")}
-              </p>
+      <div className="container w-full py-10 px-8 md:px-6">
+        <div className="mb-8">
+          <EmblaCarousel slides={SLIDES} options={OPTIONS} />
+        </div>
+
+        <div className="flex flex-col items-center justify-center space-y-4 text-center">
+          <div className="space-y-2">
+            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
+              ✨ {t("home.title")} ✨
+            </h2>
+            <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+              {t("home.subtitle")}
+            </p>
+          </div>
+        </div>
+
+        {data && data?.length > 0 && (
+          <div>
+            <div className="flex justify-center">
+              <EventsList allEvents={data} language={language} />
+            </div>
+            <div className="flex justify-center ">
+              <Button asChild>
+                <Link href="/"> {t("home.allEvents")}</Link>
+              </Button>
             </div>
           </div>
-          {isLoading && (
-            <div className="flex justify-center items-center py-12">
-              <Loading />
-            </div>
-          )}
-          {data && data?.length > 0 && (
-            <div>
-              <div className="flex justify-center">
-                <EventsList allEvents={data} language={language} />
-              </div>
-              <div className="flex justify-center ">
-                <Button asChild>
-                  <Link href="/"> {t("home.allEvents")}</Link>
-                </Button>
-              </div>
-            </div>
-          )}
-          {error && (
-            <div className="flex flex-col justify-center items-center space-y-3 py-12">
-              <InfoIcon className="h-8 w-8 text-muted-foreground" />
-              <p className="text-muted-foreground text-center">
-                {t("home.error")}
-              </p>
-            </div>
-          )}
-          {!error && data?.length == 0 && (
-            <div className="flex flex-col justify-center items-center py-12">
-              <img
-                src="/no-data.png"
-                alt="no data"
-                className="h-1/2 w-1/2 md:h-1/6 md:w-1/6"
-              />
-              <p className="text-muted-foreground text-center">
-                {t("home.noEvents")}
-              </p>
-            </div>
-          )}
-        </div>
-      </section>
+        )}
+
+        {isLoading && (
+          <div className="flex justify-center items-center py-12">
+            <Loading />
+          </div>
+        )}
+
+        {error && (
+          <div className="flex flex-col justify-center items-center space-y-3 py-12">
+            <InfoIcon className="h-8 w-8 text-muted-foreground" />
+            <p className="text-muted-foreground text-center">
+              {t("home.error")}
+            </p>
+          </div>
+        )}
+
+        {!error && data?.length == 0 && (
+          <div className="flex flex-col justify-center items-center py-12">
+            <img
+              src="/no-data.png"
+              alt="no data"
+              className="h-1/2 w-1/2 md:h-1/6 md:w-1/6"
+            />
+            <p className="text-muted-foreground text-center">
+              {t("home.noEvents")}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

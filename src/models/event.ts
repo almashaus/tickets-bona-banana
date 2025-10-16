@@ -7,7 +7,7 @@ import { AppUser } from "./user";
 export enum EventStatus {
   DRAFT = "draft",
   PUBLISHED = "published",
-  CANCELLED = "cancelled",
+  CANCELED = "canceld",
   COMPLETED = "completed",
 }
 

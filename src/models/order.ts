@@ -4,7 +4,7 @@ import { Event } from "./event";
 export enum OrderStatus {
   PENDING = "Pending",
   PAID = "Paid",
-  CANCELLED = "Cancelled",
+  CANCELED = "Canceled",
   REFUNDED = "Refunded",
 }
 

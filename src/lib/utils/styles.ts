@@ -36,7 +36,7 @@ export const getOrderStatusBadgeColor = (status: string) => {
       return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
     case OrderStatus.PENDING:
       return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
-    case OrderStatus.CANCELLED:
+    case OrderStatus.CANCELED:
       return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
     case OrderStatus.REFUNDED:
       return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
@@ -51,7 +51,7 @@ export const getTicketStatusBadgeColor = (status: string) => {
       return "bg-green-100 text-green-800";
     case TicketStatus.USED:
       return "bg-blue-100 text-blue-800";
-    case TicketStatus.CANCELLED:
+    case TicketStatus.CANCELED:
       return "bg-red-100 text-red-800";
     case TicketStatus.PENDING:
       return "bg-yellow-100 text-yellow-800";

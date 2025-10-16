@@ -246,7 +246,98 @@ export const updateEventDates = functions.firestore
 
     return change.after.ref.update({ eventDates });
   });
+/*
+  [ 8 ]
+  Triggered when an event date's capacity is updated; adjusts availableTickets accordingly
+*/
+export const onEventDateCapacityChanged = functions.firestore
+  .document("events/{eventId}")
+  .onUpdate(async (change, context) => {
+    const before = change.before.data();
+    const after = change.after.data();
 
+    if (!before || !after) return;
+
+    const beforeDates = before.dates || [];
+    const afterDates = after.dates || [];
+
+    // Map dates by id for easy lookup
+    const beforeDatesMap = Object.fromEntries(
+      beforeDates.map((d: any) => [d.id, d])
+    );
+
+    const updatedDates = afterDates.map((afterDate: any) => {
+      const beforeDate = beforeDatesMap[afterDate.id];
+      if (
+        beforeDate &&
+        typeof beforeDate.capacity === "number" &&
+        typeof afterDate.capacity === "number" &&
+        beforeDate.capacity !== afterDate.capacity
+      ) {
+        const diff = afterDate.capacity - beforeDate.capacity;
+        const prevAvailable =
+          typeof afterDate.availableTickets === "number"
+            ? afterDate.availableTickets
+            : beforeDate.availableTickets || 0;
+        return {
+          ...afterDate,
+          availableTickets: prevAvailable + diff,
+        };
+      }
+      return afterDate;
+    });
+
+    // Only update if any date's availableTickets changed
+    const shouldUpdate = updatedDates.some((d: any, idx: number) => {
+      return d.availableTickets !== afterDates[idx].availableTickets;
+    });
+
+    if (shouldUpdate) {
+      await change.after.ref.update({ dates: updatedDates });
+    }
+  });
+/*
+  [ 9 ]
+  Triggered when a ticket status is changed to "Canceled"; increases availableTickets for the event date
+*/
+export const onTicketCanceled = functions.firestore
+  .document("tickets/{ticketId}")
+  .onUpdate(async (change, context) => {
+    const before = change.before.data();
+    const after = change.after.data();
+
+    if (!before || !after) return;
+
+    // Only act if status changed to "Canceled" from something else
+    if (
+      before.status !== "Canceled" &&
+      after.status === "Canceled" &&
+      after.eventId &&
+      after.eventDateId
+    ) {
+      const eventRef = db.collection("events").doc(after.eventId);
+
+      await db.runTransaction(async (transaction) => {
+        const eventDoc = await transaction.get(eventRef);
+        if (!eventDoc.exists) return;
+
+        const eventData = eventDoc.data();
+        const dates = eventData?.dates || [];
+        const updatedDates = dates.map((date: any) => {
+          if (date.id === after.eventDateId) {
+            const currentAvailable = date.availableTickets || 0;
+            return {
+              ...date,
+              availableTickets: currentAvailable + 1,
+            };
+          }
+          return date;
+        });
+
+        transaction.update(eventRef, { dates: updatedDates });
+      });
+    }
+  });
 /*
 Deploy the functions command:
 `firebase deploy --only functions`

@@ -152,7 +152,7 @@ export default function ReservationsPage() {
         body: JSON.stringify({
           id: reservationId,
           data: {
-            status: OrderStatus.CANCELLED,
+            status: OrderStatus.CANCELED,
           },
         }),
       });
@@ -161,8 +161,8 @@ export default function ReservationsPage() {
         await mutate("/api/admin/orders");
 
         toast({
-          title: "Reservation Cancelled",
-          description: "The reservation has been cancelled successfully.",
+          title: "Reservation Canceled",
+          description: "The reservation has been canceld successfully.",
           variant: "success",
         });
       }

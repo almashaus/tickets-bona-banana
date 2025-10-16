@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "../styles/globals.css";
+import "../styles/embla.css";
 import Header from "@/src/components/layout/header";
 import Footer from "@/src/components/layout/footer";
 import { Toaster } from "@/src/components/ui/toaster";

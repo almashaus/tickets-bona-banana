@@ -7,7 +7,7 @@ export const getStatusIcon = (status: string) => {
       return <Clock4Icon className=" w-4 h-4 text-gray-400 mx-1 " />;
     case EventStatus.PUBLISHED:
       return <EyeIcon className=" w-4 h-4 text-blue-400 mx-1 " />;
-    case EventStatus.CANCELLED:
+    case EventStatus.CANCELED:
       return <XIcon className=" w-4 h-4 text-red-400 mx-1 " />;
     case EventStatus.COMPLETED:
       return <CheckIcon className=" w-4 h-4 text-green-400 mx-1 " />;
