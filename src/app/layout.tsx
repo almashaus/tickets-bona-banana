@@ -12,6 +12,7 @@ import { LanguageProvider } from "@/src/components/i18n/language-provider";
 import { MySWRProvider } from "@/src/features/context/swr-provider";
 import { DINNextLT } from "../styles/fonts";
 import { getServerSession } from "../features/auth/auth-server";
+import { ThemeProvider } from "../components/theme/theme-provider";
 
 export const metadata: Metadata = {
   title: "Bona Banana",
@@ -45,20 +46,22 @@ export default async function RootLayout({
         <link rel="stylesheet" href="/css/riyal.css" />
       </head>
       <body className={DINNextLT.className}>
-        <AuthProvider>
-          <MySWRProvider>
-            <LanguageProvider>
-              <Analytics />
-              <SpeedInsights />
-              <div className="flex flex-col min-h-screen min-w-full">
-                <Header initialUser={session.user} />
-                <main className="flex-grow pt-16">{children}</main>
-                <Footer />
-              </div>
-              <Toaster />
-            </LanguageProvider>
-          </MySWRProvider>
-        </AuthProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <AuthProvider>
+            <MySWRProvider>
+              <LanguageProvider>
+                <Analytics />
+                <SpeedInsights />
+                <div className="flex flex-col min-h-screen min-w-full">
+                  <Header initialUser={session.user} />
+                  <main className="flex-grow pt-16">{children}</main>
+                  <Footer />
+                </div>
+                <Toaster />
+              </LanguageProvider>
+            </MySWRProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

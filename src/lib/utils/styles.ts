@@ -1,11 +1,13 @@
 import { OrderStatus } from "@/src/models/order";
 import { TicketStatus } from "@/src/models/ticket";
-import { MemberRole, MemberStatus } from "@/src/models/user";
+import { MemberRole, MemberStatus } from "@/src/types/permissions";
 
 export const getRoleBadgeColor = (role: string) => {
   switch (role) {
     case MemberRole.ADMIN:
       return "bg-red-100 text-red-700";
+    case MemberRole.MANAGER:
+      return "bg-amber-100 text-amber-600";
     case MemberRole.ORGANIZER:
       return "bg-blue-100 text-blue-700";
     case MemberRole.ANALYST:
@@ -16,6 +18,25 @@ export const getRoleBadgeColor = (role: string) => {
       return "bg-purple-100 text-purple-700";
     default:
       return "bg-gray-100 text-gray-700";
+  }
+};
+
+export const getRoleColor = (role: string) => {
+  switch (role) {
+    case MemberRole.ADMIN:
+      return "text-red-700";
+    case MemberRole.MANAGER:
+      return "text-amber-600";
+    case MemberRole.ORGANIZER:
+      return "text-blue-700";
+    case MemberRole.ANALYST:
+      return "text-cyan-700";
+    case MemberRole.SUPPORT:
+      return "text-gray-700";
+    case MemberRole.PARTNER:
+      return "text-purple-700";
+    default:
+      return "text-gray-700";
   }
 };
 

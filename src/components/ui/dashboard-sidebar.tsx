@@ -6,10 +6,14 @@ import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./button";
 import { useMobileSidebar } from "@/src/lib/stores/useMobileSidebar";
-import { Item, sidebarData } from "@/src/models/sidebarItem";
+import { Item } from "@/src/types/sidebarItem";
 import { usePathname } from "next/navigation";
+import { sidebarData } from "@/src/data/sideBarData";
+import { useAuth } from "@/src/features/auth/auth-provider";
+import { MemberRole } from "@/src/types/permissions";
 
 export function DashboardSidebar() {
+  const { user } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const isMobile = useIsMobile();
   const mobileOpen = useMobileSidebar((state) => state.mobileOpen);
@@ -43,13 +47,21 @@ export function DashboardSidebar() {
   const sidebarContent = (
     <div className="h-full px-3 pb-4 pt-3 overflow-y-auto bg-neutral-300 dark:bg-gray-800 flex flex-col">
       <div className="space-y-2 text-sm">
-        {sidebarData.map((item, idx) => (
-          <SidebarItem
-            key={idx}
-            item={item}
-            collapsed={collapsed && !isMobile}
-          />
-        ))}
+        {sidebarData.map((item, idx) => {
+          if (
+            item.title === "Permissions" &&
+            user?.dashboard?.role !== MemberRole.ADMIN
+          ) {
+            return;
+          }
+          return (
+            <SidebarItem
+              key={idx}
+              item={item}
+              collapsed={collapsed && !isMobile}
+            />
+          );
+        })}
       </div>
       <Button
         variant="ghost"

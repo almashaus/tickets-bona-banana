@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Activity, Check, PanelLeft, X } from "lucide-react";
 import {
@@ -36,49 +36,17 @@ import {
 import { useAuth } from "@/src/features/auth/auth-provider";
 import { useToast } from "@/src/components/ui/use-toast";
 import useSWR from "swr";
-import { MemberStatus, MemberRole, AppUser } from "@/src/models/user";
+import { AppUser } from "@/src/models/user";
+import {
+  FeaturePermission,
+  MemberRole,
+  MemberStatus,
+  RolePermissions,
+} from "@/src/types/permissions";
 import { getRoleBadgeColor, getStatusBadgeColor } from "@/src/lib/utils/styles";
 import { formatDate } from "@/src/lib/utils/formatDate";
 import Loading from "@/src/components/ui/loading";
-
-// Mock permissions data
-const mockPermissions = [
-  {
-    feature: "Event Management",
-    view: true,
-    create: true,
-    edit: true,
-    delete: false,
-  },
-  {
-    feature: "Report Access",
-    view: true,
-    create: false,
-    edit: false,
-    delete: false,
-  },
-  {
-    feature: "Send Notifications",
-    view: true,
-    create: true,
-    edit: true,
-    delete: false,
-  },
-  {
-    feature: "User Management",
-    view: false,
-    create: false,
-    edit: false,
-    delete: false,
-  },
-  {
-    feature: "Financial Reports",
-    view: true,
-    create: false,
-    edit: false,
-    delete: false,
-  },
-];
+import { GrayX, GreenCheck } from "@/src/lib/utils/statusIcons";
 
 // Mock activity log
 const mockActivityLog = [
@@ -112,14 +80,31 @@ export default function UserProfilePage() {
   const { user, resetPassword } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const [permissions, setPermissions] = useState(mockPermissions);
+  const [permissions, setPermissions] = useState<FeaturePermission[]>([]);
   const [internalNotes, setInternalNotes] = useState("");
 
   const {
     data: member,
-    error,
     isLoading,
+    error,
   } = useSWR<AppUser>(`/api/admin/members/${user?.id}`);
+
+  const {
+    data,
+    isLoading: loading,
+    error: err,
+  } = useSWR<RolePermissions>("/api/admin/permissions");
+
+  useEffect(() => {
+    const role = member?.dashboard?.role;
+    if (data && typeof data === "object") {
+      if (role && data[role]) {
+        setPermissions(data[role].map((p) => ({ ...p })));
+      } else {
+        setPermissions([]);
+      }
+    }
+  }, [member]);
 
   const handleResetPassword = async () => {
     try {
@@ -287,14 +272,9 @@ export default function UserProfilePage() {
         <TabsContent value="permissions">
           <Card>
             <CardHeader>
-              <CardTitle>
-                Permissions Management{" "}
-                <span className="text-red-500 text-sm font-light">
-                  *In progress*
-                </span>
-              </CardTitle>
+              <CardTitle>Permissions</CardTitle>
               <CardDescription>
-                Manage user permissions for different features
+                View user permissions for different features
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -316,32 +296,16 @@ export default function UserProfilePage() {
                           {permission.feature}
                         </TableCell>
                         <TableCell className="text-center">
-                          {permission.view ? (
-                            <Check className="h-5 w-5 text-green-500" />
-                          ) : (
-                            <X className="h-5 w-5 text-gray-500" />
-                          )}
+                          {permission.view ? <GreenCheck /> : <GrayX />}
                         </TableCell>
                         <TableCell className="text-center">
-                          {permission.create ? (
-                            <Check className="h-5 w-5 text-green-500" />
-                          ) : (
-                            <X className="h-5 w-5 text-gray-500" />
-                          )}
+                          {permission.create ? <GreenCheck /> : <GrayX />}
                         </TableCell>
                         <TableCell className="text-center">
-                          {permission.edit ? (
-                            <Check className="h-5 w-5 text-green-500" />
-                          ) : (
-                            <X className="h-5 w-5 text-gray-500" />
-                          )}
+                          {permission.edit ? <GreenCheck /> : <GrayX />}
                         </TableCell>
                         <TableCell className="text-center">
-                          {permission.delete ? (
-                            <Check className="h-5 w-5 text-green-500" />
-                          ) : (
-                            <X className="h-5 w-5 text-gray-500" />
-                          )}
+                          {permission.delete ? <GreenCheck /> : <GrayX />}
                         </TableCell>
                       </TableRow>
                     ))}

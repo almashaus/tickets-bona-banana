@@ -14,6 +14,8 @@ import {
 import { db } from "@/src/lib/firebase/firebaseConfig";
 import { Event, EventStatus } from "@/src/models/event";
 import { AppUser } from "@/src/models/user";
+import { RolePermissions } from "@/src/types/permissions";
+import { rolePermissions as defaultRolePermissions } from "@/src/data/rolePermissions";
 
 export async function getEvents() {
   try {
@@ -211,4 +213,33 @@ export async function getUsersWithDashboardAccess(): Promise<AppUser[]> {
     console.error("Failed to fetch users with dashboard access:", error);
     return [];
   }
+}
+
+export async function storeRolePermissions(
+  rolePermissions: RolePermissions
+): Promise<void> {
+  try {
+    const ops = Object.entries(rolePermissions).map(
+      async ([role, permissions]) => {
+        const docRef = doc(db, "permissions", role);
+        // store role and its permissions; include updatedAt for reference
+        await setDoc(docRef, {
+          role,
+          permissions,
+          updatedAt: new Date().toISOString(),
+        });
+      }
+    );
+
+    await Promise.all(ops);
+  } catch (error) {
+    console.error("Failed to store role permissions:", error);
+    throw new Error(
+      "Failed to store role permissions. Please try again later."
+    );
+  }
+}
+
+export async function seedRolePermissions(): Promise<void> {
+  return storeRolePermissions(defaultRolePermissions);
 }

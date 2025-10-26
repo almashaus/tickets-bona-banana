@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Edit, Shield, Key, Activity, FileText } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
@@ -25,8 +25,6 @@ import {
 } from "@/src/components/ui/tabs";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
-import { Textarea } from "@/src/components/ui/textarea";
-import { Switch } from "@/src/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -38,49 +36,17 @@ import {
 import { useAuth } from "@/src/features/auth/auth-provider";
 import { useToast } from "@/src/components/ui/use-toast";
 import useSWR from "swr";
-import { MemberStatus, MemberRole, AppUser } from "@/src/models/user";
+import { AppUser } from "@/src/models/user";
+import {
+  FeaturePermission,
+  MemberRole,
+  MemberStatus,
+  RolePermissions,
+} from "@/src/types/permissions";
 import Link from "next/link";
 import { getRoleBadgeColor, getStatusBadgeColor } from "@/src/lib/utils/styles";
 import { formatDate } from "@/src/lib/utils/formatDate";
-
-// Mock permissions data
-const mockPermissions = [
-  {
-    feature: "Event Management",
-    view: true,
-    create: true,
-    edit: true,
-    delete: false,
-  },
-  {
-    feature: "Report Access",
-    view: true,
-    create: false,
-    edit: false,
-    delete: false,
-  },
-  {
-    feature: "Send Notifications",
-    view: true,
-    create: true,
-    edit: true,
-    delete: false,
-  },
-  {
-    feature: "User Management",
-    view: false,
-    create: false,
-    edit: false,
-    delete: false,
-  },
-  {
-    feature: "Financial Reports",
-    view: true,
-    create: false,
-    edit: false,
-    delete: false,
-  },
-];
+import { GrayX, GreenCheck } from "@/src/lib/utils/statusIcons";
 
 // Mock activity log
 const mockActivityLog = [
@@ -114,7 +80,7 @@ export default function UserProfilePage() {
   const { user, resetPassword } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const [permissions, setPermissions] = useState(mockPermissions);
+  const [permissions, setPermissions] = useState<FeaturePermission[]>([]);
   const [internalNotes, setInternalNotes] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const params = useParams<{ id: string }>();
@@ -122,9 +88,26 @@ export default function UserProfilePage() {
 
   const {
     data: member,
-    error,
     isLoading,
+    error,
   } = useSWR<AppUser>(`/api/admin/members/${id}`);
+
+  const {
+    data,
+    isLoading: loading,
+    error: err,
+  } = useSWR<RolePermissions>("/api/admin/permissions");
+
+  useEffect(() => {
+    const role = member?.dashboard?.role;
+    if (data && typeof data === "object") {
+      if (role && data[role]) {
+        setPermissions(data[role].map((p) => ({ ...p })));
+      } else {
+        setPermissions([]);
+      }
+    }
+  }, [member]);
 
   const handleResetPassword = async () => {
     try {
@@ -163,13 +146,6 @@ export default function UserProfilePage() {
       [permission]: value,
     };
     setPermissions(updatedPermissions);
-  };
-
-  const handleSavePermissions = () => {
-    toast({
-      title: "Permissions updated",
-      description: "User permissions have been updated successfully.",
-    });
   };
 
   return (
@@ -329,18 +305,13 @@ export default function UserProfilePage() {
           </Card>
         </TabsContent>
 
-        {/* TODO: Permissions Tab */}
+        {/* Permissions Tab */}
         <TabsContent value="permissions">
           <Card>
             <CardHeader>
-              <CardTitle>
-                Permissions Management{" "}
-                <span className="text-red-500 text-sm font-light">
-                  *In progress*
-                </span>
-              </CardTitle>
+              <CardTitle>Permissions</CardTitle>
               <CardDescription>
-                Manage user permissions for different features
+                View user permissions for different features
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -362,47 +333,21 @@ export default function UserProfilePage() {
                           {permission.feature}
                         </TableCell>
                         <TableCell className="text-center">
-                          <Switch
-                            checked={permission.view}
-                            onCheckedChange={(value) =>
-                              handlePermissionChange(index, "view", value)
-                            }
-                          />
+                          {permission.view ? <GreenCheck /> : <GrayX />}
                         </TableCell>
                         <TableCell className="text-center">
-                          <Switch
-                            checked={permission.create}
-                            onCheckedChange={(value) =>
-                              handlePermissionChange(index, "create", value)
-                            }
-                          />
+                          {permission.create ? <GreenCheck /> : <GrayX />}
                         </TableCell>
                         <TableCell className="text-center">
-                          <Switch
-                            checked={permission.edit}
-                            onCheckedChange={(value) =>
-                              handlePermissionChange(index, "edit", value)
-                            }
-                          />
+                          {permission.edit ? <GreenCheck /> : <GrayX />}
                         </TableCell>
                         <TableCell className="text-center">
-                          <Switch
-                            checked={permission.delete}
-                            onCheckedChange={(value) =>
-                              handlePermissionChange(index, "delete", value)
-                            }
-                          />
+                          {permission.delete ? <GreenCheck /> : <GrayX />}
                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
-              </div>
-              <div className="flex justify-end mt-6">
-                <Button onClick={handleSavePermissions}>
-                  <Shield className="mr-2 h-4 w-4" />
-                  Save Permissions
-                </Button>
               </div>
             </CardContent>
           </Card>

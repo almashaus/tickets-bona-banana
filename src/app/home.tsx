@@ -40,7 +40,7 @@ export default function Home() {
       {/* Featured Events Section */}
       <div className="container w-full py-10 px-8 md:px-6">
         <div className="mb-8">
-          <EmblaCarousel slides={SLIDES} options={OPTIONS} />
+          {/* <EmblaCarousel slides={SLIDES} options={OPTIONS} /> */}
         </div>
 
         <div className="flex flex-col items-center justify-center space-y-4 text-center">

@@ -40,12 +40,8 @@ import {
 } from "@/src/components/ui/avatar";
 import { useToast } from "@/src/components/ui/use-toast";
 import { useAuth } from "@/src/features/auth/auth-provider";
-import {
-  AppUser,
-  DashboardUser,
-  MemberStatus,
-  MemberRole,
-} from "@/src/models/user";
+import { AppUser, DashboardUser } from "@/src/models/user";
+import { MemberRole, MemberStatus } from "@/src/types/permissions";
 import { Calendar } from "@/src/components/ui/calendar";
 import { cn, compressImage } from "@/src/lib/utils/utils";
 import { formatDate } from "@/src/lib/utils/formatDate";

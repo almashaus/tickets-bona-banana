@@ -12,13 +12,7 @@ import {
   FileText,
   Settings,
 } from "lucide-react";
-
-export type Item = {
-  title: string;
-  url: string;
-  icon: LucideIcon;
-  notifications?: number;
-};
+import { Item } from "../types/sidebarItem";
 
 export const sidebarData: Item[] = [
   {
@@ -60,6 +54,11 @@ export const sidebarData: Item[] = [
     title: "Reports",
     url: "...",
     icon: FileText,
+  },
+  {
+    title: "Permissions",
+    url: "/admin/permissions",
+    icon: ShieldCheck,
   },
   {
     title: "Settings",

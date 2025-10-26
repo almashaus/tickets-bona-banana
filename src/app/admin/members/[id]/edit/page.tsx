@@ -16,7 +16,8 @@ import { Label } from "@/src/components/ui/label";
 import { useAuth } from "@/src/features/auth/auth-provider";
 import { useToast } from "@/src/components/ui/use-toast";
 import useSWR, { mutate } from "swr";
-import { MemberStatus, MemberRole, AppUser } from "@/src/models/user";
+import { AppUser } from "@/src/models/user";
+import { MemberRole, MemberStatus } from "@/src/types/permissions";
 import {
   Select,
   SelectContent,
@@ -25,6 +26,7 @@ import {
   SelectValue,
 } from "@/src/components/ui/select";
 import { getAuth } from "firebase/auth";
+import { getRoleColor } from "@/src/lib/utils/styles";
 
 export default function UserProfilePage() {
   const auth = getAuth();
@@ -167,12 +169,18 @@ export default function UserProfilePage() {
                 onValueChange={(value) => handleInputChange("role", value)}
                 required
               >
-                <SelectTrigger className="w-full">
+                <SelectTrigger
+                  className={`w-full ${getRoleColor(formData.role)}`}
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.values(MemberRole).map((role) => (
-                    <SelectItem key={role} value={role}>
+                    <SelectItem
+                      key={role}
+                      value={role}
+                      className={`${getRoleColor(role)}`}
+                    >
                       {role}
                     </SelectItem>
                   ))}

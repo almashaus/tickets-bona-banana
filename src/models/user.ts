@@ -1,17 +1,5 @@
+import { MemberRole, MemberStatus } from "../types/permissions";
 import { Ticket } from "./ticket";
-
-export enum MemberRole {
-  ADMIN = "Admin",
-  ORGANIZER = "Organizer",
-  SUPPORT = "Support",
-  ANALYST = "Analyst",
-  PARTNER = "Partner",
-}
-
-export enum MemberStatus {
-  ACTIVE = "Active",
-  SUSPENDED = "Suspended",
-}
 
 export interface AppUser {
   id: string;

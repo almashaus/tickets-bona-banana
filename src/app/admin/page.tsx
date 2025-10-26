@@ -6,6 +6,7 @@ import {
   Check,
   CheckCircle,
   DollarSignIcon,
+  EyeOffIcon,
   InfoIcon,
   SearchIcon,
   Ticket,
@@ -48,8 +49,15 @@ import { getTicketStatusBadgeColor } from "@/src/lib/utils/styles";
 import { TicketStatus } from "@/src/models/ticket";
 import { getAuth } from "firebase/auth";
 import QrScanner from "@/src/features/scanner/qr-scanner";
+import { useAuth } from "@/src/features/auth/auth-provider";
+import { canMemberAccess } from "@/src/lib/utils/checkPermission";
+import { RolePermissions } from "@/src/types/permissions";
+import { usePermissionStore } from "@/src/lib/stores/usePermissionStore";
+import { useMemberPermissionChecker } from "@/src/hooks/useMemberPermissions";
 
 export default function AdminPage() {
+  const { user } = useAuth();
+
   const fetcher = (url: string) =>
     fetch(url, { cache: "no-store" }).then((res) => res.json());
 
@@ -68,6 +76,13 @@ export default function AdminPage() {
       revalidateIfStale: true,
       refreshInterval: 30000,
     }
+  );
+
+  const { checkPermission } = useMemberPermissionChecker(user);
+
+  const { allowed: canViewRevenue, isLoading: loading } = checkPermission(
+    "Financial Reports",
+    "view"
   );
 
   return (
@@ -121,10 +136,20 @@ export default function AdminPage() {
                 <CardTitle className="text-sm font-medium mb-1">
                   Revenue
                 </CardTitle>
-                <span className="text-2xl font-bold">
-                  {isLoading || error ? "..." : (data?.ticketsTotal ?? 0)}
-                </span>
-                <span className="icon-saudi_riyal text-md font-light" />
+                {canViewRevenue ? (
+                  <div>
+                    <span className="text-2xl font-bold">
+                      {isLoading || loading || error
+                        ? "..."
+                        : (data?.ticketsTotal ?? 0)}
+                    </span>
+                    <span className="icon-saudi_riyal text-md font-light" />
+                  </div>
+                ) : (
+                  <span className="text-2xl font-bold">
+                    <EyeOffIcon className="w-4 h-4 mt-2.5" />
+                  </span>
+                )}
               </div>
               <DollarSignIcon
                 strokeWidth={1}

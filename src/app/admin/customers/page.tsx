@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, PanelLeft, CircleAlertIcon } from "lucide-react";
+import { Search, CircleAlertIcon } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Badge } from "@/src/components/ui/badge";
@@ -19,11 +19,10 @@ import {
   TableRow,
 } from "@/src/components/ui/table";
 import { getTicketStatusBadgeColor } from "@/src/lib/utils/styles";
-import useSWR, { mutate } from "swr";
+import useSWR from "swr";
 import { CustomerResponse } from "@/src/models/user";
 import Loading from "@/src/components/ui/loading";
-import { useMobileSidebar } from "@/src/lib/stores/useMobileSidebar";
-import { useIsMobile } from "@/src/hooks/use-mobile";
+
 import {
   Dialog,
   DialogContent,
@@ -32,8 +31,11 @@ import {
   DialogDescription,
 } from "@/src/components/ui/dialog";
 import { formatDate } from "@/src/lib/utils/formatDate";
+import { useAuth } from "@/src/features/auth/auth-provider";
+import { useMemberPermissionChecker } from "@/src/hooks/useMemberPermissions";
 
 export default function customersPage() {
+  const { user } = useAuth();
   const [customers, setCustomers] = useState<CustomerResponse[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -74,6 +76,29 @@ export default function customersPage() {
     setSelectedCustomer(customer);
     setIsDialogOpen(true);
   };
+
+  const { checkPermission } = useMemberPermissionChecker(user);
+
+  const { allowed: canViewMembers, isLoading: loading } = checkPermission(
+    "User Management",
+    "view"
+  );
+
+  if (loading || !user) {
+    return (
+      <div className="flex justify-center items-center py-36">
+        <Loading />
+      </div>
+    );
+  }
+
+  if (!canViewMembers && user) {
+    return (
+      <div className="flex justify-center items-center h-2/3">
+        <p className="text-muted-foreground">Access Denied</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-6">

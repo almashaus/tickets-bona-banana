@@ -73,8 +73,11 @@ import {
 } from "@/src/components/ui/tooltip";
 import { getAuth } from "firebase/auth";
 import { generateQRCode } from "@/src/lib/utils/utils";
+import { useMemberPermissionChecker } from "@/src/hooks/useMemberPermissions";
+import { useAuth } from "@/src/features/auth/auth-provider";
 
 export default function ReservationsPage() {
+  const { user } = useAuth();
   const auth = getAuth();
   const authUser = auth.currentUser!;
   const { toast } = useToast();
@@ -220,6 +223,13 @@ export default function ReservationsPage() {
       }
     }
   };
+
+  const { checkPermission } = useMemberPermissionChecker(user);
+
+  const { allowed: canCancelOrder } = checkPermission(
+    "Event Management",
+    "delete"
+  );
 
   return (
     <div className="p-4 md:p-6">
@@ -447,7 +457,8 @@ export default function ReservationsPage() {
                           )}
                           <DropdownMenuSeparator />
                           {order.status !== "Used" &&
-                            order.status !== "Canceled" && (
+                            order.status !== "Canceled" &&
+                            canCancelOrder && (
                               <DropdownMenuItem
                                 onClick={() =>
                                   handleCancelReservation(order.orderNumber)
@@ -706,7 +717,8 @@ export default function ReservationsPage() {
                   Print Order
                 </Button>
                 {selectedReservation.status !== "Used" &&
-                  selectedReservation.status !== "Canceled" && (
+                  selectedReservation.status !== "Canceled" &&
+                  canCancelOrder && (
                     <Button
                       variant="destructive"
                       onClick={() =>

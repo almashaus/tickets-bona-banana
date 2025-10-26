@@ -1,5 +1,5 @@
 import { EventStatus } from "@/src/models/event";
-import { Clock4Icon, EyeIcon, XIcon, CheckIcon } from "lucide-react";
+import { Clock4Icon, EyeIcon, XIcon, CheckIcon, Check, X } from "lucide-react";
 
 export const getStatusIcon = (status: string) => {
   switch (status) {
@@ -15,3 +15,19 @@ export const getStatusIcon = (status: string) => {
       return <CheckIcon className=" w-4 h-4 text-green-400 mx-1 " />;
   }
 };
+
+export function GreenCheck() {
+  return (
+    <div className="flex justify-center">
+      <Check className="h-5 w-5 text-green-500" strokeWidth={3} />
+    </div>
+  );
+}
+
+export function GrayX() {
+  return (
+    <div className="flex justify-center">
+      <X className="h-5 w-5 text-gray-400" />
+    </div>
+  );
+}

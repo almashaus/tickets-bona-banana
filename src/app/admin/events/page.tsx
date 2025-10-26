@@ -64,6 +64,8 @@ import { AppUser } from "@/src/models/user";
 import Image from "next/image";
 import { useAuthStore } from "@/src/lib/stores/useAuthStore";
 import { useIsMobile } from "@/src/hooks/use-mobile";
+import { canMemberAccess } from "@/src/lib/utils/checkPermission";
+import { useMemberPermissionChecker } from "@/src/hooks/useMemberPermissions";
 
 export default function EventsPage() {
   const { toast } = useToast();
@@ -96,6 +98,7 @@ export default function EventsPage() {
   useEffect(() => {
     if (data) {
       setResponseData(data);
+      setOpenCollapsibleIds(new Set([data[0].event.id]));
     }
   }, [data]);
 
@@ -141,6 +144,18 @@ export default function EventsPage() {
     setIsDialogOpen(true);
   };
 
+  const { checkPermission } = useMemberPermissionChecker(user);
+
+  const { allowed: canCreateEvent } = checkPermission(
+    "Event Management",
+    "create"
+  );
+  const { allowed: canEditEvent } = checkPermission("Event Management", "edit");
+  const { allowed: canDeleteEvent } = checkPermission(
+    "Event Management",
+    "delete"
+  );
+
   return (
     <div className="p-4 md:p-6">
       {eventUrl && (
@@ -151,15 +166,16 @@ export default function EventsPage() {
               Manage your events, edit details, or remove events
             </p>
           </div>
-
-          <div className="flex justify-end">
-            <Button asChild>
-              <Link href="/admin/events/new">
-                <Plus className="me-2 h-4 w-4" />
-                Create Event
-              </Link>
-            </Button>
-          </div>
+          {canCreateEvent && (
+            <div className="flex justify-end">
+              <Button asChild>
+                <Link href="/admin/events/new">
+                  <Plus className="me-2 h-4 w-4" />
+                  Create Event
+                </Link>
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
@@ -242,24 +258,29 @@ export default function EventsPage() {
                       </div>
 
                       <div className="flex flex-col gap-2">
-                        <Button variant="outline" size="sm" asChild>
-                          <Link
-                            href={`/admin/events/edit/${response.event.id}`}
-                          >
-                            <Edit2 className="h-3 w-3" /> {!isMobile && "Edit"}
-                          </Link>
-                        </Button>
+                        {canEditEvent && (
+                          <Button variant="outline" size="sm" asChild>
+                            <Link
+                              href={`/admin/events/edit/${response.event.id}`}
+                            >
+                              <Edit2 className="h-3 w-3" />{" "}
+                              {!isMobile && "Edit"}
+                            </Link>
+                          </Button>
+                        )}
                         {user?.dashboard?.role === "Admin" && (
                           <AlertDialog>
                             <AlertDialogTrigger>
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                disabled={isDeleting}
-                              >
-                                <Trash className="h-3 w-3" />{" "}
-                                {!isMobile && "Delete"}
-                              </Button>
+                              {canDeleteEvent && (
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  disabled={isDeleting}
+                                >
+                                  <Trash className="h-3 w-3" />{" "}
+                                  {!isMobile && "Delete"}
+                                </Button>
+                              )}
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
@@ -309,9 +330,9 @@ export default function EventsPage() {
                   >
                     <CollapsibleTrigger className="flex items-end mt-4 font-medium gap-1">
                       {openCollapsibleIds.has(response.event.id) ? (
-                        <ChevronUp />
+                        <ChevronUp className="text-orangeColor" />
                       ) : (
-                        <ChevronDown />
+                        <ChevronDown className="text-redColor" />
                       )}
                       <span> Dates & Tickets</span>
                     </CollapsibleTrigger>

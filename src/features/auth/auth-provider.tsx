@@ -27,7 +27,6 @@ import {
 } from "@/src/lib/firebase/firestore";
 import type { AppUser } from "@/src/models/user";
 import { useAuthStore } from "@/src/lib/stores/useAuthStore";
-import { httpsCallable } from "@firebase/functions";
 
 type AuthContextType = {
   user: AppUser | null;

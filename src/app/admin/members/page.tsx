@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -52,11 +52,8 @@ import { useAuth } from "@/src/features/auth/auth-provider";
 import { useToast } from "@/src/components/ui/use-toast";
 import { getRoleBadgeColor, getStatusBadgeColor } from "@/src/lib/utils/styles";
 import useSWR, { mutate } from "swr";
-import { AppUser, MemberStatus } from "@/src/models/user";
+import { AppUser } from "@/src/models/user";
 import Loading from "@/src/components/ui/loading";
-import { MemberRole } from "@/src/models/user";
-import { useMobileSidebar } from "@/src/lib/stores/useMobileSidebar";
-import { useIsMobile } from "@/src/hooks/use-mobile";
 import {
   Dialog,
   DialogContent,
@@ -67,6 +64,8 @@ import {
   DialogClose,
 } from "@/src/components/ui/dialog";
 import { getAuth } from "firebase/auth";
+import { MemberRole, MemberStatus } from "@/src/types/permissions";
+import { useMemberPermissionChecker } from "@/src/hooks/useMemberPermissions";
 
 export default function membersPage() {
   const { user } = useAuth();
@@ -107,9 +106,10 @@ export default function membersPage() {
       });
       setMembers(filteredData);
 
-      const filteredUsers = data.users.filter(
-        (user) => !user.hasDashboardAccess
-      );
+      const filteredUsers = data.users
+        .filter((user) => !user.hasDashboardAccess)
+        .sort((a, b) => a.email.localeCompare(b.email));
+
       setUsers(filteredUsers as AppUser[]);
     }
   }, [data, searchTerm, roleFilter, statusFilter]);
@@ -254,6 +254,37 @@ export default function membersPage() {
     // });
   };
 
+  const { checkPermission } = useMemberPermissionChecker(user);
+
+  const { allowed: canViewMembers, isLoading: loading } = checkPermission(
+    "User Management",
+    "view"
+  );
+  const { allowed: canCreateMember } = checkPermission(
+    "User Management",
+    "create"
+  );
+  const { allowed: canDeleteMember } = checkPermission(
+    "User Management",
+    "delete"
+  );
+
+  if (loading || !user) {
+    return (
+      <div className="flex justify-center items-center py-36">
+        <Loading />
+      </div>
+    );
+  }
+
+  if (!canViewMembers && user) {
+    return (
+      <div className="flex justify-center items-center h-2/3">
+        <p className="text-muted-foreground">Access Denied</p>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 md:p-6">
       {/* Page Header */}
@@ -264,7 +295,7 @@ export default function membersPage() {
             Manage members, roles, and permissions
           </p>
         </div>
-        {user?.dashboard?.role === MemberRole.ADMIN && (
+        {canCreateMember && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button>
@@ -407,11 +438,9 @@ export default function membersPage() {
                 key={member.id}
                 role="row"
                 tabIndex={0}
-                className={`${
-                  user?.dashboard?.role === MemberRole.ADMIN && "cursor-pointer"
-                }`}
+                className={`${canCreateMember && "cursor-pointer"}`}
                 onClick={(e) => {
-                  if (user?.dashboard?.role === MemberRole.ADMIN) {
+                  if (canCreateMember) {
                     e.stopPropagation();
                     router.push(`/admin/members/${member.id}`);
                   }
@@ -468,7 +497,7 @@ export default function membersPage() {
                   onClick={(e) => e.stopPropagation()}
                   style={{ minWidth: 120 }}
                 >
-                  {user?.dashboard?.role === MemberRole.ADMIN && (
+                  {canCreateMember && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
@@ -484,39 +513,44 @@ export default function membersPage() {
                           </Link>
                         </DropdownMenuItem>
 
-                        <DropdownMenuItem asChild>
-                          <Link href={`/admin/members/${member.id}/edit`}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit Member
-                          </Link>
-                        </DropdownMenuItem>
+                        {canDeleteMember && (
+                          <>
+                            <DropdownMenuItem asChild>
+                              <Link href={`/admin/members/${member.id}/edit`}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit Member
+                              </Link>
+                            </DropdownMenuItem>
 
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => handleSuspendUser(member.id)}
-                          className={
-                            member.dashboard?.status === "Active"
-                              ? "text-orange-500"
-                              : "text-green-600"
-                          }
-                        >
-                          {member.dashboard?.status === "Active" ? (
-                            <>
-                              <UserX className="mr-2 h-4 w-4" /> Suspend
-                            </>
-                          ) : (
-                            <>
-                              <UserCheck className="mr-2 h-4 w-4" /> Activate
-                            </>
-                          )}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleRemoveUser(member.id)}
-                          className="text-red-600"
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Remove
-                        </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => handleSuspendUser(member.id)}
+                              className={
+                                member.dashboard?.status === "Active"
+                                  ? "text-orange-500"
+                                  : "text-green-600"
+                              }
+                            >
+                              {member.dashboard?.status === "Active" ? (
+                                <>
+                                  <UserX className="mr-2 h-4 w-4" /> Suspend
+                                </>
+                              ) : (
+                                <>
+                                  <UserCheck className="mr-2 h-4 w-4" />{" "}
+                                  Activate
+                                </>
+                              )}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handleRemoveUser(member.id)}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Remove
+                            </DropdownMenuItem>
+                          </>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   )}
