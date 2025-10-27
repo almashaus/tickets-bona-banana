@@ -71,6 +71,8 @@ export default function CreateEventPage() {
 
   // Initialize state variables with default values
   const [title, setTitle] = useState("");
+  const [engTitle, setEngTitle] = useState("");
+  const [isEngTitle, setIsEngTitle] = useState(false);
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
   const [city, setCity] = useState("Riyadh");
@@ -106,7 +108,12 @@ export default function CreateEventPage() {
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value;
     setTitle(newTitle);
-    setSlug(generateSlug(newTitle));
+    // Check if the title contains non-English letters
+    const isNotEnglish = /[^\u0000-\u007F]+/.test(newTitle);
+    setIsEngTitle(isNotEnglish);
+    if (!isNotEnglish) {
+      setSlug(generateSlug(newTitle));
+    }
   };
 
   // Add new event date
@@ -182,6 +189,7 @@ export default function CreateEventPage() {
         id: "",
       };
 
+      console.log(event);
       const response = await fetch("/api/admin/events/new", {
         method: "POST",
         headers: {
@@ -248,6 +256,30 @@ export default function CreateEventPage() {
                   required
                 />
               </div>
+              {isEngTitle && (
+                <div className="grid gap-2">
+                  <Label htmlFor="engTitle">
+                    Event Title{" "}
+                    <span className="text-xs text-redColor">
+                      (Only English)
+                    </span>
+                  </Label>
+                  <Input
+                    id="engTitle"
+                    value={engTitle}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const isNotEnglish = /[^\u0000-\u007F]+/.test(value);
+                      if (!isNotEnglish) {
+                        setEngTitle(value);
+                        setSlug(generateSlug(value));
+                      }
+                    }}
+                    placeholder="Enter event title"
+                    required
+                  />
+                </div>
+              )}
 
               <div className="grid gap-2">
                 <Label htmlFor="description">Description</Label>

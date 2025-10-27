@@ -56,26 +56,6 @@ export default function Header({
           </Link>
         </div>
 
-        <div className="flex items-center gap-6 md:gap-10">
-          <nav className="hidden gap-6 md:flex">
-            {/* <Link
-              href="/"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                pathname === "/" ? "text-foreground" : "text-muted-foreground"
-              }`}
-            >
-              Home
-            </Link>
-            <Link
-              href="/events"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                pathname === "/events" ? "text-foreground" : "text-muted-foreground"
-              }`}
-            >
-              Events
-            </Link> */}
-          </nav>
-        </div>
         <div className="flex items-center gap-2">
           {!pathname.startsWith("/admin") && (
             <div className="flex items-center gap-2">

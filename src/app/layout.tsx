@@ -46,22 +46,22 @@ export default async function RootLayout({
         <link rel="stylesheet" href="/css/riyal.css" />
       </head>
       <body className={DINNextLT.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <AuthProvider>
-            <MySWRProvider>
-              <LanguageProvider>
-                <Analytics />
-                <SpeedInsights />
-                <div className="flex flex-col min-h-screen min-w-full">
-                  <Header initialUser={session.user} />
-                  <main className="flex-grow pt-16">{children}</main>
-                  <Footer />
-                </div>
-                <Toaster />
-              </LanguageProvider>
-            </MySWRProvider>
-          </AuthProvider>
-        </ThemeProvider>
+        {/* <ThemeProvider attribute="class" defaultTheme="light"> */}
+        <AuthProvider>
+          <MySWRProvider>
+            <LanguageProvider>
+              <Analytics />
+              <SpeedInsights />
+              <div className="flex flex-col min-h-screen min-w-full">
+                <Header initialUser={session.user} />
+                <main className="flex-grow pt-16">{children}</main>
+                <Footer />
+              </div>
+              <Toaster />
+            </LanguageProvider>
+          </MySWRProvider>
+        </AuthProvider>
+        {/* </ThemeProvider> */}
       </body>
     </html>
   );
