@@ -4,7 +4,7 @@ export enum MemberRole {
   MANAGER = "Manager",
   ORGANIZER = "Organizer",
   SUPPORT = "Support",
-  ANALYST = "Analyst",
+  FINANCE = "Finance",
   PARTNER = "Partner",
 }
 
@@ -17,10 +17,10 @@ export type PermissionAction = "view" | "create" | "edit" | "delete";
 
 export type Feature =
   | "Event Management"
-  | "Report Access"
-  | "Send Notifications"
+  | "Reports"
+  | "Reservations"
   | "User Management"
-  | "Financial Reports";
+  | "Settings";
 
 export type FeaturePermission = {
   feature: Feature;

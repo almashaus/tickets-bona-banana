@@ -189,7 +189,6 @@ export default function CreateEventPage() {
         id: "",
       };
 
-      console.log(event);
       const response = await fetch("/api/admin/events/new", {
         method: "POST",
         headers: {

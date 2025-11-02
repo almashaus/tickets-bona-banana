@@ -268,49 +268,48 @@ export default function EventsPage() {
                             </Link>
                           </Button>
                         )}
-                        {user?.dashboard?.role === "Admin" && (
-                          <AlertDialog>
-                            <AlertDialogTrigger>
-                              {canDeleteEvent && (
-                                <Button
-                                  variant="destructive"
-                                  size="sm"
-                                  disabled={isDeleting}
-                                >
-                                  <Trash className="h-3 w-3" />{" "}
-                                  {!isMobile && "Delete"}
-                                </Button>
-                              )}
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                  Are you absolutely sure?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This action cannot be undone. This will
-                                  permanently delete the event data.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                  onClick={() => deleteEvent(response.event.id)}
-                                  disabled={isDeleting}
-                                >
-                                  {isDeleting ? (
-                                    <LoadingDots />
-                                  ) : (
-                                    <>
-                                      <Trash className="h-3 w-3 me-1" /> Delete
-                                    </>
-                                  )}
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        )}
+
+                        <AlertDialog>
+                          <AlertDialogTrigger>
+                            {canDeleteEvent && (
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                disabled={isDeleting}
+                              >
+                                <Trash className="h-3 w-3" />{" "}
+                                {!isMobile && "Delete"}
+                              </Button>
+                            )}
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Are you absolutely sure?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will
+                                permanently delete the event data.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                onClick={() => deleteEvent(response.event.id)}
+                                disabled={isDeleting}
+                              >
+                                {isDeleting ? (
+                                  <LoadingDots />
+                                ) : (
+                                  <>
+                                    <Trash className="h-3 w-3 me-1" /> Delete
+                                  </>
+                                )}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </div>
                   </div>

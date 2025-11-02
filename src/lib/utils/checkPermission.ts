@@ -19,7 +19,7 @@ export async function canMemberAccess(
 
   if (!rolePermissions) {
     const response = await fetch("/api/admin/permissions");
-    console.log("------ response -------");
+
     if (response.ok) {
       const permissions: RolePermissions = await response.json();
       setRolePermissions(permissions);

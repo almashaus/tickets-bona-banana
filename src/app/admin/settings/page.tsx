@@ -27,7 +27,7 @@ const SettingsPage = () => {
     "Admin",
     "Organizer",
     "Support",
-    "Analyst",
+    "Finance",
     "Partner",
   ]);
   const [newCityEn, setNewCityEn] = useState("");

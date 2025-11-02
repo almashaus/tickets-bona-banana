@@ -32,7 +32,6 @@ import {
 } from "@/src/components/ui/dialog";
 import { formatDate } from "@/src/lib/utils/formatDate";
 import { useAuth } from "@/src/features/auth/auth-provider";
-import { useMemberPermissionChecker } from "@/src/hooks/useMemberPermissions";
 
 export default function customersPage() {
   const { user } = useAuth();
@@ -76,29 +75,6 @@ export default function customersPage() {
     setSelectedCustomer(customer);
     setIsDialogOpen(true);
   };
-
-  const { checkPermission } = useMemberPermissionChecker(user);
-
-  const { allowed: canViewMembers, isLoading: loading } = checkPermission(
-    "User Management",
-    "view"
-  );
-
-  if (loading || !user) {
-    return (
-      <div className="flex justify-center items-center py-36">
-        <Loading />
-      </div>
-    );
-  }
-
-  if (!canViewMembers && user) {
-    return (
-      <div className="flex justify-center items-center h-2/3">
-        <p className="text-muted-foreground">Access Denied</p>
-      </div>
-    );
-  }
 
   return (
     <div className="p-4 md:p-6">

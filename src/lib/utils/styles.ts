@@ -10,7 +10,7 @@ export const getRoleBadgeColor = (role: string) => {
       return "bg-amber-100 text-amber-600";
     case MemberRole.ORGANIZER:
       return "bg-blue-100 text-blue-700";
-    case MemberRole.ANALYST:
+    case MemberRole.FINANCE:
       return "bg-cyan-100 text-cyan-700";
     case MemberRole.SUPPORT:
       return "bg-gray-100 text-gray-700";
@@ -29,7 +29,7 @@ export const getRoleColor = (role: string) => {
       return "text-amber-600";
     case MemberRole.ORGANIZER:
       return "text-blue-700";
-    case MemberRole.ANALYST:
+    case MemberRole.FINANCE:
       return "text-cyan-700";
     case MemberRole.SUPPORT:
       return "text-gray-700";

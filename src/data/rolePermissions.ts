@@ -10,14 +10,14 @@ export const rolePermissions: RolePermissions = {
       delete: true,
     },
     {
-      feature: "Report Access",
+      feature: "Reports",
       view: true,
       create: true,
       edit: true,
       delete: true,
     },
     {
-      feature: "Send Notifications",
+      feature: "Reservations",
       view: true,
       create: true,
       edit: true,
@@ -31,7 +31,7 @@ export const rolePermissions: RolePermissions = {
       delete: true,
     },
     {
-      feature: "Financial Reports",
+      feature: "Settings",
       view: true,
       create: true,
       edit: true,
@@ -47,14 +47,14 @@ export const rolePermissions: RolePermissions = {
       delete: false,
     },
     {
-      feature: "Report Access",
+      feature: "Reports",
       view: true,
       create: true,
       edit: true,
       delete: false,
     },
     {
-      feature: "Send Notifications",
+      feature: "Reservations",
       view: true,
       create: true,
       edit: true,
@@ -68,7 +68,7 @@ export const rolePermissions: RolePermissions = {
       delete: false,
     },
     {
-      feature: "Financial Reports",
+      feature: "Settings",
       view: true,
       create: true,
       edit: true,
@@ -85,14 +85,14 @@ export const rolePermissions: RolePermissions = {
       delete: false,
     },
     {
-      feature: "Report Access",
+      feature: "Reports",
       view: true,
       create: true,
       edit: false,
       delete: false,
     },
     {
-      feature: "Send Notifications",
+      feature: "Reservations",
       view: true,
       create: true,
       edit: false,
@@ -106,7 +106,7 @@ export const rolePermissions: RolePermissions = {
       delete: false,
     },
     {
-      feature: "Financial Reports",
+      feature: "Settings",
       view: true,
       create: true,
       edit: false,
@@ -123,14 +123,14 @@ export const rolePermissions: RolePermissions = {
       delete: false,
     },
     {
-      feature: "Report Access",
+      feature: "Reports",
       view: true,
       create: false,
       edit: false,
       delete: false,
     },
     {
-      feature: "Send Notifications",
+      feature: "Reservations",
       view: true,
       create: false,
       edit: false,
@@ -144,7 +144,7 @@ export const rolePermissions: RolePermissions = {
       delete: false,
     },
     {
-      feature: "Financial Reports",
+      feature: "Settings",
       view: false,
       create: false,
       edit: false,
@@ -152,7 +152,7 @@ export const rolePermissions: RolePermissions = {
     },
   ],
 
-  [MemberRole.ANALYST]: [
+  [MemberRole.FINANCE]: [
     {
       feature: "Event Management",
       view: true,
@@ -161,14 +161,14 @@ export const rolePermissions: RolePermissions = {
       delete: false,
     },
     {
-      feature: "Report Access",
+      feature: "Reports",
       view: true,
       create: false,
       edit: false,
       delete: false,
     },
     {
-      feature: "Send Notifications",
+      feature: "Reservations",
       view: false,
       create: false,
       edit: false,
@@ -182,7 +182,7 @@ export const rolePermissions: RolePermissions = {
       delete: false,
     },
     {
-      feature: "Financial Reports",
+      feature: "Settings",
       view: true,
       create: false,
       edit: false,
@@ -199,14 +199,14 @@ export const rolePermissions: RolePermissions = {
       delete: false,
     },
     {
-      feature: "Report Access",
+      feature: "Reports",
       view: true,
       create: false,
       edit: false,
       delete: false,
     },
     {
-      feature: "Send Notifications",
+      feature: "Reservations",
       view: true,
       create: false,
       edit: false,
@@ -220,7 +220,7 @@ export const rolePermissions: RolePermissions = {
       delete: false,
     },
     {
-      feature: "Financial Reports",
+      feature: "Settings",
       view: false,
       create: false,
       edit: false,

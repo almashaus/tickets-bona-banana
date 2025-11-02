@@ -10,7 +10,8 @@ import { Item } from "@/src/types/sidebarItem";
 import { usePathname } from "next/navigation";
 import { sidebarData } from "@/src/data/sideBarData";
 import { useAuth } from "@/src/features/auth/auth-provider";
-import { MemberRole } from "@/src/types/permissions";
+import { MemberRole, MemberStatus } from "@/src/types/permissions";
+import { useMemberPermissionChecker } from "@/src/hooks/useMemberPermissions";
 
 export function DashboardSidebar() {
   const { user } = useAuth();
@@ -43,16 +44,74 @@ export function DashboardSidebar() {
     }
   }, [mobileOpen, isMobile, showSidebar]);
 
+  const { checkPermission } = useMemberPermissionChecker(user);
+
+  const { allowed: canViewEvents } = checkPermission("User Management", "view");
+
+  const { allowed: canViewReservations } = checkPermission(
+    "Reservations",
+    "view"
+  );
+
+  const { allowed: canViewCustomers } = checkPermission(
+    "User Management",
+    "view"
+  );
+
+  const { allowed: canViewMembers } = checkPermission(
+    "User Management",
+    "view"
+  );
+
+  const { allowed: canViewReports } = checkPermission("Reports", "view");
+
+  const { allowed: canViewSettings } = checkPermission("Settings", "view");
+
+  // Helper function to determine if a sidebar item should be shown
+  function shouldShowSidebarItem(item: Item) {
+    if (
+      item.title !== "Profile" &&
+      user?.dashboard?.status === MemberStatus.SUSPENDED
+    ) {
+      return false;
+    }
+    if (
+      item.title === "Permissions" &&
+      user?.dashboard?.role !== MemberRole.ADMIN
+    ) {
+      return false;
+    }
+    if (item.title === "Events" && !canViewEvents) {
+      return false;
+    }
+    if (item.title === "Reservations" && !canViewReservations) {
+      return false;
+    }
+    if (item.title === "Customers" && !canViewCustomers) {
+      return false;
+    }
+    if (item.title === "Team Members" && !canViewMembers) {
+      return false;
+    }
+    if (item.title === "Reports" && !canViewReports) {
+      return false;
+    }
+    if (
+      item.title === "Settings" ||
+      (item.title === "Coupons" && !canViewSettings)
+    ) {
+      return false;
+    }
+    return true;
+  }
+
   // Sidebar content
   const sidebarContent = (
     <div className="h-full px-3 pb-4 pt-3 overflow-y-auto bg-neutral-300 dark:bg-gray-800 flex flex-col">
       <div className="space-y-2 text-sm">
         {sidebarData.map((item, idx) => {
-          if (
-            item.title === "Permissions" &&
-            user?.dashboard?.role !== MemberRole.ADMIN
-          ) {
-            return;
+          if (!shouldShowSidebarItem(item)) {
+            return null;
           }
           return (
             <SidebarItem

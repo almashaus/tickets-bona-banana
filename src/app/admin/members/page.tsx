@@ -256,10 +256,6 @@ export default function membersPage() {
 
   const { checkPermission } = useMemberPermissionChecker(user);
 
-  const { allowed: canViewMembers, isLoading: loading } = checkPermission(
-    "User Management",
-    "view"
-  );
   const { allowed: canCreateMember } = checkPermission(
     "User Management",
     "create"
@@ -268,22 +264,6 @@ export default function membersPage() {
     "User Management",
     "delete"
   );
-
-  if (loading || !user) {
-    return (
-      <div className="flex justify-center items-center py-36">
-        <Loading />
-      </div>
-    );
-  }
-
-  if (!canViewMembers && user) {
-    return (
-      <div className="flex justify-center items-center h-2/3">
-        <p className="text-muted-foreground">Access Denied</p>
-      </div>
-    );
-  }
 
   return (
     <div className="p-4 md:p-6">

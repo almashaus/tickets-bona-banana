@@ -51,7 +51,7 @@ import { getAuth } from "firebase/auth";
 import QrScanner from "@/src/features/scanner/qr-scanner";
 import { useAuth } from "@/src/features/auth/auth-provider";
 import { canMemberAccess } from "@/src/lib/utils/checkPermission";
-import { RolePermissions } from "@/src/types/permissions";
+import { MemberStatus, RolePermissions } from "@/src/types/permissions";
 import { usePermissionStore } from "@/src/lib/stores/usePermissionStore";
 import { useMemberPermissionChecker } from "@/src/hooks/useMemberPermissions";
 
@@ -81,9 +81,13 @@ export default function AdminPage() {
   const { checkPermission } = useMemberPermissionChecker(user);
 
   const { allowed: canViewRevenue, isLoading: loading } = checkPermission(
-    "Financial Reports",
+    "Reports",
     "view"
   );
+
+  if (!user || user?.dashboard?.status === MemberStatus.SUSPENDED) {
+    return <></>;
+  }
 
   return (
     <div className="p-4 md:p-6">

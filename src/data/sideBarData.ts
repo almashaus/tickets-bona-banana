@@ -1,14 +1,12 @@
 import {
   CalendarRange,
   LayoutDashboard,
-  LucideIcon,
   ShieldCheck,
   Ticket,
   UserRound,
   UserRoundCog,
   UsersRound,
   Percent,
-  ChartColumn,
   FileText,
   Settings,
 } from "lucide-react";
@@ -44,11 +42,6 @@ export const sidebarData: Item[] = [
     title: "Coupons",
     url: "...",
     icon: Percent,
-  },
-  {
-    title: "Analytics",
-    url: "...",
-    icon: ChartColumn,
   },
   {
     title: "Reports",
