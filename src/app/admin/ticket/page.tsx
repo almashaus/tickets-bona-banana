@@ -15,7 +15,6 @@ import { Ticket, TicketStatus } from "@/src/models/ticket";
 import { AppUser } from "@/src/models/user";
 import { Check, Calendar, User, CheckCircle, CheckCheck } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-
 import { Suspense, useEffect, useState } from "react";
 import useSWR, { mutate } from "swr";
 
@@ -38,13 +37,14 @@ function ValidateTicket() {
     ticket: Ticket;
   }
   const { data, error, isLoading } = useSWR<Response>(
-    !token ? `/api/ticket?token=${token}` : null
+    token ? `/api/ticket?token=${token}` : null
   );
 
   useEffect(() => {
     if (data) {
       const matchDate =
         data.event.dates.find((d) => d.id == data.ticket.eventDateId) || null;
+
       setDate(matchDate);
 
       setIsValid(data.ticket.status === TicketStatus.VALID);

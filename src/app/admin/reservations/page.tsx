@@ -312,10 +312,13 @@ export default function ReservationsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Methods</SelectItem>
-                  <SelectItem value="Visa">Visa</SelectItem>
+                  <SelectItem value="Visa/Mastercard">
+                    Visa/Mastercard
+                  </SelectItem>
                   <SelectItem value="Apple Pay">Apple Pay</SelectItem>
+                  <SelectItem value="Google Pay">Google Pay</SelectItem>
                   <SelectItem value="STC Pay">STC Pay</SelectItem>
-                  <SelectItem value="Free">Free</SelectItem>
+                  <SelectItem value="MADA">MADA</SelectItem>
                 </SelectContent>
               </Select>
             </div>

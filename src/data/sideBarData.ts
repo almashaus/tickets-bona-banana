@@ -45,7 +45,7 @@ export const sidebarData: Item[] = [
   },
   {
     title: "Reports",
-    url: "...",
+    url: "/admin/reports",
     icon: FileText,
   },
   {

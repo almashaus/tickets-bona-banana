@@ -44,6 +44,9 @@ body {
     --sidebar-ring: 217.2 91.2% 59.8%;
     --detail-medium-contrast: rgb(234, 234, 234);
     --text-high-contrast-rgb-value: 49, 49, 49;
+    --chart-1: 32 94% 57%; /* orange (#f49b32) */
+    --chart-2: 48 87% 59%; /* yellow (#f0bf3f) */
+    --chart-3: 80 59% 60%; /* green (#bdda5e) */
   }
 
   .dark {
