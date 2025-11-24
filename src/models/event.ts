@@ -21,6 +21,7 @@ export enum PromoCodeStatus {
 export interface Event {
   id: string;
   creatorId: string; // foreign key to User
+  updatedBy?: string;
   title: string;
   slug: string;
   description: string;

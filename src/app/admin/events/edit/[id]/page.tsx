@@ -209,6 +209,7 @@ export default function EditEventPage() {
 
       const updateEvent: Event = {
         creatorId: user?.id || "1",
+        updatedBy: user?.id,
         title: title,
         slug: slug,
         description: description,

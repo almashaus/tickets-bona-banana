@@ -42,12 +42,6 @@ import AttendanceTable from "./components/attendanceTable";
 export default function ReportsPage() {
   const { data, error, isLoading } = useSWR<ReportsData>("/api/admin/reports");
 
-  useEffect(() => {
-    if (data) {
-      console.log(data);
-    }
-  }, [data]);
-
   const handleExport = (format: "excel" | "pdf") => {
     // In a real app, this would trigger an export
     alert(`Exporting report as ${format.toUpperCase()}...`);

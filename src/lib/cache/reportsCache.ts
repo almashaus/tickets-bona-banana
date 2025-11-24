@@ -192,7 +192,7 @@ class ReportCache {
         }
         return `${key}:${value}`;
       });
-    console.log(`${prefix}:${parts.join("|")}`);
+
     return `${prefix}:${parts.join("|")}`;
   }
 
@@ -425,7 +425,6 @@ export function invalidateReportType(type: "dashboard" | "tables" | "all") {
 export async function warmUpReportsCache() {
   // Optionally pre-populate cache with common queries
   // This runs on server startup
-  console.log("Cache warming skipped. Cache will populate on demand.");
 }
 
 // ============================================================================
@@ -469,8 +468,8 @@ const data = await reportCache.getOrSet(
 
 // Get statistics
 const stats = reportCache.getStats();
-console.log('Hit rate:', reportCache.getHitRate());
-console.log('Cache size:', reportCache.size());
+
+
 
 // Invalidate cache
 invalidateReportCache({ eventId: 'event-123' });

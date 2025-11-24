@@ -1,7 +1,8 @@
 import { db } from "@/src/lib/firebase/firebaseAdminConfig";
 import { getDocumentById } from "@/src/lib/firebase/firestore";
 import { verifyIdToken } from "@/src/lib/firebase/verifyIdToken";
-import { AppUser } from "@/src/models/user";
+import { ActivityLog, AppUser } from "@/src/models/user";
+import { MemberRole } from "@/src/types/permissions";
 import { NextRequest } from "next/server";
 
 export async function GET(
@@ -9,8 +10,36 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = (await params).id;
-    const member = await getDocumentById("users", id);
+    const userId = (await params).id;
+    if (!userId) {
+      return new Response(JSON.stringify({ data: "Error" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    const user = (await getDocumentById("users", userId)) as AppUser;
+    if (!user) {
+      return new Response(JSON.stringify({ data: "Error" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    const logsRef = db
+      .collection("users")
+      .doc(userId)
+      .collection("activityLog");
+
+    const snapshot = await logsRef.orderBy("timestamp", "desc").get();
+
+    const logs = snapshot.docs.map((doc) => doc.data()) as ActivityLog[];
+
+    const member = {
+      ...user,
+      dashboard: {
+        ...user.dashboard,
+        activityLog: logs,
+      },
+    };
 
     return new Response(JSON.stringify(member), {
       status: 200,

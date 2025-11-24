@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
     const cachedData = reportCache.get(cacheKey);
 
     if (cachedData) {
-      console.log("📘 Cache");
+      console.log("📘 cache ", cachedData);
       return NextResponse.json(
         {
           ...cachedData,
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
 
     // Cache for 5 minutes
     reportCache.set(cacheKey, data, 300000);
-
+    console.log(data);
     return NextResponse.json(
       {
         ...data,
@@ -87,7 +87,6 @@ export async function GET(request: NextRequest) {
       }
     );
   } catch (error) {
-    console.error("Error fetching table data:", error);
     return NextResponse.json(
       { error: "Failed to fetch table data" },
       { status: 500 }
@@ -101,10 +100,8 @@ async function fetchRevenueTable(filters: TableFilters) {
   });
 
   let fullData = reportCache.get<any[]>(fullDataCacheKey);
-  console.log("fullData :>> ", fullData);
-  if (!fullData) {
-    console.log("🔄 Fetching full revenue dataset from Firestore");
 
+  if (!fullData) {
     // Fetch all orders for this filter set
     let ordersQuery = db
       .collection("orders")
@@ -126,6 +123,7 @@ async function fetchRevenueTable(filters: TableFilters) {
       {
         eventId: string;
         totalRevenue: number;
+        totalOrders: number;
         ticketsSold: number;
         paymentMethods: Map<string, number>;
       }
@@ -139,6 +137,7 @@ async function fetchRevenueTable(filters: TableFilters) {
         eventData.set(eventId, {
           eventId,
           totalRevenue: 0,
+          totalOrders: 0,
           ticketsSold: 0,
           paymentMethods: new Map(),
         });
@@ -146,6 +145,7 @@ async function fetchRevenueTable(filters: TableFilters) {
 
       const data = eventData.get(eventId)!;
       data.totalRevenue += order.totalAmount || 0;
+      data.totalOrders += 1;
       data.ticketsSold += order.tickets.length || 1;
 
       const method = order.paymentMethod || "Unknown";
@@ -174,6 +174,7 @@ async function fetchRevenueTable(filters: TableFilters) {
         eventName: event.title || "Unknown Event",
         city: event.city.en || "Unknown",
         totalRevenue: data.totalRevenue,
+        totalOrders: data.totalOrders,
         ticketsSold: data.ticketsSold,
         averageTicketPrice:
           data.ticketsSold > 0
@@ -185,11 +186,7 @@ async function fetchRevenueTable(filters: TableFilters) {
 
     // Cache full dataset for 5 minutes
     reportCache.set(fullDataCacheKey, fullData, 300000);
-    console.log(`✅ Cached full attendance dataset: ${fullData.length} rows`);
   } else {
-    console.log(
-      `🗄️ Using cached full revenue dataset: ${fullData.length} rows`
-    );
   }
 
   // Sort in-memory
@@ -229,8 +226,6 @@ async function fetchAttendanceTable(filters: TableFilters) {
   let fullData = reportCache.get<any[]>(fullDataCacheKey);
 
   if (!fullData) {
-    console.log("🔄 Fetching full attendance dataset from Firestore");
-
     // Fetch orders
     let ordersQuery = db
       .collection("orders")
@@ -242,7 +237,6 @@ async function fetchAttendanceTable(filters: TableFilters) {
     ordersQuery = ordersQuery.limit(5000);
 
     const ordersSnapshot = await ordersQuery.get();
-    console.log(`📊 Fetched ${ordersSnapshot.size} orders`);
 
     // Group by event
     const eventOrders = new Map<string, string[]>();
@@ -321,11 +315,7 @@ async function fetchAttendanceTable(filters: TableFilters) {
 
     // Cache for 5 minutes
     reportCache.set(fullDataCacheKey, fullData, 300000);
-    console.log(`✅ Cached full attendance dataset: ${fullData.length} rows`);
   } else {
-    console.log(
-      `✅ Using cached full attendance dataset: ${fullData.length} rows`
-    );
   }
 
   // Sort in-memory

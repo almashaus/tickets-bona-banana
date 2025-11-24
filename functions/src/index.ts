@@ -177,6 +177,12 @@ export const onEventCreated = functions.firestore
         .update({
           "dashboard.eventsManaged": admin.firestore.FieldValue.increment(1),
         });
+
+      await addActivityLog(
+        creatorId,
+        `Created event '${eventData.title}'`,
+        "Event Management"
+      );
     } catch (error) {
       console.error(
         `Error incrementing eventsManaged for user ${creatorId}:`,
@@ -296,6 +302,7 @@ export const onEventDateCapacityChanged = functions.firestore
       await change.after.ref.update({ dates: updatedDates });
     }
   });
+
 /*
   [ 9 ]
   Triggered when a ticket status is changed to "Canceled"; increases availableTickets for the event date
@@ -338,6 +345,90 @@ export const onTicketCanceled = functions.firestore
       });
     }
   });
+
+/*
+  [ 9 ]
+  Triggered when an Event is Updated 
+*/
+export const onEventUpdated = functions.firestore
+  .document("events/{eventId}")
+  .onUpdate(async (change, context) => {
+    const before = change.before.data();
+    const after = change.after.data();
+
+    const userId = after.updatedBy;
+    if (!userId) return;
+
+    // Detect changed fields between `before` and `after`
+    const changedFields: string[] = [];
+
+    Object.keys(after).forEach((key) => {
+      if (["updatedAt", "createdAt"].includes(key)) return;
+
+      const beforeValue = before[key];
+      const afterValue = after[key];
+
+      if (JSON.stringify(beforeValue) !== JSON.stringify(afterValue)) {
+        changedFields.push(key);
+      }
+    });
+
+    let changesDescription = "";
+    if (changedFields.length > 0) {
+      changesDescription = ` (${changedFields.join(", ")} changed)`;
+    }
+
+    // Build the activity log action
+    const action = `Updated event '${after.title}'${changesDescription}`;
+
+    // Write log
+    await addActivityLog(userId, action, "Event Management");
+  });
+
+export const onUserRoleChanged = functions.firestore
+  .document("users/{userId}")
+  .onUpdate(async (change, context) => {
+    const after = change.after.data();
+    const before = change.before.data();
+
+    if (
+      before.dashboard?.role !== after.dashboard?.role ||
+      before.dashboard?.status !== after.dashboard?.status
+    ) {
+      const userId = after.id;
+      if (!userId) return;
+
+      await addActivityLog(
+        userId,
+        "Edited member permissions",
+        "User Management"
+      );
+    }
+  });
+
+//-----------------------------------------------
+export const addActivityLog = async (
+  userId: string,
+  action: string,
+  type: "Event Management" | "User Management" | "Settings"
+) => {
+  const logRef = admin
+    .firestore()
+    .collection("users")
+    .doc(userId)
+    .collection("activityLog")
+    .doc();
+
+  const logEntry = {
+    id: logRef.id,
+    action,
+    timestamp: new Date().toISOString(),
+    type,
+  };
+
+  await logRef.set(logEntry);
+};
+
 /*
 Deploy the functions command:
 `firebase deploy --only functions`

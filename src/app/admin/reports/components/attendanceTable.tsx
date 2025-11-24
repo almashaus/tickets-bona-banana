@@ -10,12 +10,12 @@ import {
   TableRow,
 } from "@/src/components/ui/table";
 import {
-  ArrowUpWideNarrow,
-  ArrowDownNarrowWide,
   ChevronFirst,
   ChevronLeft,
   ChevronRight,
   ChevronLast,
+  ArrowUpWideNarrow,
+  ArrowDownWideNarrow,
 } from "lucide-react";
 import {
   Select,
@@ -87,7 +87,6 @@ export default function AttendanceTable() {
       console.log(data);
       setTableData(data);
     } catch (error) {
-      console.error("Error loading attendance table:", error);
     } finally {
       setLoading(false);
     }
@@ -138,9 +137,9 @@ export default function AttendanceTable() {
                   Event Name{" "}
                   {sortBy === "eventName" &&
                     (sortOrder === "asc" ? (
-                      <ArrowDownNarrowWide className="w-4 h-4 text-orangeColor" />
-                    ) : (
                       <ArrowUpWideNarrow className="w-4 h-4 text-orangeColor" />
+                    ) : (
+                      <ArrowDownWideNarrow className="w-4 h-4 text-orangeColor" />
                     ))}
                 </span>
               </TableHead>
@@ -152,9 +151,9 @@ export default function AttendanceTable() {
                   Orders{" "}
                   {sortBy === "totalOrders" &&
                     (sortOrder === "asc" ? (
-                      <ArrowDownNarrowWide className="w-4 h-4 text-orangeColor" />
-                    ) : (
                       <ArrowUpWideNarrow className="w-4 h-4 text-orangeColor" />
+                    ) : (
+                      <ArrowDownWideNarrow className="w-4 h-4 text-orangeColor" />
                     ))}
                 </span>
               </TableHead>
@@ -166,9 +165,9 @@ export default function AttendanceTable() {
                   Used{" "}
                   {sortBy === "usedTickets" &&
                     (sortOrder === "asc" ? (
-                      <ArrowDownNarrowWide className="w-4 h-4 text-orangeColor" />
-                    ) : (
                       <ArrowUpWideNarrow className="w-4 h-4 text-orangeColor" />
+                    ) : (
+                      <ArrowDownWideNarrow className="w-4 h-4 text-orangeColor" />
                     ))}
                 </span>
               </TableHead>
@@ -180,9 +179,9 @@ export default function AttendanceTable() {
                   Unused{" "}
                   {sortBy === "unusedTickets" &&
                     (sortOrder === "asc" ? (
-                      <ArrowDownNarrowWide className="w-4 h-4 text-orangeColor" />
-                    ) : (
                       <ArrowUpWideNarrow className="w-4 h-4 text-orangeColor" />
+                    ) : (
+                      <ArrowDownWideNarrow className="w-4 h-4 text-orangeColor" />
                     ))}
                 </span>
               </TableHead>
@@ -194,9 +193,9 @@ export default function AttendanceTable() {
                   Attendance %{" "}
                   {sortBy === "attendancePercentage" &&
                     (sortOrder === "asc" ? (
-                      <ArrowDownNarrowWide className="w-4 h-4 text-orangeColor" />
-                    ) : (
                       <ArrowUpWideNarrow className="w-4 h-4 text-orangeColor" />
+                    ) : (
+                      <ArrowDownWideNarrow className="w-4 h-4 text-orangeColor" />
                     ))}
                 </span>
               </TableHead>

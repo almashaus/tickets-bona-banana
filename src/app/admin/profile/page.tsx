@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Activity, Check, PanelLeft, X } from "lucide-react";
+import { Activity, Check, FileEdit, Lock, PanelLeft, X } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -44,44 +44,14 @@ import {
   RolePermissions,
 } from "@/src/types/permissions";
 import { getRoleBadgeColor, getStatusBadgeColor } from "@/src/lib/utils/styles";
-import { formatDate } from "@/src/lib/utils/formatDate";
+import { formatDate, formatDateTime } from "@/src/lib/utils/formatDate";
 import Loading from "@/src/components/ui/loading";
 import { GrayX, GreenCheck } from "@/src/lib/utils/statusIcons";
 
-// Mock activity log
-const mockActivityLog = [
-  {
-    id: "1",
-    action: "Created event 'New Event'",
-    timestamp: "2024-01-15 14:30",
-    type: "event_created",
-  },
-  {
-    id: "2",
-    action: "Edited user permissions",
-    timestamp: "2024-01-15 10:15",
-    type: "user_edited",
-  },
-  {
-    id: "3",
-    action: "Sent notification to all users",
-    timestamp: "2024-01-14 16:45",
-    type: "notification_sent",
-  },
-  {
-    id: "4",
-    action: "Generated financial report",
-    timestamp: "2024-01-14 09:30",
-    type: "report_generated",
-  },
-];
-
 export default function UserProfilePage() {
   const { user, resetPassword } = useAuth();
-  const router = useRouter();
   const { toast } = useToast();
   const [permissions, setPermissions] = useState<FeaturePermission[]>([]);
-  const [internalNotes, setInternalNotes] = useState("");
 
   const {
     data: member,
@@ -320,30 +290,29 @@ export default function UserProfilePage() {
         <TabsContent value="activity">
           <Card>
             <CardHeader>
-              <CardTitle>
-                Activity Log
-                <span className="text-red-500 text-sm font-light">
-                  *In progress*
-                </span>
-              </CardTitle>
+              <CardTitle>Activity Log</CardTitle>
               <CardDescription>
                 Recent user actions and activities
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockActivityLog.map((activity) => (
+                {member?.dashboard?.activityLog?.map((activity) => (
                   <div
                     key={activity.id}
                     className="flex items-start gap-4 p-4 border rounded-lg"
                   >
                     <div className="p-2 bg-muted rounded-full">
-                      <Activity className="h-4 w-4" />
+                      {activity.type === "Event Management" ? (
+                        <FileEdit className="h-4 w-4 text-redColor" />
+                      ) : (
+                        <Activity className="h-4 w-4 text-redColor" />
+                      )}
                     </div>
                     <div className="flex-1">
                       <p className="font-medium">{activity.action}</p>
                       <p className="text-sm text-muted-foreground">
-                        {activity.timestamp}
+                        {formatDateTime(new Date(activity.timestamp))}
                       </p>
                     </div>
                   </div>

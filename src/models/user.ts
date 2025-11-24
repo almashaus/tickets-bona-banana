@@ -18,7 +18,22 @@ export interface DashboardUser {
   status: MemberStatus;
   joinedDate?: Date;
   eventsManaged: number;
+  activityLog?: ActivityLog[];
 }
+
+export interface ActivityLog {
+  id: number;
+  action: string;
+  timestamp: string;
+  type: ActivityLogType;
+}
+
+export type ActivityLogType =
+  | "Event Management"
+  | "Reports"
+  | "Notification"
+  | "User Management"
+  | "Settings";
 
 export interface CustomerResponse {
   user: AppUser;

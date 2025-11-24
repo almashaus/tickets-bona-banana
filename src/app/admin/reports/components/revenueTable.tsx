@@ -10,12 +10,12 @@ import {
   TableRow,
 } from "@/src/components/ui/table";
 import {
-  ArrowUpWideNarrow,
-  ArrowDownNarrowWide,
   ChevronFirst,
   ChevronLeft,
   ChevronRight,
   ChevronLast,
+  ArrowUpWideNarrow,
+  ArrowDownWideNarrow,
 } from "lucide-react";
 import {
   Select,
@@ -31,6 +31,7 @@ interface RevenueRow {
   eventName: string;
   city: string;
   totalRevenue: number;
+  totalOrders: number;
   ticketsSold: number;
   averageTicketPrice: number;
   paymentMethods: string;
@@ -162,7 +163,7 @@ export default function RevenueTable() {
           Object.entries(filters).filter(([_, v]) => v !== "")
         ),
       });
-      params.forEach((v, k) => console.log(k, v));
+
       const response = await fetch(`/api/admin/reports/tables?${params}`);
 
       if (!response.ok) {
@@ -170,9 +171,9 @@ export default function RevenueTable() {
       }
 
       const data = await response.json();
+
       setTableData(data);
     } catch (error) {
-      console.error("Error loading table:", error);
     } finally {
       setLoading(false);
     }
@@ -221,7 +222,6 @@ export default function RevenueTable() {
             <SelectItem value="today">Today</SelectItem>
             <SelectItem value="this-week">This Week</SelectItem>
             <SelectItem value="this-month">This Month</SelectItem>
-            <SelectItem value="custom">Custom Date Range</SelectItem>
           </SelectContent>
         </Select>
 
@@ -273,9 +273,9 @@ export default function RevenueTable() {
                     Event Name{" "}
                     {sortBy === "eventName" &&
                       (sortOrder === "asc" ? (
-                        <ArrowDownNarrowWide className="w-4 h-4 text-orangeColor" />
-                      ) : (
                         <ArrowUpWideNarrow className="w-4 h-4 text-orangeColor" />
+                      ) : (
+                        <ArrowDownWideNarrow className="w-4 h-4 text-orangeColor" />
                       ))}
                   </span>
                 </TableHead>
@@ -287,9 +287,9 @@ export default function RevenueTable() {
                     City{" "}
                     {sortBy === "city" &&
                       (sortOrder === "asc" ? (
-                        <ArrowDownNarrowWide className="w-4 h-4 text-orangeColor" />
-                      ) : (
                         <ArrowUpWideNarrow className="w-4 h-4 text-orangeColor" />
+                      ) : (
+                        <ArrowDownWideNarrow className="w-4 h-4 text-orangeColor" />
                       ))}
                   </span>
                 </TableHead>
@@ -301,9 +301,23 @@ export default function RevenueTable() {
                     Total Revenue{" "}
                     {sortBy === "totalRevenue" &&
                       (sortOrder === "asc" ? (
-                        <ArrowDownNarrowWide className="w-4 h-4 text-orangeColor" />
-                      ) : (
                         <ArrowUpWideNarrow className="w-4 h-4 text-orangeColor" />
+                      ) : (
+                        <ArrowDownWideNarrow className="w-4 h-4 text-orangeColor" />
+                      ))}
+                  </span>
+                </TableHead>
+                <TableHead
+                  className=" uppercase tracking-wider cursor-pointer hover:bg-neutral-200"
+                  onClick={() => handleSort("totalOrders")}
+                >
+                  <span className="flex justify-center items-center gap-2">
+                    Total Orders{" "}
+                    {sortBy === "totalOrders" &&
+                      (sortOrder === "asc" ? (
+                        <ArrowUpWideNarrow className="w-4 h-4 text-orangeColor" />
+                      ) : (
+                        <ArrowDownWideNarrow className="w-4 h-4 text-orangeColor" />
                       ))}
                   </span>
                 </TableHead>
@@ -315,9 +329,9 @@ export default function RevenueTable() {
                     Tickets Sold{" "}
                     {sortBy === "ticketsSold" &&
                       (sortOrder === "asc" ? (
-                        <ArrowDownNarrowWide className="w-4 h-4 text-orangeColor" />
-                      ) : (
                         <ArrowUpWideNarrow className="w-4 h-4 text-orangeColor" />
+                      ) : (
+                        <ArrowDownWideNarrow className="w-4 h-4 text-orangeColor" />
                       ))}
                   </span>
                 </TableHead>
@@ -329,9 +343,9 @@ export default function RevenueTable() {
                     Avg Price{" "}
                     {sortBy === "averageTicketPrice" &&
                       (sortOrder === "asc" ? (
-                        <ArrowDownNarrowWide className="w-4 h-4 text-orangeColor" />
-                      ) : (
                         <ArrowUpWideNarrow className="w-4 h-4 text-orangeColor" />
+                      ) : (
+                        <ArrowDownWideNarrow className="w-4 h-4 text-orangeColor" />
                       ))}
                   </span>
                 </TableHead>
@@ -357,6 +371,9 @@ export default function RevenueTable() {
                   <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-700">
                     <span className="icon-saudi_riyal text-md font-light" />
                     {row.totalRevenue.toLocaleString()}
+                  </TableCell>
+                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {row.totalOrders}
                   </TableCell>
                   <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {row.ticketsSold}
