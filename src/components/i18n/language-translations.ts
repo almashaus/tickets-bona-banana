@@ -1,11 +1,19 @@
 export const translations = {
   en: {
+    "home.hero1": "Discover Events",
+    "home.hero2": "Join the Fun",
+    "home.hero3": "Play Next Game",
+    "home.heroSubtitle":
+      "Discover board-game events packed with laughs, friendly battles, and epic wins. Pick an event, book your seat, and join the table!",
     "home.title": "Discover Events",
     "home.subtitle": "Discover the most popular events happening near you",
     "home.allEvents": "View All Events",
     "home.backToHome": "Back to Main Page",
     "home.noEvents": "There is no event currently, Come back later!",
     "home.error": "Something went wrong. Please try again later.",
+    "home.gallary": "Gallary",
+    "home.gallarySubtitle":
+      "Here are moments from our events at Bona Banana. dozens of board games, lively matches, and unforgettable game nights. Join us for endless fun and memories you’ll always remember.",
     "nav.profile": "Profile",
     "nav.myTickets": "My Tickets",
     "nav.dashboard": "Dashboard",
@@ -167,12 +175,20 @@ export const translations = {
     "profile.accountSettings": "Account Settings",
   },
   ar: {
+    "home.hero1": "اكتشف الفعاليات",
+    "home.hero2": "جرب المتعة",
+    "home.hero3": "انضم للعبة القادمة",
+    "home.heroSubtitle":
+      "اكتشف فعاليات ألعاب الطاولة المليئة بالضحك والمنافسات الودية والانتصارات الملحمية. اختر الفعالية، احجز مقعدك، وانضم إلى الطاولة!",
     "home.title": "اكتشف الفعاليات",
     "home.subtitle": "ابحث واحجز تذاكر لأفضل الفعاليات بالقرب منك",
     "home.allEvents": "عرض جميع الفعاليات",
     "home.backToHome": "العودة للصفحة الرئيسية",
     "home.noEvents": "لا توجد فعالية حاليًا، عد لاحقًا!",
     "home.error": "حدث خطأ ما. يُرجى المحاولة لاحقًا.",
+    "home.gallary": "معرض",
+    "home.gallarySubtitle":
+      "لقطات من فعالياتنا في Bona Banana. عشرات ألعاب الطاولة، منافسات ممتعة، وليالٍ مليئة بالحماس. انضم إلينا لتجربة ممتعة وذكريات لا تُنسى.",
     "nav.profile": "الملف الشخصي",
     "nav.myTickets": "تذاكري",
     "nav.dashboard": "لوحة التحكم",

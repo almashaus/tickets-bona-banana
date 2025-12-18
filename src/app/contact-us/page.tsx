@@ -1,6 +1,5 @@
 "use client";
 import { useLanguage } from "@/src/components/i18n/language-provider";
-import { Button } from "@/src/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,7 +10,7 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { Textarea } from "@/src/components/ui/textarea";
 import { Button as EmailButton } from "@react-email/components";
-import { InstagramIcon, MailIcon, PhoneIcon } from "lucide-react";
+import { MailIcon } from "lucide-react";
 import { useState } from "react";
 
 export default function contactUsPage() {

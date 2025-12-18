@@ -84,7 +84,7 @@ export default function AttendanceTable() {
       }
 
       const data = await response.json();
-      console.log(data);
+
       setTableData(data);
     } catch (error) {
     } finally {

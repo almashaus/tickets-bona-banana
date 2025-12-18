@@ -52,7 +52,6 @@ export async function GET(request: NextRequest) {
     const cachedData = reportCache.get(cacheKey);
 
     if (cachedData) {
-      console.log("📘 cache ", cachedData);
       return NextResponse.json(
         {
           ...cachedData,
@@ -75,7 +74,6 @@ export async function GET(request: NextRequest) {
 
     // Cache for 5 minutes
     reportCache.set(cacheKey, data, 300000);
-    console.log(data);
     return NextResponse.json(
       {
         ...data,

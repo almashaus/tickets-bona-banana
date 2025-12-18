@@ -52,7 +52,7 @@ export default async function RootLayout({
             <LanguageProvider>
               <Analytics />
               <SpeedInsights />
-              <div className="flex flex-col min-h-screen min-w-full">
+              <div className="flex flex-col min-h-screen w-screen">
                 <Header initialUser={session.user} />
                 <main className="flex-grow pt-16">{children}</main>
                 <Footer />
