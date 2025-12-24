@@ -9,9 +9,9 @@ import { UserNav } from "@/src/components/auth/user-nav";
 import { useAuth } from "@/src/features/auth/auth-provider";
 import { ModeToggle } from "@/src/components/theme/mode-toggle";
 import { AppUser } from "@/src/models/user";
-import { useLanguage } from "../i18n/language-provider";
 import { useIsMobile } from "@/src/hooks/use-mobile";
 import { useMobileSidebar } from "@/src/lib/stores/useMobileSidebar";
+import { useTranslations } from "next-intl";
 
 export default function Header({
   initialUser,
@@ -23,7 +23,7 @@ export default function Header({
   const setMobileOpen = useMobileSidebar((state) => state.setMobileOpen);
 
   const { user, initialLoading } = useAuth();
-  const { t } = useLanguage();
+  const t = useTranslations("Nav");
 
   return (
     <header
@@ -78,14 +78,14 @@ export default function Header({
               <UserNav user={initialUser!} />
             ) : (
               <Button asChild variant="outline" size="default">
-                <Link href="/login">{t("nav.login")}</Link>
+                <Link href="/login">{t("login")}</Link>
               </Button>
             )
           ) : user ? (
             <UserNav user={user} />
           ) : (
             <Button asChild variant="outline" size="default">
-              <Link href="/login">{t("nav.login")}</Link>
+              <Link href="/login">{t("login")}</Link>
             </Button>
           )}
         </div>

@@ -55,11 +55,13 @@ import Image from "next/image";
 import { useAuthStore } from "@/src/lib/stores/useAuthStore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { storage } from "@/src/lib/firebase/firebaseConfig";
-import { useLanguage } from "@/src/components/i18n/language-provider";
+import { useLocale, useTranslations } from "next-intl";
+import { useAuth } from "@/src/features/auth/auth-provider";
 
 function Profile() {
   const auth = getAuth();
   const authUser = auth.currentUser!;
+  const { logout } = useAuth();
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
   const searchParams = useSearchParams();
@@ -71,7 +73,8 @@ function Profile() {
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const tabParam = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState(tabParam || "profile");
-  const { t, language } = useLanguage();
+  const t = useTranslations("Profile");
+  const locale = useLocale();
 
   interface Response {
     appUser: AppUser;
@@ -187,20 +190,20 @@ function Profile() {
         <Tabs
           defaultValue="profile"
           className="w-full"
-          dir={language === "en" ? "ltr" : "rtl"}
+          dir={locale === "en" ? "ltr" : "rtl"}
           value={activeTab}
           onValueChange={handleTabChange}
         >
           <TabsList className="grid w-full grid-cols-3 mb-8">
-            <TabsTrigger value="profile">{t("profile.profile")}</TabsTrigger>
-            <TabsTrigger value="tickets">{t("profile.myTickets")}</TabsTrigger>
-            <TabsTrigger value="settings">{t("profile.settings")}</TabsTrigger>
+            <TabsTrigger value="profile">{t("profile")}</TabsTrigger>
+            <TabsTrigger value="tickets">{t("myTickets")}</TabsTrigger>
+            <TabsTrigger value="settings">{t("settings")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile">
             <div className="rounded-lg border p-6 shadow-sm bg-white">
               <h2 className="text-xl font-semibold mb-4">
-                {t("profile.personalInformation")}
+                {t("personalInformation")}
               </h2>
 
               {isLoading && (
@@ -212,7 +215,7 @@ function Profile() {
                 <form onSubmit={handleUpdateProfile}>
                   <div className="grid gap-4 px-2 md:px-10 py-5">
                     <div className="grid gap-3">
-                      <Label htmlFor="name">{t("profile.name")}</Label>
+                      <Label htmlFor="name">{t("name")}</Label>
                       <Input
                         id="name"
                         value={userData?.name}
@@ -223,7 +226,7 @@ function Profile() {
                       />
                     </div>
                     <div className="grid gap-3">
-                      <Label htmlFor="email">{t("profile.email")}</Label>
+                      <Label htmlFor="email">{t("email")}</Label>
                       <Input
                         id="email"
                         type="email"
@@ -236,7 +239,7 @@ function Profile() {
                       />
                     </div>
                     <div className="grid gap-3">
-                      <Label htmlFor="phone">{t("profile.phone")}</Label>
+                      <Label htmlFor="phone">{t("phone")}</Label>
                       <Input
                         id="phone"
                         type="phone"
@@ -257,9 +260,9 @@ function Profile() {
                     </div>
                     <div className="grid grid-cols-1 lg:grid-cols-2">
                       <div className="grid gap-3">
-                        <Label htmlFor="gender">{t("profile.gender")}</Label>
+                        <Label htmlFor="gender">{t("gender")}</Label>
                         <Select
-                          dir={language === "en" ? "ltr" : "rtl"}
+                          dir={locale === "en" ? "ltr" : "rtl"}
                           value={userData?.gender}
                           onValueChange={(value) => {
                             handleInputChange("gender", value);
@@ -267,18 +270,18 @@ function Profile() {
                         >
                           <SelectTrigger>
                             <SelectValue
-                              placeholder={userData?.gender || "Select Gender"}
+                              placeholder={userData?.gender || "Select"}
                             />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Male">
                               <div className="flex items-center">
-                                {t("profile.male")}
+                                {t("male")}
                               </div>
                             </SelectItem>
                             <SelectItem value="Female">
                               <div className="flex items-center">
-                                {t("profile.female")}
+                                {t("female")}
                               </div>
                             </SelectItem>
                           </SelectContent>
@@ -286,9 +289,7 @@ function Profile() {
                       </div>
                     </div>
                     <div className="grid gap-3">
-                      <Label htmlFor="birthDate">
-                        {t("profile.birthDate")}
-                      </Label>
+                      <Label htmlFor="birthDate">{t("birthDate")}</Label>
 
                       <div className="flex flex-col space-y-2">
                         <Popover>
@@ -299,18 +300,18 @@ function Profile() {
                                 "justify-start text-left font-normal bg-white"
                               )}
                             >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              <CalendarIcon className="me-2 h-4 w-4" />
                               {userData?.birthDate ? (
                                 formatDate(
                                   new Date(userData?.birthDate),
-                                  language
+                                  locale
                                 )
                               ) : (
-                                <span>{t("profile.pickDate")}</span>
+                                <span>{t("pickDate")}</span>
                               )}
                             </Button>
                           </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0">
+                          <PopoverContent dir="ltr" className="w-auto p-0">
                             <Calendar
                               mode="single"
                               captionLayout="dropdown"
@@ -328,9 +329,7 @@ function Profile() {
                   </div>
                   <div className="flex justify-center">
                     <Button type="submit" disabled={isUpdating}>
-                      {isUpdating
-                        ? t("profile.updating")
-                        : t("profile.updateProfile")}
+                      {isUpdating ? t("updating") : t("updateProfile")}
                     </Button>
                   </div>
                 </form>
@@ -340,9 +339,7 @@ function Profile() {
 
           <TabsContent value="tickets">
             <div className="rounded-lg border p-6 shadow-sm bg-white">
-              <h2 className="text-xl font-semibold mb-4">
-                {t("profile.myTickets")}
-              </h2>
+              <h2 className="text-xl font-semibold mb-4">{t("myTickets")}</h2>
               <div className="text-center py-3">
                 {isLoading && (
                   <div className="flex justify-center items-center py-12">
@@ -352,10 +349,10 @@ function Profile() {
                 {!isLoading && data?.tickets.length === 0 && (
                   <div>
                     <p className="text-muted-foreground mb-4">
-                      {t("profile.dontHaveTickets")}
+                      {t("dontHaveTickets")}
                     </p>
                     <Button asChild>
-                      <Link href="/">{t("profile.browseEvents")}</Link>
+                      <Link href="/">{t("browseEvents")}</Link>
                     </Button>
                   </div>
                 )}
@@ -364,11 +361,11 @@ function Profile() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>{t("profile.eventTitle")}</TableHead>
-                          <TableHead>{t("profile.eventDate")}</TableHead>
-                          <TableHead>{t("profile.ticketID")}</TableHead>
-                          <TableHead>{t("profile.QRCode")}</TableHead>
-                          <TableHead>{t("profile.status")}</TableHead>
+                          <TableHead>{t("eventTitle")}</TableHead>
+                          <TableHead>{t("eventDate")}</TableHead>
+                          <TableHead>{t("ticketID")}</TableHead>
+                          <TableHead>{t("QRCode")}</TableHead>
+                          <TableHead>{t("status")}</TableHead>
                         </TableRow>
                       </TableHeader>
 
@@ -380,7 +377,7 @@ function Profile() {
                                 {ticketData.event?.title || ""}
                               </TableCell>
                               <TableCell>
-                                {formatDate(ticketData.date!, language)}
+                                {formatDate(ticketData.date!, locale)}
                               </TableCell>
                               <TableCell>{ticketData.ticket.id}</TableCell>
 
@@ -420,8 +417,8 @@ function Profile() {
 
           <TabsContent value="settings">
             <div className="rounded-lg border p-6 shadow-sm bg-white">
-              <h2 className="text-xl font-semibold mb-4">
-                {t("profile.accountSettings")}
+              <h2 className="text-xl font-semibold mb-12">
+                {t("accountSettings")}
               </h2>
 
               <div className="space-y-6">
@@ -434,9 +431,13 @@ function Profile() {
                     be certain.
                   </p> */}
 
-                  {/* <Button variant="destructive" onClick={() => logout()}>
-                    Log Out
-                  </Button> */}
+                  <Button
+                    variant="outline"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => logout()}
+                  >
+                    {t("logout")}
+                  </Button>
                 </div>
               </div>
             </div>

@@ -9,7 +9,7 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { useToast } from "@/src/components/ui/use-toast";
 import { useAuth } from "@/src/features/auth/auth-provider";
-import { useLanguage } from "@/src/components/i18n/language-provider";
+import { useTranslations } from "next-intl";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -20,7 +20,7 @@ function Login() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = searchParams?.get("redirect") || "/";
-  const { t } = useLanguage();
+  const t = useTranslations("Auth");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,15 +29,15 @@ function Login() {
     try {
       await login(email, password);
       toast({
-        title: t("auth.loginSuccess"),
-        description: t("auth.loginSuccessDesc"),
+        title: t("loginSuccess"),
+        description: t("loginSuccessDesc"),
         variant: "success",
       });
       router.replace(redirectUrl);
     } catch (error) {
       toast({
-        title: t("auth.loginFailed"),
-        description: t("auth.loginFailedDesc"),
+        title: t("loginFailed"),
+        description: t("loginFailedDesc"),
         variant: "destructive",
       });
     } finally {
@@ -50,15 +50,15 @@ function Login() {
     try {
       await signInWithGoogle();
       toast({
-        title: t("auth.loginSuccess"),
-        description: t("auth.loginGoogleSuccessDesc"),
+        title: t("loginSuccess"),
+        description: t("loginGoogleSuccessDesc"),
         variant: "success",
       });
       router.replace(redirectUrl);
     } catch (error) {
       toast({
-        title: t("auth.googleSignInFailed"),
-        description: t("auth.googleSignInFailedDesc"),
+        title: t("googleSignInFailed"),
+        description: t("googleSignInFailedDesc"),
         variant: "destructive",
       });
     } finally {
@@ -71,20 +71,20 @@ function Login() {
       <div className="mx-auto my-10 flex w-full flex-col justify-center space-y-6 sm:w-[350px] rounded-lg border p-6 shadow-sm bg-white">
         <div className="flex flex-col space-y-2 text-center">
           <h1 className="text-2xl font-semibold tracking-tight">
-            {t("auth.welcomeBack")}
+            {t("welcomeBack")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {t("auth.enterEmailPassword")}
+            {t("enterEmailPassword")}
           </p>
         </div>
         <div className="grid gap-6">
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4">
               <div className="grid gap-3">
-                <Label htmlFor="email">{t("auth.email")}</Label>
+                <Label htmlFor="email">{t("email")}</Label>
                 <Input
                   id="email"
-                  placeholder={t("auth.emailPlaceholder")}
+                  placeholder={t("emailPlaceholder")}
                   type="email"
                   autoCapitalize="none"
                   autoComplete="email"
@@ -97,7 +97,7 @@ function Login() {
               </div>
               <div className="grid gap-3">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">{t("auth.password")}</Label>
+                  <Label htmlFor="password">{t("password")}</Label>
                 </div>
                 <Input
                   id="password"
@@ -112,12 +112,12 @@ function Login() {
                     href="/reset-password"
                     className="text-xs font-light text-redColor underline-offset-4 hover:underline"
                   >
-                    {t("auth.forgotPassword")}
+                    {t("forgotPassword")}
                   </Link>
                 </div>
               </div>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? t("auth.signingIn") : t("auth.signIn")}
+                {isLoading ? t("signingIn") : t("signIn")}
               </Button>
             </div>
           </form>
@@ -127,7 +127,7 @@ function Login() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                {t("auth.orContinueWith")}
+                {t("orContinueWith")}
               </span>
             </div>
           </div>
@@ -144,12 +144,12 @@ function Login() {
           </div>
         </div>
         <p className="px-8 text-center text-sm text-muted-foreground">
-          <span>{t("auth.noAccount") + " "}</span>
+          <span>{t("noAccount") + " "}</span>
           <Link
             href="/signup"
             className="underline underline-offset-4 text-orangeColor hover:text-black"
           >
-            {t("auth.signUp")}
+            {t("signUp")}
           </Link>
         </p>
       </div>

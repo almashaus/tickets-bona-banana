@@ -3,14 +3,15 @@
 import React, { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/src/components/ui/button";
-import { useLanguage } from "@/src/components/i18n/language-provider";
 import { Card } from "@/src/components/ui/card";
 import Loading from "@/src/components/ui/loading";
+import { useTranslations } from "next-intl";
 
 function CheckoutError() {
   const search = useSearchParams();
   const paymentId = search?.get("paymentId");
-  const { t } = useLanguage();
+  const t = useTranslations("Checkout");
+  const tHome = useTranslations("Home");
 
   const [status, setStatus] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -39,7 +40,7 @@ function CheckoutError() {
   if (!paymentId)
     return (
       <div className="container py-10 text-center">
-        No payment id found in URL.
+        No payment id found in URL
       </div>
     );
 
@@ -50,11 +51,9 @@ function CheckoutError() {
           <div className="flex flex-col justify-center items-center text-center py-12 space-y-4">
             <Loading />
 
-            <p className="text-2xl font-medium">
-              {t("checkout.checkingPaymentStatus")}
-            </p>
+            <p className="text-2xl font-medium">{t("checkingPaymentStatus")}</p>
             <p className="text-sm text-muted-foreground pb-6">
-              {t("checkout.keepTapOpen")}
+              {t("keepTapOpen")}
             </p>
           </div>
         ) : (
@@ -64,17 +63,15 @@ function CheckoutError() {
               alt="Payment Error"
               width={80}
             />
-            <div>
-              <p className="text-2xl font-medium">
-                {t("checkout.paymentFailed")}
-              </p>
+            <div className="space-y-3">
+              <p className="text-2xl font-medium">{t("paymentFailed")}</p>
 
               <p className="text-muted-foreground">
-                {t("checkout.pleaseCheckPaymentAndTryAgain")}
+                {t("pleaseCheckPaymentAndTryAgain")}
               </p>
             </div>
             <Button className="mt-24" asChild>
-              <a href="/">{t("home.backToHome")}</a>
+              <a href="/">{tHome("backToHome")}</a>
             </Button>
           </div>
         )}

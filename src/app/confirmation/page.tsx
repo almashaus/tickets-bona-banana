@@ -11,7 +11,6 @@ import { generateQRCode } from "@/src/lib/utils/utils";
 import { formatDate } from "@/src/lib/utils/formatDate";
 import { Event } from "@/src/models/event";
 import useSWR from "swr";
-import { useLanguage } from "@/src/components/i18n/language-provider";
 import { Order } from "@/src/models/order";
 import Loading from "@/src/components/ui/loading";
 import html2canvas from "html2canvas";
@@ -19,6 +18,7 @@ import jsPDF from "jspdf";
 import { Ticket } from "@/src/models/ticket";
 import Image from "next/image";
 import { price } from "@/src/lib/utils/locales";
+import { useLocale, useTranslations } from "next-intl";
 
 function Confirmation() {
   const [event, setEvent] = useState<Event | null>(null);
@@ -27,7 +27,10 @@ function Confirmation() {
   const [quantity, setQuantity] = useState<number>(1);
 
   const router = useRouter();
-  const { t, language } = useLanguage();
+  const t = useTranslations("Confirm");
+  const tEvent = useTranslations("Event");
+  const tCheckout = useTranslations("Checkout");
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const orderNumber = searchParams?.get("orderNumber");
   const cardRef = useRef<HTMLDivElement>(null);
@@ -100,7 +103,7 @@ function Confirmation() {
         <h1 className="text-2xl font-bold mb-4">
           Invalid confirmation information
         </h1>
-        <p className="mb-6">We couldn't find the details for your order.</p>
+        <p className="mb-6">We couldn't find the details for your order</p>
         <Button asChild>
           <Link href="/events">Browse Events</Link>
         </Button>
@@ -128,8 +131,8 @@ function Confirmation() {
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 text-green-600 mb-4">
             <CheckCircle className="h-10 w-10" />
           </div>
-          <h1 className="text-3xl font-bold">{t("confirm.confirm")}</h1>
-          <p className="text-muted-foreground mt-2">{t("confirm.purchase")}</p>
+          <h1 className="text-3xl font-bold">{t("confirm")}</h1>
+          <p className="text-muted-foreground mt-2">{t("purchase")}</p>
         </div>
 
         <Card className="mb-6" ref={cardRef}>
@@ -138,17 +141,17 @@ function Confirmation() {
               <div>
                 <div className="text-xl font-semibold">{event.title}</div>
                 <div className="flex items-center text-sm text-muted-foreground mt-1">
-                  <CalendarDays className="mr-1 h-4 w-4" />
-                  {formatDate(date, language)}
+                  <CalendarDays className="me-1 h-4 w-4" />
+                  {formatDate(date, locale)}
                 </div>
                 <div className="flex items-center text-sm text-muted-foreground mt-1">
-                  <MapPin className="mr-1 h-4 w-4" />
+                  <MapPin className="me-1 h-4 w-4" />
                   {event.city.en}
                 </div>
               </div>
               <div className="text-right items-end">
                 <div className="text-sm text-muted-foreground">
-                  {t("confirm.orderNumber")}
+                  {t("orderNumber")}
                 </div>
                 <div className="font-medium">{orderNumber}</div>
               </div>
@@ -188,17 +191,17 @@ function Confirmation() {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">
-                  {t("event.tickets").charAt(0).toUpperCase() +
-                    t("event.tickets").slice(1)}
+                  {tEvent("tickets").charAt(0).toUpperCase() +
+                    tEvent("tickets").slice(1)}
                 </span>
                 <span>
-                  {quantity} × {price(event.price, language)}
+                  {quantity} × {price(event.price, locale)}
                 </span>
               </div>
               {/* TODO: VAT*/}
               {/* <div className="flex justify-between">
                 <span className="text-muted-foreground">
-                  {t("checkout.subtotal")}
+                  {tCheckout("subtotal")}
                 </span>
                 <span>
                   <span className="icon-saudi_riyal" />
@@ -207,7 +210,7 @@ function Confirmation() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">
-                  {t("checkout.tax")}
+                  {tCheckout("tax")}
                 </span>
                 <span>
                   <span className="icon-saudi_riyal" />
@@ -217,12 +220,12 @@ function Confirmation() {
               <Separator className="my-2" /> */}
               <div className="flex justify-between font-bold">
                 <span>
-                  {t("event.total")}{" "}
+                  {tEvent("total")}{" "}
                   {/* <span className="text-xs font-light text-muted-foreground">
-                    *{t("checkout.VAT")}
+                    *{tCheckout("VAT")}
                   </span> */}
                 </span>
-                <span>{price(total, language)}</span>
+                <span>{price(total, locale)}</span>
               </div>
             </div>
           </CardContent>
@@ -234,11 +237,10 @@ function Confirmation() {
             onClick={handleDownloadPDF}
           >
             <Download className="h-4 w-4" />
-            {t("confirm.download")}{" "}
-            {quantity > 1 ? t("confirm.tickets") : t("confirm.ticket")}
+            {t("download")} {quantity > 1 ? t("tickets") : t("ticket")}
           </Button>
           <Button variant="outline" asChild>
-            <Link href="/profile?tab=tickets">{t("confirm.myTickets")}</Link>
+            <Link href="/profile?tab=tickets">{t("myTickets")}</Link>
           </Button>
         </div>
       </div>

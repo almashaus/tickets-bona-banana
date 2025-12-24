@@ -38,7 +38,7 @@ const EmblaCarousel: React.FC<PropType> = (props) => {
             <div className="embla__slide" key={index}>
               <div className="embla__slide__number">
                 <img
-                  src="/images/slider-1.png"
+                  src="/no-image.svg"
                   alt="slider"
                   className="rounded-2xl"
                   onClick={() => handleImageClick(index)}

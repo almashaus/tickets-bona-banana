@@ -43,15 +43,18 @@ import Loading from "@/src/components/ui/loading";
 import { useCheckoutStore } from "@/src/lib/stores/useCheckoutStore";
 import useSWR from "swr";
 import { isSafeImageUrl } from "@/src/lib/utils/utils";
-import { useLanguage } from "@/src/components/i18n/language-provider";
 import { Skeleton } from "@/src/components/ui/skeleton";
 import { price } from "@/src/lib/utils/locales";
+import { useLocale, useTranslations } from "next-intl";
 
 export default function EventPage() {
   const { user } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const { t, language } = useLanguage();
+  const tEvent = useTranslations("Event");
+  const tPage = useTranslations("Page");
+  const tHome = useTranslations("Home");
+  const locale = useLocale();
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
   const [event, setEvent] = useState<Event | null>(null);
@@ -66,7 +69,7 @@ export default function EventPage() {
     const eventData: Event = data as Event;
     if (eventData && eventData.dates && eventData.dates.length > 0) {
       setEvent(eventData);
-      setSelectedDate(eventDateTimeString(eventData.dates[0], language));
+      setSelectedDate(eventDateTimeString(eventData.dates[0], locale));
     }
   }, [data]);
 
@@ -100,14 +103,14 @@ export default function EventPage() {
     return (
       <div className="container py-10 text-center">
         <h1 className="text-2xl font-bold mb-4">
-          {t("page.eventNotFound") || "Event not found"}
+          {tPage("eventNotFound") || "Event not found"}
         </h1>
         <p className="mb-6">
-          {t("page.eventNotFoundDescription") ||
+          {tPage("eventNotFoundDescription") ||
             "The event you're looking for doesn't exist or has been removed."}
         </p>
         <Button asChild>
-          <Link href="/">{t("home.allEvents")}</Link>
+          <Link href="/">{tHome("allEvents")}</Link>
         </Button>
       </div>
     );
@@ -161,7 +164,7 @@ export default function EventPage() {
         <div className="md:col-span-1 lg:col-span-2 lg:me-6">
           <div className="flex justify-start gap-4">
             <Button variant="outline" size="icon" onClick={() => router.back()}>
-              {language === "en" ? (
+              {locale === "en" ? (
                 <ArrowLeft className="h-4 w-4" />
               ) : (
                 <ArrowRight className="h-4 w-4" />
@@ -187,7 +190,7 @@ export default function EventPage() {
             />
           </div>
           <div className="space-y-4">
-            <h2 className="text-xl font-bold">{t("event.details")}</h2>
+            <h2 className="text-xl font-bold">{tEvent("details")}</h2>
             <p className="text-muted-foreground whitespace-pre-line">
               {event.description}
             </p>
@@ -212,64 +215,64 @@ export default function EventPage() {
               <div className="flex items-center gap-2">
                 <CalendarDays className="h-5 w-5 text-redColor" />
                 <div>
-                  <p className="text-sm font-medium">{t("event.date")}</p>
+                  <p className="text-sm font-medium">{tEvent("date")}</p>
                   <p className="text-sm text-muted-foreground">
                     {selectedDate
                       ? `${selectedDate.split("-")[1]}`
                       : event.dates && event.dates.length > 0
                         ? event.dates.length > 1
-                          ? `${formatDate(event.dates[0].date, language)} - ${formatDate(
+                          ? `${formatDate(event.dates[0].date, locale)} - ${formatDate(
                               event.dates[event.dates.length - 1].date,
-                              language
+                              locale
                             )}`
-                          : `${formatDate(event.dates[0].date, language)}`
-                        : t("event.noDatesAvailable") || "No dates available"}
+                          : `${formatDate(event.dates[0].date, locale)}`
+                        : tEvent("noDatesAvailable") || "No dates available"}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <ClockIcon className="h-5 w-5 text-redColor" />
                 <div>
-                  <p className="text-sm font-medium">{t("event.time")}</p>
+                  <p className="text-sm font-medium">{tEvent("time")}</p>
                   <p className="text-sm text-muted-foreground">
                     {selectedDate
                       ? `${selectedDate.split("-")[2]} - ${
                           selectedDate.split("-")[3]
                         }`
                       : event.dates && event.dates.length > 0
-                        ? `${formatTime(event.dates[0].startTime, language)} - ${formatTime(
+                        ? `${formatTime(event.dates[0].startTime, locale)} - ${formatTime(
                             event.dates[0].endTime,
-                            language
+                            locale
                           )}`
-                        : t("event.noTimesAvailable") || "No times available"}
+                        : tEvent("noTimesAvailable") || "No times available"}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Users className="h-5 w-5 text-redColor" />
                 <div>
-                  <p className="text-sm font-medium">{t("event.capacity")}</p>
+                  <p className="text-sm font-medium">{tEvent("capacity")}</p>
                   <p className="text-sm text-muted-foreground">
                     {selectedDate
                       ? selectedDate.split("-")[4]
                       : event.dates[0].capacity}{" "}
-                    {t("event.attendees") || "attendees"}
+                    {tEvent("attendees") || "attendees"}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="h-5 w-5 text-redColor" />
                 <div>
-                  <p className="text-sm font-medium">{t("event.city")}</p>
+                  <p className="text-sm font-medium">{tEvent("city")}</p>
                   <p className="text-sm text-muted-foreground">
-                    {language === "en" ? event.city.en : event.city.ar}
+                    {locale === "en" ? event.city.en : event.city.ar}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Building className="h-5 w-5 text-redColor" />
                 <div>
-                  <p className="text-sm font-medium">{t("event.venue")}</p>
+                  <p className="text-sm font-medium">{tEvent("venue")}</p>
                   <p className="text-sm text-muted-foreground">{event.venue}</p>
                 </div>
               </div>
@@ -282,7 +285,7 @@ export default function EventPage() {
                         alt="Instagram"
                         className="w-5 h-5 me-2"
                       />
-                      {t("event.location")}
+                      {tEvent("location")}
                     </Link>
                   </Button>
                 </div>
@@ -295,13 +298,13 @@ export default function EventPage() {
         <div className="flex flex-col md:col-span-1">
           <Card>
             <CardHeader>
-              <CardTitle>{t("event.ticketInformation")}</CardTitle>
-              <CardDescription>{t("event.selectDateQuantity")}</CardDescription>
+              <CardTitle>{tEvent("ticketInformation")}</CardTitle>
+              <CardDescription>{tEvent("selectDateQuantity")}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  {t("event.date")}
+                  {tEvent("date")}
                 </label>
                 <Select
                   value={selectedDate}
@@ -311,18 +314,18 @@ export default function EventPage() {
                 >
                   <SelectTrigger>
                     <SelectValue
-                      placeholder={t("event.selectDate") || "Select date"}
+                      placeholder={tEvent("selectDate") || "Select date"}
                     />
                   </SelectTrigger>
                   <SelectContent>
                     {event.dates?.map((date) => (
                       <SelectItem
                         key={date.id}
-                        value={eventDateTimeString(date, language)}
+                        value={eventDateTimeString(date, locale)}
                       >
-                        {formatDate(date.date, language)} |{" "}
-                        {formatTime(date.startTime, language)} -{" "}
-                        {formatTime(date.endTime, language)}
+                        {formatDate(date.date, locale)} |{" "}
+                        {formatTime(date.startTime, locale)} -{" "}
+                        {formatTime(date.endTime, locale)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -333,7 +336,7 @@ export default function EventPage() {
                 <div className="space-y-3">
                   <div className="space-y-2">
                     <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                      {t("event.quantity")}
+                      {tEvent("quantity")}
                     </label>
                     <Select
                       defaultValue="1"
@@ -344,7 +347,7 @@ export default function EventPage() {
                       <SelectTrigger>
                         <SelectValue
                           placeholder={
-                            t("event.selectQuantity") || "Select quantity"
+                            tEvent("selectQuantity") || "Select quantity"
                           }
                         />
                       </SelectTrigger>
@@ -362,7 +365,7 @@ export default function EventPage() {
                         ).map((num) => (
                           <SelectItem key={num} value={num.toString()}>
                             {num}{" "}
-                            {num === 1 ? t("event.ticket") : t("event.tickets")}
+                            {num === 1 ? tEvent("ticket") : tEvent("tickets")}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -373,17 +376,17 @@ export default function EventPage() {
                     <div className="flex items-center gap-2">
                       <Ticket className="h-5 w-5 text-redColor" />
                       <span className="text-muted-foreground">
-                        {t("event.PricePerTicket:")}
+                        {tEvent("PricePerTicket:")}
                       </span>
                     </div>
                     <span className="font-bold">
-                      {price(event.price, language)}
+                      {price(event.price, locale)}
                     </span>
                   </div>
                   <Separator />
                   <div className="flex items-center justify-between font-bold">
-                    <span>{t("event.total")}</span>
-                    <span>{price(event.price * quantity, language)}</span>
+                    <span>{tEvent("total")}</span>
+                    <span>{price(event.price * quantity, locale)}</span>
                   </div>
                   <div className="pt-3">
                     <Button
@@ -393,15 +396,15 @@ export default function EventPage() {
                       disabled={event.status === EventStatus.COMPLETED}
                     >
                       {event.status === EventStatus.COMPLETED
-                        ? t("event.completed")
-                        : t("event.buyTicket")}
+                        ? tEvent("completed")
+                        : tEvent("buyTicket")}
                     </Button>
                   </div>
                 </div>
               ) : (
                 <div className="flex justify-center items-center py-3 rounded-md bg-neutral-300 text-neutral-600">
                   <InfoIcon className="w-5 h-5 me-2" />
-                  {t("event.noTicketsAvailable")}
+                  {tEvent("noTicketsAvailable")}
                 </div>
               )}
             </CardContent>

@@ -1,126 +1,60 @@
-"use client";
-
-import React from "react";
+import React, { Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/src/components/ui/button";
 import { Event } from "@/src/models/event";
-import { CalendarDays, ClockIcon, InfoIcon } from "lucide-react";
+import { CalendarDays, ClockIcon, TriangleAlert } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/src/components/ui/card";
 import { formatDate, formatTime } from "@/src/lib/utils/formatDate";
-import useSWR from "swr";
-import { useLanguage } from "@/src/components/i18n/language-provider";
+import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { price } from "../lib/utils/locales";
-import { EmblaOptionsType } from "embla-carousel";
 import { AnimatedImages } from "./(components)/animatedImages";
 import { Hero } from "./(components)/animatedHero";
-import { Skeleton } from "../components/ui/skeleton";
+import LoadingEvents from "./(components)/loadingEvents";
 
 export default function Home() {
-  const { t, language } = useLanguage();
-
-  const fetcher = (url: string) =>
-    fetch(url, { cache: "no-store" }).then((res) => res.json());
-
-  const { data, error, isLoading } = useSWR<Event[]>(
-    "/api/published-events",
-    fetcher,
-    {
-      revalidateOnFocus: true,
-      revalidateIfStale: true,
-      refreshInterval: 30000,
-    }
-  );
-
-  const OPTIONS: EmblaOptionsType = { loop: true };
-  const SLIDE_COUNT = 5;
-  const SLIDES = Array.from(Array(SLIDE_COUNT).keys());
+  const t = useTranslations("Home");
+  const locale = useLocale();
 
   return (
     <div className="flex flex-col min-h-screen w-screen">
-      <div className="w-full pt-10">
-        <div className="mb-8">
-          {/* <EmblaCarousel slides={SLIDES} options={OPTIONS} /> */}
+      <div className="w-full pt-10 space-y-8">
+        <div>
           <Hero />
         </div>
 
-        <div>
-          <div className="flex justify-center items-start">
-            <img
-              src="/images/circles.svg"
-              alt="background image"
-              className="w-64 md:w-80"
-            />
-          </div>
+        <div className="flex flex-col justify-center items-center">
+          <Image
+            src="/images/circles.svg"
+            alt="background image"
+            width={0}
+            height={0}
+            className="w-48 sm:w-60 md:w-72 lg:w-80 h-auto mt-8 object-contain"
+          />
 
-          <div className="bg-[#f3f0e5] p-8 w-full">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
-                  ✨ {t("home.title")} ✨
-                </h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                  {t("home.subtitle")}
-                </p>
-              </div>
+          <div className="bg-lightBeigeColor w-full p-8">
+            <div className="flex flex-col items-center justify-center text-center space-y-3">
+              <h2 className="text-3xl font-bold tracking-tighter md:text-4xl/tight">
+                ✨ {t("title")} ✨
+              </h2>
+              <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                {t("subtitle")}
+              </p>
             </div>
 
-            {data && data?.length > 0 && (
-              <div>
-                <div className="flex justify-center">
-                  <EventsList allEvents={data} language={language} />
-                </div>
-                <div className="flex justify-center ">
-                  <Button asChild>
-                    <Link href="/"> {t("home.allEvents")}</Link>
-                  </Button>
-                </div>
-              </div>
-            )}
+            <div className="flex flex-col justify-center items-center">
+              <Suspense fallback={<LoadingEvents />}>
+                <EventsList language={locale} />
+              </Suspense>
 
-            {isLoading && (
-              <div className="flex flex-row justify-center items-center space-x-4 mt-4">
-                {Array.from([1, 2, 3]).map((data, index) => (
-                  <div
-                    className="bg-stone-300 w-80 space-y-3 m-3 p-3 rounded-lg"
-                    key={index}
-                  >
-                    <Skeleton className="h-56 rounded-lg" />
-                    <Skeleton className="h-24 rounded-lg" />
-                    <div className="grid grid-cols-2 gap-3 justify-between items-center ">
-                      <Skeleton className="h-14 rounded-lg" />
-                      <Skeleton className="h-14 rounded-lg" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {!error && data?.length == 0 && (
-              <div className="flex flex-col justify-center items-center py-12">
-                <img
-                  src="/no-data.png"
-                  alt="no data"
-                  className="h-1/2 w-1/2 md:h-1/6 md:w-1/6"
-                />
-                <p className="text-muted-foreground text-center">
-                  {t("home.noEvents")}
-                </p>
-              </div>
-            )}
-
-            {error && (
-              <div className="flex flex-col justify-center items-center space-y-3 py-12">
-                <InfoIcon className="h-8 w-8 text-muted-foreground" />
-                <p className="text-muted-foreground text-center">
-                  {t("home.error")}
-                </p>
-              </div>
-            )}
+              <Button asChild>
+                <Link href="/"> {t("allEvents")}</Link>
+              </Button>
+            </div>
           </div>
         </div>
 
-        <div className="mb-8">
+        <div>
           <AnimatedImages />
         </div>
       </div>
@@ -128,13 +62,24 @@ export default function Home() {
   );
 }
 
-function EventsList({
-  allEvents,
-  language,
-}: {
-  allEvents: Event[];
-  language: string;
-}) {
+async function EventsList({ language }: { language: string }) {
+  const res = await fetch(
+    "https://tickets.bona-banana.com/api/published-events"
+  );
+
+  if (!res.ok) {
+    return (
+      <div>
+        <div className="flex flex-col justify-center items-center space-y-3 py-12">
+          <TriangleAlert className="h-8 w-8 text-muted-foreground" />
+          <p className="text-muted-foreground text-center">{"home.error"}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const allEvents = (await res.json()) as Event[];
+
   return (
     <div className="grid max-w-5xl justify-center items-center gap-6 mx-6 lg:mx-auto py-12 sm:grid-cols-2 lg:grid-cols-3">
       {allEvents.map((event) => (
@@ -153,12 +98,9 @@ function EventsList({
                   objectFit: "cover",
                   borderRadius: "0.5rem",
                 }}
-                onError={(e) => {
-                  e.currentTarget.src = "/no-image.svg";
-                }}
               />
             </div>
-            <CardContent className="p-4 bg-lightColor mx-3 rounded-md">
+            <CardContent className="p-4 bg-beigeColor mx-3 rounded-md">
               <h3 className="line-clamp-1 text-lg font-bold">{event.title}</h3>
               <div className="mt-2 flex items-center text-sm text-muted-foreground">
                 <CalendarDays className="me-1 h-4 w-4 text-redColor" />

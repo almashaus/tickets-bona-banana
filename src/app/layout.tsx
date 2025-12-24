@@ -8,11 +8,13 @@ import Header from "@/src/components/layout/header";
 import Footer from "@/src/components/layout/footer";
 import { Toaster } from "@/src/components/ui/toaster";
 import { AuthProvider } from "@/src/features/auth/auth-provider";
-import { LanguageProvider } from "@/src/components/i18n/language-provider";
 import { MySWRProvider } from "@/src/features/context/swr-provider";
 import { DINNextLT } from "../styles/fonts";
 import { getServerSession } from "../features/auth/auth-server";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import { ThemeProvider } from "../components/theme/theme-provider";
+import { headers } from "next/headers";
 
 export const metadata: Metadata = {
   title: "Bona Banana",
@@ -39,9 +41,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getServerSession();
+  const locale = await getLocale();
+  const messages = await getMessages();
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"}>
       <head>
         <link rel="stylesheet" href="/css/riyal.css" />
       </head>
@@ -49,7 +53,7 @@ export default async function RootLayout({
         {/* <ThemeProvider attribute="class" defaultTheme="light"> */}
         <AuthProvider>
           <MySWRProvider>
-            <LanguageProvider>
+            <NextIntlClientProvider messages={messages}>
               <Analytics />
               <SpeedInsights />
               <div className="flex flex-col min-h-screen w-screen">
@@ -58,7 +62,7 @@ export default async function RootLayout({
                 <Footer />
               </div>
               <Toaster />
-            </LanguageProvider>
+            </NextIntlClientProvider>
           </MySWRProvider>
         </AuthProvider>
         {/* </ThemeProvider> */}

@@ -27,7 +27,8 @@ module.exports = {
         orangeColor: "#f49b32",
         yellowColor: "#f0bf3f",
         greenColor: "#213421",
-        lightColor: "#f3e8cc",
+        beigeColor: "#f3e8cc",
+        lightBeigeColor: "#f3f0e5",
         darkColor: "#191919",
         primary: {
           DEFAULT: "hsl(var(--primary))",

@@ -8,29 +8,47 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
-import { useLanguage } from "./language-provider";
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { setLocale } from "@/src/i18n/set-locale";
+import { useLocale } from "next-intl";
 
 export function LanguageToggle() {
-  const { language, setLanguage, t } = useLanguage();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const locale = useLocale();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
           <Globe className="h-[1.2rem] w-[1.2rem] text-black" />
-          <span className="sr-only">
-            {t("toggle.language") || "Toggle language"}
-          </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem onClick={() => setLanguage("en")}>
-          <span>🇬🇧 {t("language.english") || "English"}</span>
-          {language === "en" && <Check className="ml-2 h-4 w-4" />}
+        <DropdownMenuItem
+          disabled={isPending}
+          onClick={() =>
+            startTransition(async () => {
+              await setLocale("en");
+              router.refresh();
+            })
+          }
+        >
+          <span>🇬🇧 {"English"}</span>
+          {locale === "en" && <Check className="ml-2 h-4 w-4" />}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setLanguage("ar")}>
-          <span>🇸🇦 {t("language.arabic") || "عربي"}</span>
-          {language === "ar" && <Check className="ml-2 h-4 w-4" />}
+        <DropdownMenuItem
+          disabled={isPending}
+          onClick={() =>
+            startTransition(async () => {
+              await setLocale("ar");
+              router.refresh();
+            })
+          }
+        >
+          <span>🇸🇦 {"عربي"}</span>
+          {locale === "ar" && <Check className="ml-2 h-4 w-4" />}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

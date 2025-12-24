@@ -10,7 +10,7 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { useToast } from "@/src/components/ui/use-toast";
 import { useAuth } from "@/src/features/auth/auth-provider";
-import { useLanguage } from "@/src/components/i18n/language-provider";
+import { useLocale, useTranslations } from "next-intl";
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState("");
@@ -19,7 +19,8 @@ export default function ResetPasswordPage() {
   const { toast } = useToast();
   const { resetPassword } = useAuth();
   const router = useRouter();
-  const { t, language } = useLanguage();
+  const t = useTranslations("Auth");
+  const locale = useLocale();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,14 +31,14 @@ export default function ResetPasswordPage() {
 
       setIsEmailSent(true);
       toast({
-        title: t("auth.resetEmailSent"),
-        description: t("auth.checkEmailForReset"),
+        title: t("resetEmailSent"),
+        description: t("checkEmailForReset"),
         variant: "success",
       });
     } catch (error) {
       toast({
-        title: t("auth.error"),
-        description: t("auth.resetEmailFailed"),
+        title: t("error"),
+        description: t("resetEmailFailed"),
         variant: "destructive",
       });
     } finally {
@@ -56,19 +57,19 @@ export default function ResetPasswordPage() {
               </div>
             </div>
             <h1 className="text-2xl font-semibold tracking-tight">
-              {t("auth.checkYourEmail")}
+              {t("checkYourEmail")}
             </h1>
             <p className="text-sm text-muted-foreground">
-              {t("auth.sentPasswordResetLink")} <strong>{email}</strong>
+              {t("sentPasswordResetLink")} <strong>{email}</strong>
             </p>
           </div>
           <div className="grid gap-4">
             <p className="text-sm text-muted-foreground text-center">
-              {t("auth.didntReceiveEmail")}
+              {t("didntReceiveEmail")}
             </p>
 
             <Button asChild>
-              <Link href="/login">{t("auth.backToLogin")}</Link>
+              <Link href="/login">{t("backToLogin")}</Link>
             </Button>
           </div>
         </div>
@@ -81,20 +82,20 @@ export default function ResetPasswordPage() {
       <div className="mx-auto my-10 flex w-full flex-col justify-center space-y-6 sm:w-[350px] rounded-lg border p-6 shadow-sm bg-white">
         <div className="flex flex-col space-y-2 text-center">
           <h1 className="text-2xl font-semibold tracking-tight">
-            {t("auth.resetYourPassword")}
+            {t("resetYourPassword")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {t("auth.enterEmailToReset")}
+            {t("enterEmailToReset")}
           </p>
         </div>
         <div className="grid gap-6">
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4">
               <div className="grid gap-3">
-                <Label htmlFor="email">{t("auth.email")}</Label>
+                <Label htmlFor="email">{t("email")}</Label>
                 <Input
                   id="email"
-                  placeholder={t("auth.emailPlaceholder")}
+                  placeholder={t("emailPlaceholder")}
                   type="email"
                   autoCapitalize="none"
                   autoComplete="email"
@@ -106,7 +107,7 @@ export default function ResetPasswordPage() {
                 />
               </div>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? t("auth.sending") : t("auth.sendResetLink")}
+                {isLoading ? t("sending") : t("sendResetLink")}
               </Button>
             </div>
           </form>
@@ -116,9 +117,9 @@ export default function ResetPasswordPage() {
             href="/login"
             className="underline underline-offset-4 hover:text-greenColor"
           >
-            {language === "en" ? <span> ← </span> : <span> → </span>}
+            {locale === "en" ? <span> ← </span> : <span> → </span>}
 
-            {t("auth.backToLogin")}
+            {t("backToLogin")}
           </Link>
         </p>
       </div>

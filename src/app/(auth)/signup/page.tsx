@@ -9,7 +9,7 @@ import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { useToast } from "@/src/components/ui/use-toast";
 import { useAuth } from "@/src/features/auth/auth-provider";
-import { useLanguage } from "@/src/components/i18n/language-provider";
+import { useLocale, useTranslations } from "next-intl";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -20,15 +20,16 @@ export default function RegisterPage() {
   const { register, signInWithGoogle } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
-  const { t } = useLanguage();
+  const t = useTranslations("Auth");
+  const locale = useLocale();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
       toast({
-        title: t("auth.passwordsDoNotMatch"),
-        description: t("auth.passwordsDoNotMatchDesc"),
+        title: t("passwordsDoNotMatch"),
+        description: t("passwordsDoNotMatchDesc"),
         variant: "destructive",
       });
       return;
@@ -39,15 +40,15 @@ export default function RegisterPage() {
     try {
       await register(name, email, password);
       toast({
-        title: t("auth.registrationSuccess"),
-        description: t("auth.registrationSuccessDesc"),
+        title: t("registrationSuccess"),
+        description: t("registrationSuccessDesc"),
         variant: "success",
       });
       router.push("/");
     } catch (error) {
       toast({
-        title: t("auth.registrationFailed"),
-        description: t("auth.registrationFailedDesc"),
+        title: t("registrationFailed"),
+        description: t("registrationFailedDesc"),
         variant: "destructive",
       });
     } finally {
@@ -60,15 +61,15 @@ export default function RegisterPage() {
     try {
       await signInWithGoogle();
       toast({
-        title: t("auth.loginSuccess"),
-        description: t("auth.loginGoogleSuccessDesc"),
+        title: t("loginSuccess"),
+        description: t("loginGoogleSuccessDesc"),
         variant: "success",
       });
       router.push("/");
     } catch (error) {
       toast({
-        title: t("auth.googleSignInFailed"),
-        description: t("auth.googleSignInFailedDesc"),
+        title: t("googleSignInFailed"),
+        description: t("googleSignInFailedDesc"),
         variant: "destructive",
       });
     } finally {
@@ -81,20 +82,20 @@ export default function RegisterPage() {
       <div className="mx-auto my-10 flex w-full flex-col justify-center space-y-6 sm:w-[350px] rounded-lg border p-6 shadow-sm bg-white">
         <div className="flex flex-col space-y-2 text-center">
           <h1 className="text-2xl font-semibold tracking-tight">
-            {t("auth.createAccount")}
+            {t("createAccount")}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {t("auth.enterInfoToCreateAccount")}
+            {t("enterInfoToCreateAccount")}
           </p>
         </div>
         <div className="grid gap-6">
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4">
               <div className="grid gap-3">
-                <Label htmlFor="name">{t("auth.name")}</Label>
+                <Label htmlFor="name">{t("name")}</Label>
                 <Input
                   id="name"
-                  placeholder={t("auth.namePlaceholder")}
+                  placeholder={t("namePlaceholder")}
                   type="text"
                   autoCapitalize="none"
                   autoCorrect="off"
@@ -104,10 +105,10 @@ export default function RegisterPage() {
                 />
               </div>
               <div className="grid gap-3">
-                <Label htmlFor="email">{t("auth.email")}</Label>
+                <Label htmlFor="email">{t("email")}</Label>
                 <Input
                   id="email"
-                  placeholder={t("auth.emailPlaceholder")}
+                  placeholder={t("emailPlaceholder")}
                   type="email"
                   autoCapitalize="none"
                   autoComplete="email"
@@ -119,7 +120,7 @@ export default function RegisterPage() {
                 />
               </div>
               <div className="grid gap-3">
-                <Label htmlFor="password">{t("auth.password")}</Label>
+                <Label htmlFor="password">{t("password")}</Label>
                 <Input
                   id="password"
                   type="password"
@@ -130,9 +131,7 @@ export default function RegisterPage() {
                 />
               </div>
               <div className="grid gap-3">
-                <Label htmlFor="confirm-password">
-                  {t("auth.confirmPassword")}
-                </Label>
+                <Label htmlFor="confirm-password">{t("confirmPassword")}</Label>
                 <Input
                   id="confirm-password"
                   type="password"
@@ -143,9 +142,7 @@ export default function RegisterPage() {
                 />
               </div>
               <Button type="submit" disabled={isLoading}>
-                {isLoading
-                  ? t("auth.creatingAccount")
-                  : t("auth.createAccount")}
+                {isLoading ? t("creatingAccount") : t("createAccount")}
               </Button>
             </div>
           </form>
@@ -155,7 +152,7 @@ export default function RegisterPage() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                {t("auth.orContinueWith")}
+                {t("orContinueWith")}
               </span>
             </div>
           </div>
@@ -172,12 +169,12 @@ export default function RegisterPage() {
           </div>
         </div>
         <p className="px-8 text-center text-sm text-muted-foreground">
-          <span>{t("auth.alreadyHaveAccount") + " "}</span>
+          <span>{t("alreadyHaveAccount") + " "}</span>
           <Link
             href="/login"
             className="underline underline-offset-4 text-orangeColor hover:text-black"
           >
-            {t("auth.signIn")}
+            {t("signIn")}
           </Link>
         </p>
       </div>

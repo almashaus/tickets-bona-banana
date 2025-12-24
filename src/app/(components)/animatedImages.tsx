@@ -1,10 +1,12 @@
+"use client";
+
 import {
   BentoCell,
   BentoGrid,
   ContainerScroll,
   ContainerScale,
 } from "@/src/components/blocks/gridScrollAnimation";
-import { useLanguage } from "@/src/components/i18n/language-provider";
+import { useLocale, useTranslations } from "next-intl";
 
 const IMAGES = [
   "/images/20.jpeg",
@@ -14,9 +16,11 @@ const IMAGES = [
   "/images/50.jpeg",
 ];
 const AnimatedImages = () => {
-  const { t, language } = useLanguage();
+  const t = useTranslations("Home");
+  const locale = useLocale();
+
   return (
-    <ContainerScroll className="md:container h-[250vh] px-6 lg:px-24 xl:px-48">
+    <ContainerScroll className="md:container h-[250vh] px-6 lg:px-24 xl:px-48 mb-8">
       <BentoGrid className="sticky left-0 top-0 z-0 h-screen w-full p-1 pt-16">
         {IMAGES.map((imageUrl, index) => (
           <BentoCell
@@ -32,12 +36,12 @@ const AnimatedImages = () => {
         ))}
         <ContainerScale className="absolute top-1/4 md:top-1/2 left-1/2 z-0 text-center mt-12 md:mt-4 w-full md:w-fit">
           <h1 className="w-full text-5xl font-bold tracking-tighter">
-            {language === "ar" && t("home.gallary")}
+            {locale === "ar" && t("gallary")}
             <span className="text-yellowColor mx-3">Bona Banana</span>
-            {language === "en" && t("home.gallary")}
+            {locale === "en" && t("gallary")}
           </h1>
           <p className="my-6 text-lg md:text-xl text-stone-500">
-            {t("home.gallarySubtitle")}
+            {t("gallarySubtitle")}
           </p>
         </ContainerScale>
       </BentoGrid>

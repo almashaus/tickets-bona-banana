@@ -11,8 +11,7 @@ import {
   CreditCard,
   LockIcon,
   MapPin,
-  Receipt,
-  ReceiptText,
+  FileText,
   TicketIcon,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/button";
@@ -28,11 +27,10 @@ import { Ticket, TicketStatus } from "@/src/models/ticket";
 import { eventDateTimeString } from "@/src/lib/utils/formatDate";
 import Loading from "@/src/components/ui/loading";
 import { useCheckoutStore } from "@/src/lib/stores/useCheckoutStore";
-import { useLanguage } from "@/src/components/i18n/language-provider";
 import { mutate } from "swr";
 import { price } from "@/src/lib/utils/locales";
-import { RadioGroup, RadioGroupItem } from "@/src/components/ui/radio-group";
 import { paymentMethodsIds } from "@/src/data/appData";
+import { useLocale, useTranslations } from "next-intl";
 
 type PaymentMethod = {
   PaymentMethodId: number;
@@ -46,7 +44,9 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
-  const { t, language } = useLanguage();
+  const t = useTranslations("Checkout");
+  const tEvent = useTranslations("Event");
+  const locale = useLocale();
 
   const storedEvent = useCheckoutStore((state) => state.event);
   const dateId = useCheckoutStore((state) => state.eventDateId);
@@ -65,9 +65,7 @@ export default function CheckoutPage() {
       setEvent(eventData as Event);
 
       const sdate = eventData.dates.find((item) => item.id === dateId);
-      setSelectedDate(
-        eventDateTimeString(sdate ?? eventData.dates[0], language)
-      );
+      setSelectedDate(eventDateTimeString(sdate ?? eventData.dates[0], locale));
     }
   }, [storedEvent]);
 
@@ -208,10 +206,10 @@ export default function CheckoutPage() {
     return (
       <div className="container pt-20 text-center">
         <h1 className="text-2xl font-bold mb-4">
-          {t("checkout.invalidInfo") || "Invalid checkout information"}
+          {t("invalidInfo") || "Invalid checkout information"}
         </h1>
         <p className="mb-6">
-          {t("checkout.selectEventDate") ||
+          {t("selectEventDate") ||
             "Please select an event and date before proceeding to checkout."}
         </p>
         <Button asChild>
@@ -232,21 +230,21 @@ export default function CheckoutPage() {
     <div className="container py-10">
       <div className="flex justify-start gap-4 mb-5">
         <Button variant="outline" size="icon" onClick={() => router.back()}>
-          {language === "en" ? (
+          {locale === "en" ? (
             <ArrowLeft className="h-4 w-4" />
           ) : (
             <ArrowRight className="h-4 w-4" />
           )}
         </Button>
-        <h1 className="text-3xl font-bold">{t("checkout.checkout")}</h1>
+        <h1 className="text-3xl font-bold">{t("checkout")}</h1>
       </div>
       <div className="grid gap-10 lg:grid-cols-3">
         {/* Order Summary */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg border p-6 shadow-sm">
             <div className="flex items-end gap-1 text-xl font-semibold mb-4">
-              <ReceiptText />
-              {t("checkout.summary")}
+              <FileText />
+              {t("summary")}
             </div>
 
             <div className="flex items-start gap-4 mb-6">
@@ -274,7 +272,7 @@ export default function CheckoutPage() {
                 <div className="flex items-center text-sm mt-1">
                   <TicketIcon className="me-1 h-4 w-4 text-redColor" />
                   {quantity}{" "}
-                  {quantity === 1 ? t("event.ticket") : t("event.tickets")}
+                  {quantity === 1 ? tEvent("ticket") : tEvent("tickets")}
                 </div>
               </div>
             </div>
@@ -285,7 +283,7 @@ export default function CheckoutPage() {
               {/* TODO: VAT*/}
               {/* <div className="flex justify-between">
                 <span className="text-muted-foreground">
-                  {t("checkout.subtotal")}
+                  {t("subtotal")}
                 </span>
                 <span>
                   <span className="icon-saudi_riyal" />
@@ -294,7 +292,7 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">
-                  {t("checkout.tax")}
+                  {t("tax")}
                 </span>
                 <span>
                   <span className="icon-saudi_riyal" />
@@ -304,12 +302,12 @@ export default function CheckoutPage() {
               <Separator className="my-2" /> */}
               <div className="flex justify-between font-bold">
                 <span>
-                  {t("event.total")}{" "}
+                  {tEvent("total")}{" "}
                   {/* <span className="text-xs font-light text-muted-foreground">
-                    *{t("checkout.VAT")}
+                    *{t("VAT")}
                   </span> */}
                 </span>
-                <span>{price(total, language)}</span>
+                <span>{price(total, locale)}</span>
               </div>
             </div>
           </div>
@@ -323,7 +321,7 @@ export default function CheckoutPage() {
           >
             <div className="flex items-end gap-1 text-xl font-semibold mb-4">
               <CreditCard />
-              {t("checkout.paymentMethods")}
+              {t("paymentMethods")}
             </div>
 
             {isLoading && (
@@ -336,7 +334,7 @@ export default function CheckoutPage() {
               <>
                 <div className="grid gap-2">
                   {paymentMethods.length === 0 && (
-                    <div>{t("checkout.noPaymentMethods")}</div>
+                    <div>{t("noPaymentMethods")}</div>
                   )}
 
                   {paymentMethods
@@ -389,18 +387,16 @@ export default function CheckoutPage() {
                     {isProcessing ? (
                       <span className="flex items-center gap-3">
                         <CreditCard className="h-4 w-4 animate-pulse" />
-                        {t("checkout.processing") || "Processing..."}
+                        {t("processing") || "Processing..."}
                       </span>
                     ) : (
                       <span>
-                        {t("checkout.pay")}{" "}
-                        <span className="icon-saudi_riyal" />
-                        {total}
+                        {t("pay")} {price(total, locale)}
                       </span>
                     )}
                   </Button>
-                  <div className="flex items-center gap-1 text-xs text-gray-600">
-                    <LockIcon className="w-3 h-3" /> {t("checkout.securePay")}{" "}
+                  <div className="flex items-center gap-1 text-xs font-medium text-gray-600">
+                    <LockIcon className="w-3 h-3" /> {t("securePay")}{" "}
                     <img
                       src="/images/MF-logo.svg"
                       alt="My Fatoorah Logo"
